@@ -158,6 +158,12 @@ The brief includes:
 
 Checks installed DevFlow version, local runtime, config, document presence, Playwright Chromium readiness, and AI provider environment variables.
 
+For machine-readable diagnostics:
+
+```bash
+dev-flow doctor --json
+```
+
 ### `dev-flow tasks`
 
 Reads the project brief and implementation plan, then writes:

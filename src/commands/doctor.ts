@@ -3,15 +3,45 @@ import { loadConfig } from "../core/config.js";
 import { fileExists } from "../core/fs.js";
 import { getAiProviderStatus } from "../core/provider.js";
 import { formatCliVersion } from "../core/version.js";
-import { formatChromiumInstallHint, getChromiumRuntimeStatus } from "../core/visual.js";
+import { formatChromiumInstallHint, getChromiumRuntimeStatus, type ChromiumRuntimeStatus } from "../core/visual.js";
 
-export async function runDoctor(_flags: FlagMap): Promise<void> {
+interface DoctorCheck {
+  label: string;
+  ok: boolean;
+}
+
+interface DoctorReport {
+  version: string;
+  checks: DoctorCheck[];
+  aiProvider: ReturnType<typeof getAiProviderStatus>;
+  chromium: ChromiumRuntimeStatus;
+  messages: string[];
+}
+
+export async function runDoctor(flags: FlagMap): Promise<void> {
+  const report = await createDoctorReport();
+
+  if (flags.json === "true") {
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  for (const check of report.checks) {
+    console.log(`${check.ok ? "OK" : "--"} ${check.label}`);
+  }
+
+  for (const message of report.messages) {
+    console.log(message);
+  }
+}
+
+async function createDoctorReport(): Promise<DoctorReport> {
   const config = await loadConfig();
   const aiStatus = getAiProviderStatus();
   const aiLabel = formatAiStatusLabel(aiStatus);
   const chromiumStatus = await getChromiumRuntimeStatus();
   const version = await formatCliVersion();
-  const checks = [
+  const checks: DoctorCheck[] = ([
     [version, true],
     ["Node.js >= 20", isNodeAtLeast(20)],
     [".devflow/config.json", await fileExists(".devflow/config.json")],
@@ -20,23 +50,28 @@ export async function runDoctor(_flags: FlagMap): Promise<void> {
     [config.apiPath, await fileExists(config.apiPath)],
     ["Playwright Chromium", chromiumStatus.available],
     [aiLabel, aiStatus.ready]
-  ] as const;
+  ] as Array<[string, boolean]>).map(([label, ok]) => ({ label, ok }));
 
-  for (const [label, ok] of checks) {
-    console.log(`${ok ? "OK" : "--"} ${label}`);
-  }
-
+  const messages: string[] = [];
   if (aiStatus.mode === "fallback") {
-    console.log("AI provider is not configured; plan will use the local fallback.");
+    messages.push("AI provider is not configured; plan will use the local fallback.");
   } else if (aiStatus.mode === "fixture") {
-    console.log(`AI provider fixture configured: ${aiStatus.fixturePath}`);
+    messages.push(`AI provider fixture configured: ${aiStatus.fixturePath}`);
   } else {
-    console.log(`AI provider configured via ${aiStatus.apiKeyEnvName}; model ${aiStatus.model}.`);
+    messages.push(`AI provider configured via ${aiStatus.apiKeyEnvName}; model ${aiStatus.model}.`);
   }
 
   if (!chromiumStatus.available) {
-    console.log(formatChromiumInstallHint(chromiumStatus));
+    messages.push(formatChromiumInstallHint(chromiumStatus));
   }
+
+  return {
+    version,
+    checks,
+    aiProvider: aiStatus,
+    chromium: chromiumStatus,
+    messages
+  };
 }
 
 function formatAiStatusLabel(status: ReturnType<typeof getAiProviderStatus>): string {

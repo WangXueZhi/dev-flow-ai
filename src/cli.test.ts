@@ -29,3 +29,18 @@ test("dev-flow doctor prints the package version", () => {
   assert.equal(result.status, 0);
   assert.match(result.stdout, new RegExp(`OK dev-flow ${packageJson.version.replaceAll(".", "\\.")}`));
 });
+
+test("dev-flow doctor --json prints structured diagnostics", () => {
+  const result = spawnSync(process.execPath, [cliPath, "doctor", "--json"], { encoding: "utf8" });
+
+  assert.equal(result.status, 0);
+  const report = JSON.parse(result.stdout) as {
+    version: string;
+    checks: Array<{ label: string; ok: boolean }>;
+    aiProvider: { mode: string };
+  };
+
+  assert.equal(report.version, `dev-flow ${packageJson.version}`);
+  assert.ok(report.checks.some((check) => check.label === "Node.js >= 20"));
+  assert.ok(report.aiProvider.mode);
+});

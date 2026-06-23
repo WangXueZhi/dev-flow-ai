@@ -82,6 +82,7 @@ Inside a consumer project, check the local runtime and provider environment with
 
 ```bash
 dev-flow doctor
+dev-flow doctor --json
 ```
 
 ## 5. Propose Changes Before Applying Them
