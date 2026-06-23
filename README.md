@@ -236,6 +236,8 @@ Patch sets support `write`, `replace`, and guarded `delete` operations. Applied 
 
 Use `execute --validate --patch-set <path>` to check a reviewed or AI-generated patch set without changing source files, creating backups, or writing the execution log.
 
+The machine-readable patch-set JSON Schema lives at `schemas/patch-set.schema.json`; see [Patch Set Schema](docs/patch-set-schema.md).
+
 Patch-set validation keeps AI-generated changes reviewable: a patch set can include at most 50 operations, each write or replacement is capped at 500,000 bytes, and each replace search string is capped at 100,000 bytes. Delete operations still require safe relative paths and are included in apply backups.
 
 Each apply creates a backup manifest under `.devflow/artifacts/backups/`. If an apply fails after partial writes, DevFlow restores that backup automatically and writes `.devflow/artifacts/rollback-report.json`. Use `execute --rollback --backup <manifest>` to restore files from a backup manually.
@@ -408,6 +410,7 @@ Planned capabilities:
 - [Contributing](docs/contributing.md)
 - [Release Guide](docs/release.md)
 - [GitHub Action](docs/github-action.md)
+- [Patch Set Schema](docs/patch-set-schema.md)
 - [Changelog](CHANGELOG.md)
 - [Code Of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)

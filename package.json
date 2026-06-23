@@ -33,6 +33,7 @@
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
+    "schemas",
     "scripts/example-delivery-smoke.mjs",
     "scripts/smoke-github-install.mjs",
     "scripts/live-provider-smoke.mjs"

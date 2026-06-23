@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WangXueZhi/dev-flow-ai/schemas/patch-set.schema.json",
+  "title": "DevFlow PatchSet",
+  "description": "A validated, reviewable set of source changes for DevFlow execute --apply.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "taskId", "summary", "operations"],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "taskId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/writeOperation"
+          },
+          {
+            "$ref": "#/$defs/replaceOperation"
+          },
+          {
+            "$ref": "#/$defs/deleteOperation"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "^/"
+          },
+          {
+            "pattern": "(^|/)\\.\\.(/|$)"
+          },
+          {
+            "pattern": "^\\.git(/|$)"
+          },
+          {
+            "pattern": "^node_modules(/|$)"
+          }
+        ]
+      }
+    },
+    "writeOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "content"],
+      "properties": {
+        "type": {
+          "const": "write"
+        },
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 500000
+        },
+        "overwrite": {
+          "type": "boolean"
+        }
+      }
+    },
+    "replaceOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "search", "replace"],
+      "properties": {
+        "type": {
+          "const": "replace"
+        },
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "search": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100000
+        },
+        "replace": {
+          "type": "string",
+          "maxLength": 500000
+        },
+        "expectedReplacements": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "deleteOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path"],
+      "properties": {
+        "type": {
+          "const": "delete"
+        },
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "missingOk": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
