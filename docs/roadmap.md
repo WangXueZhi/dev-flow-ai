@@ -29,6 +29,7 @@
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.
 - Embedded screenshots in delivery reports when visual artifacts are available.
 - Local delivery status summary command backed by the delivery manifest.
+- CI gate exits for delivery readiness attention and failed verification.
 - Machine-readable delivery manifest for artifact status, readiness, verification, visual, source-change, screenshot, touched-file, backup, open-question, and delivery-risk summaries.
 - Published delivery manifest JSON schema for CI, editor, dashboard, and downstream-agent integrations.
 - Frontend delivery blueprint sections in implementation plans for routes, components, state, data fetching, styling, tests, and accessibility.

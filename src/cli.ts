@@ -79,7 +79,7 @@ Usage:
   dev-flow verify [--command <shell-command>] [--out <path>]
   dev-flow visual --url <preview-url> [--text <a,b>] [--viewport <name:widthxheight>] [--out <dir>]
   dev-flow report [--out <path>] [--manifest-out <path>] [--visual-report <path|none>]
-  dev-flow status [--manifest <path>] [--json]
+  dev-flow status [--manifest <path>] [--json] [--fail-on-attention] [--fail-on-failed-verification]
   dev-flow doctor [--json] [--no-source-context]
   dev-flow version
 

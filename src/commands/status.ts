@@ -15,13 +15,36 @@ export async function runStatus(flags: FlagMap): Promise<void> {
   }
 
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as DeliveryManifest;
+  const gateFailures = deliveryStatusGateFailures(manifest, flags);
 
   if (flags.json === "true") {
     console.log(JSON.stringify(manifest, null, 2));
+    failIfNeeded(gateFailures);
     return;
   }
 
   console.log(formatDeliveryStatus(manifest, manifestPath));
+  failIfNeeded(gateFailures);
+}
+
+function deliveryStatusGateFailures(manifest: DeliveryManifest, flags: FlagMap): string[] {
+  const failures: string[] = [];
+
+  if (flags["fail-on-attention"] === "true" && manifest.status.readiness !== "ready for review") {
+    failures.push(`readiness is ${manifest.status.readiness}`);
+  }
+
+  if (flags["fail-on-failed-verification"] === "true" && manifest.status.verification === "failed") {
+    failures.push("verification status is failed");
+  }
+
+  return failures;
+}
+
+function failIfNeeded(failures: string[]): void {
+  if (failures.length > 0) {
+    throw new CliError(`Delivery status gate failed: ${failures.join("; ")}.`);
+  }
 }
 
 function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string): string {

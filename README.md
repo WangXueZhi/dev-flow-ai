@@ -323,9 +323,13 @@ Reads `.devflow/artifacts/delivery-manifest.json` and prints a compact delivery 
 dev-flow status
 dev-flow status --json
 dev-flow status --manifest .devflow/artifacts/review/delivery-manifest.json
+dev-flow status --fail-on-attention
+dev-flow status --fail-on-failed-verification
 ```
 
 Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, artifact, risk, and open-question status without opening the Markdown report.
+
+Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code while still printing the status summary or JSON manifest.
 
 ### `dev-flow visual`
 

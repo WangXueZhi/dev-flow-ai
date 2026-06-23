@@ -56,6 +56,8 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] The published package includes `schemas/delivery-manifest.schema.json` so external tools can validate delivery manifests.
 - [ ] `dev-flow status` reads a delivery manifest and prints readiness, verification, visual, source-change, artifact, risk, and open-question summaries.
 - [ ] `dev-flow status --json` prints the raw delivery manifest JSON.
+- [ ] `dev-flow status --fail-on-attention` exits non-zero when delivery readiness is not `ready for review`.
+- [ ] `dev-flow status --fail-on-failed-verification` exits non-zero when manifest verification status is `failed`.
 - [ ] Delivery reports do not reuse older visual verification artifacts when the current `dev-flow deliver` run does not include `--preview-url`.
 - [ ] `dev-flow deliver` runs plan, tasks, dry-run execution, verification, optional visual checks, and report generation.
 - [ ] `dev-flow deliver --unit <id>` scopes the delivery dry-run proposal to one implementation unit.

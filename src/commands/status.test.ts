@@ -126,6 +126,35 @@ test("runStatus prints raw manifest JSON", async (t) => {
   assert.equal(parsed.counts.touchedFiles, 2);
 });
 
+test("runStatus can fail CI gates when readiness needs attention", async (t) => {
+  const workspace = createWorkspace(t);
+
+  await assert.rejects(() => captureStatusOutput(workspace, { "fail-on-attention": "true" }), (error) => {
+    assert.ok(error instanceof CliError);
+    assert.equal(error.exitCode, 1);
+    assert.match(error.message, /readiness is needs attention/);
+    return true;
+  });
+});
+
+test("runStatus can fail CI gates when verification failed", async (t) => {
+  const failedManifest: DeliveryManifest = {
+    ...manifest,
+    status: {
+      ...manifest.status,
+      verification: "failed"
+    }
+  };
+  const workspace = createWorkspace(t, failedManifest);
+
+  await assert.rejects(() => captureStatusOutput(workspace, { "fail-on-failed-verification": "true" }), (error) => {
+    assert.ok(error instanceof CliError);
+    assert.equal(error.exitCode, 1);
+    assert.match(error.message, /verification status is failed/);
+    return true;
+  });
+});
+
 test("runStatus reports a missing manifest", async (t) => {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-status-missing-"));
   const originalCwd = process.cwd();
@@ -144,7 +173,7 @@ test("runStatus reports a missing manifest", async (t) => {
   });
 });
 
-function createWorkspace(t: TestContext): string {
+function createWorkspace(t: TestContext, deliveryManifest: DeliveryManifest = manifest): string {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-status-"));
   const originalCwd = process.cwd();
 
@@ -156,7 +185,7 @@ function createWorkspace(t: TestContext): string {
   mkdirSync(join(workspace, ".devflow", "artifacts"), { recursive: true });
   writeFileSync(
     join(workspace, ".devflow", "artifacts", "delivery-manifest.json"),
-    `${JSON.stringify(manifest, null, 2)}\n`,
+    `${JSON.stringify(deliveryManifest, null, 2)}\n`,
     "utf8"
   );
 
