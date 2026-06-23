@@ -41,6 +41,11 @@ jobs:
       - name: Smoke test installed package
         run: npm run pack:smoke
 
+      - name: Smoke test GitHub install path
+        env:
+          DEVFLOW_GITHUB_SPEC: github:WangXueZhi/dev-flow-ai#${{ github.ref_name }}
+        run: npm run github:smoke
+
       - name: Smoke test example delivery
         run: npm run example:smoke
 

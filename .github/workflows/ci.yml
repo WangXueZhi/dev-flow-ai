@@ -34,6 +34,10 @@ jobs:
       - name: Smoke test installed package
         run: npm run pack:smoke
 
+      - name: Smoke test GitHub install path
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: npm run github:smoke
+
       - name: Smoke test example delivery
         run: npm run example:smoke
 

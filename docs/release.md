@@ -75,6 +75,7 @@ The workflow:
 - Runs `npm run check`.
 - Runs `npm run pack:dry-run`.
 - Runs `npm run pack:smoke`.
+- Runs `npm run github:smoke`.
 - Runs `npm run example:smoke`.
 - Runs optional `npm run smoke:live`.
 - Checks that the `NPM_TOKEN` repository secret is configured before publish.
