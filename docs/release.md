@@ -12,7 +12,7 @@ npx playwright install chromium
 npm run release:preflight
 ```
 
-`npm run release:preflight` runs the package checks, installed package smoke, GitHub install smoke, example delivery smoke, optional live provider smoke, and a local `.env`/`.tgz` residue check.
+`npm run release:preflight` runs the package checks, installed package smoke, GitHub install smoke, example delivery smoke, optional live provider smoke, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
 
 `npm run smoke:live` skips when no live provider key is configured. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`.
 
@@ -63,7 +63,7 @@ node ../../dist/cli.js deliver \
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.
 - Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release.
 - Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release.
-- Confirm no secrets or local `.env` files are included in the package.
+- Confirm no secrets or local `.env`/`.env.*` files, except `.env.example`, are included in the package.
 - Tag the release after CI passes.
 
 ## GitHub Release Workflow

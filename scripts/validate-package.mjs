@@ -47,12 +47,11 @@ const forbiddenPatterns = [
   /^examples\/react-vite-dashboard\/\.devflow\//,
   /^examples\/react-vite-dashboard\/dist\//,
   /^examples\/react-vite-dashboard\/node_modules\//,
-  /(^|\/)\.env$/,
   /\.tgz$/
 ];
 
 const missing = requiredFiles.filter((file) => !files.includes(file));
-const forbidden = files.filter((file) => forbiddenPatterns.some((pattern) => pattern.test(file)));
+const forbidden = files.filter(isForbiddenPackageFile);
 
 if (missing.length > 0 || forbidden.length > 0) {
   throw new Error(
@@ -90,6 +89,14 @@ function parseNpmPackJson(output) {
   }
 
   return parsed;
+}
+
+function isForbiddenPackageFile(file) {
+  return forbiddenPatterns.some((pattern) => pattern.test(file)) || file.split("/").some(isForbiddenEnvName);
+}
+
+function isForbiddenEnvName(name) {
+  return name === ".env" || (name.startsWith(".env.") && name !== ".env.example");
 }
 
 function formatBytes(value) {

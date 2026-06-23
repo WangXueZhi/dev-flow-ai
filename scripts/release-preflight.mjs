@@ -63,8 +63,12 @@ async function visit(dir, depth, results) {
       continue;
     }
 
-    if (entry.isFile() && (entry.name === ".env" || entry.name.endsWith(".tgz"))) {
+    if (entry.isFile() && isForbiddenLocalFile(entry.name)) {
       results.push(relative(rootDir, path));
     }
   }
+}
+
+function isForbiddenLocalFile(name) {
+  return name === ".env" || (name.startsWith(".env.") && name !== ".env.example") || name.endsWith(".tgz");
 }
