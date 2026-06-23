@@ -2,6 +2,7 @@ import type { FlagMap } from "../core/args.js";
 import { loadConfig } from "../core/config.js";
 import { fileExists } from "../core/fs.js";
 import { getAiProviderStatus } from "../core/provider.js";
+import { formatCliVersion } from "../core/version.js";
 import { formatChromiumInstallHint, getChromiumRuntimeStatus } from "../core/visual.js";
 
 export async function runDoctor(_flags: FlagMap): Promise<void> {
@@ -9,7 +10,9 @@ export async function runDoctor(_flags: FlagMap): Promise<void> {
   const aiStatus = getAiProviderStatus();
   const aiLabel = formatAiStatusLabel(aiStatus);
   const chromiumStatus = await getChromiumRuntimeStatus();
+  const version = await formatCliVersion();
   const checks = [
+    [version, true],
     ["Node.js >= 20", isNodeAtLeast(20)],
     [".devflow/config.json", await fileExists(".devflow/config.json")],
     [config.requirementsPath, await fileExists(config.requirementsPath)],

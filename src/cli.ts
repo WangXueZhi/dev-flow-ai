@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { readFile } from "node:fs/promises";
 import { runBrief } from "./commands/brief.js";
 import { runDeliver } from "./commands/deliver.js";
 import { runDoctor } from "./commands/doctor.js";
@@ -12,6 +11,7 @@ import { runVerify } from "./commands/verify.js";
 import { runVisual } from "./commands/visual.js";
 import { parseArgs } from "./core/args.js";
 import { CliError } from "./core/errors.js";
+import { formatCliVersion } from "./core/version.js";
 
 async function main(argv: string[]): Promise<void> {
   const parsed = parseArgs(argv);
@@ -100,10 +100,7 @@ Environment:
 }
 
 async function printVersion(): Promise<void> {
-  const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")) as {
-    version?: string;
-  };
-  console.log(`dev-flow ${packageJson.version ?? "unknown"}`);
+  console.log(await formatCliVersion());
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {

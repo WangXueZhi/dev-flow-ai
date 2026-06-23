@@ -22,7 +22,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow deliver --unit <id>`: scopes the delivery dry-run proposal to one implementation unit.
 - `dev-flow deliver --apply --yes`: runs dry-run proposals first, then approved source-changing execution before verification.
 - `dev-flow deliver --apply --yes --unit <id>`: runs approved source-changing execution for one implementation unit.
-- `dev-flow doctor`: prints readiness checks with simple status prefixes.
+- `dev-flow doctor`: prints installed version and readiness checks with simple status prefixes.
 - `dev-flow --help`: shows command usage, flags, and AI environment variables.
 - `dev-flow --version`: prints the installed CLI version.
 

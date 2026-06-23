@@ -156,7 +156,7 @@ The brief includes:
 
 ### `dev-flow doctor`
 
-Checks local runtime, config, document presence, Playwright Chromium readiness, and AI provider environment variables.
+Checks installed DevFlow version, local runtime, config, document presence, Playwright Chromium readiness, and AI provider environment variables.
 
 ### `dev-flow tasks`
 
