@@ -2,6 +2,8 @@
 
 This example is a small frontend target for DevFlow. It contains product documents plus a working React/Vite dashboard that can be planned, tasked, verified, and reported through the DevFlow CLI.
 
+From the repository root, run `npm run example:smoke` to exercise this example in a disposable copy under `.devflow/example-smoke/`.
+
 ## Source Documents
 
 - `docs/requirements.md`

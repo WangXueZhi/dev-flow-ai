@@ -23,6 +23,14 @@ npm run build
 node dist/cli.js help
 ```
 
+To see the full MVP loop before trying DevFlow in your own repository:
+
+```bash
+npm run example:smoke
+```
+
+The script uses a disposable copy of `examples/react-vite-dashboard`, runs non-destructive delivery, replays the fixture-backed AI patch path, applies the patch, and verifies that delivery artifacts were generated.
+
 ## 2. Initialize Project Context
 
 From the frontend repository you want DevFlow to inspect:
@@ -172,12 +180,14 @@ The final report is written to `.devflow/artifacts/delivery-report.md`.
 Use the composite GitHub Action:
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   with:
     requirements: docs/requirements.md
     ui: docs/ui.md
     api: docs/api.md
 ```
+
+Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
 The action defaults to non-destructive delivery. Source-changing CI delivery requires both `apply: "true"` and `confirm-apply: "true"`.
 

@@ -11,6 +11,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the bug report template to collect sanitized `dev-flow doctor --json` diagnostics.
 - Added optional artifact uploads to the composite GitHub Action.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
+- Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.

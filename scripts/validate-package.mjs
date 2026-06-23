@@ -33,6 +33,7 @@ const requiredFiles = [
   "examples/react-vite-dashboard/fixtures/patch-set-ai-applied.json",
   "examples/react-vite-dashboard/src/App.jsx",
   "package.json",
+  "scripts/example-delivery-smoke.mjs",
   "scripts/live-provider-smoke.mjs"
 ];
 

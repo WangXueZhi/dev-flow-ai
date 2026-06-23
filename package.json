@@ -33,6 +33,7 @@
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
+    "scripts/example-delivery-smoke.mjs",
     "scripts/live-provider-smoke.mjs"
   ],
   "scripts": {
@@ -41,6 +42,7 @@
     "check:action": "node scripts/validate-action.mjs",
     "check:package": "node scripts/validate-package.mjs",
     "dev": "tsx src/cli.ts",
+    "example:smoke": "node scripts/example-delivery-smoke.mjs",
     "pack:dry-run": "npm run check:package",
     "pack:smoke": "node scripts/smoke-pack.mjs",
     "smoke:live": "node scripts/live-provider-smoke.mjs",

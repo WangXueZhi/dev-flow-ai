@@ -51,6 +51,14 @@ node dist/cli.js report
 node dist/cli.js deliver
 ```
 
+To see the full MVP loop on a disposable copy of the included React/Vite example, run:
+
+```bash
+npm run example:smoke
+```
+
+The smoke script copies `examples/react-vite-dashboard` into `.devflow/example-smoke/`, builds it, runs non-destructive delivery, replays a fixture-backed AI patch set, applies that patch set, and verifies that a delivery report was generated.
+
 After `init`, edit these files:
 
 - `docs/requirements.md`
@@ -308,6 +316,7 @@ GitHub Actions runs the same core checks contributors should run before opening 
 npm run check
 npm run pack:dry-run
 npm run pack:smoke
+npm run example:smoke
 npm run smoke:live
 cd examples/react-vite-dashboard
 npm ci

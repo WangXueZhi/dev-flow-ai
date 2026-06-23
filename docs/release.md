@@ -12,6 +12,7 @@ npx playwright install chromium
 npm run check
 npm run pack:dry-run
 npm run pack:smoke
+npm run example:smoke
 npm run smoke:live
 ```
 
@@ -72,6 +73,7 @@ The workflow:
 - Runs `npm run check`.
 - Runs `npm run pack:dry-run`.
 - Runs `npm run pack:smoke`.
+- Runs `npm run example:smoke`.
 - Runs optional `npm run smoke:live`.
 - Checks that the `NPM_TOKEN` repository secret is configured before publish.
 - Publishes with `npm publish --provenance --access public`.
