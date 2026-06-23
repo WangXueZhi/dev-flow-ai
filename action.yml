@@ -3,9 +3,9 @@ description: Run DevFlow in a frontend repository to turn requirements, UI notes
 
 inputs:
   version:
-    description: npm version or dist-tag of the dev-flow-ai package to run.
+    description: npm version, dist-tag, or package spec of the dev-flow-ai package to run.
     required: false
-    default: latest
+    default: github:WangXueZhi/dev-flow-ai#main
   working-directory:
     description: Repository subdirectory where DevFlow should run.
     required: false
@@ -131,7 +131,13 @@ runs:
           args+=(--apply --yes)
         fi
 
-        npx --yes --package "dev-flow-ai@$DEVFLOW_VERSION" dev-flow "${args[@]}"
+        package_spec="$DEVFLOW_VERSION"
+        case "$package_spec" in
+          dev-flow-ai|dev-flow-ai@*|*:*|*/*|*.tgz) ;;
+          *) package_spec="dev-flow-ai@$package_spec" ;;
+        esac
+
+        npx --yes --package "$package_spec" dev-flow "${args[@]}"
 
     - name: Upload DevFlow artifacts
       if: ${{ inputs.upload-artifacts == 'true' }}

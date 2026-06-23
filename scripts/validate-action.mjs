@@ -11,7 +11,11 @@ const requiredSnippets = [
   "using: composite",
   "working-directory: ${{ inputs.working-directory }}",
   "DevFlow source-changing delivery requires confirm-apply=true.",
-  "npx --yes --package \"dev-flow-ai@$DEVFLOW_VERSION\" dev-flow \"${args[@]}\"",
+  "default: github:WangXueZhi/dev-flow-ai#main",
+  "case \"$package_spec\" in",
+  "dev-flow-ai|dev-flow-ai@*|*:*|*/*|*.tgz) ;;",
+  "package_spec=\"dev-flow-ai@$package_spec\"",
+  "npx --yes --package \"$package_spec\" dev-flow \"${args[@]}\"",
   "uses: actions/upload-artifact@v4",
   "if: ${{ inputs.upload-artifacts == 'true' }}"
 ];

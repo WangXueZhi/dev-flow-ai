@@ -23,13 +23,15 @@ jobs:
         with:
           node-version: "24"
 
-      - uses: WangXueZhi/dev-flow-ai@v0.1.0
+      - uses: WangXueZhi/dev-flow-ai@main
         with:
           requirements: docs/requirements.md
           ui: docs/ui.md
           api: docs/api.md
           upload-artifacts: "true"
 ```
+
+Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
 ## Visual Checks
 
@@ -42,7 +44,7 @@ Start the app preview before invoking DevFlow, then pass the preview URL and tex
     npm run dev -- --host 127.0.0.1 > /tmp/devflow-preview.log 2>&1 &
     echo $! > /tmp/devflow-preview.pid
 
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   with:
     install-chromium: "true"
     preview-url: http://127.0.0.1:5173
@@ -54,7 +56,7 @@ Start the app preview before invoking DevFlow, then pass the preview URL and tex
 Set `upload-artifacts: "true"` to upload `.devflow/artifacts` from the selected working directory after delivery:
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   with:
     upload-artifacts: "true"
     artifact-name: devflow-artifacts
@@ -67,7 +69,7 @@ Use `artifacts-path` when your project writes artifacts somewhere other than `.d
 Pass provider configuration through environment variables or GitHub secrets. The action does not require secrets for fallback planning and dry-run proposals.
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   env:
     DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
     DEVFLOW_AI_BASE_URL: https://api.openai.com/v1
@@ -77,7 +79,7 @@ Pass provider configuration through environment variables or GitHub secrets. The
 For deterministic CI, use a fixture:
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   env:
     DEVFLOW_AI_FIXTURE_PATH: fixtures/patch-set.json
 ```
@@ -87,7 +89,7 @@ For deterministic CI, use a fixture:
 Source-changing delivery must be explicit:
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   with:
     apply: "true"
     confirm-apply: "true"
@@ -98,7 +100,7 @@ Without `confirm-apply: "true"`, the action exits before running `dev-flow deliv
 
 ## Inputs
 
-- `version`: npm version or dist-tag of `dev-flow-ai` to run. Default: `latest`.
+- `version`: npm version, dist-tag, or package spec of `dev-flow-ai` to run. Default: `github:WangXueZhi/dev-flow-ai#main` until the first npm release is published.
 - `working-directory`: repository subdirectory where DevFlow should run. Default: `.`.
 - `requirements`: requirements document path. Default: `docs/requirements.md`.
 - `ui`: UI notes path. Default: `docs/ui.md`.

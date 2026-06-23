@@ -287,12 +287,14 @@ npx playwright install chromium
 DevFlow includes a composite GitHub Action for CI usage:
 
 ```yaml
-- uses: WangXueZhi/dev-flow-ai@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@main
   with:
     requirements: docs/requirements.md
     ui: docs/ui.md
     api: docs/api.md
 ```
+
+Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
 The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`.
 
