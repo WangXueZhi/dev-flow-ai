@@ -26,6 +26,7 @@ cd examples/react-vite-dashboard
 npm ci
 npm audit --audit-level=low
 npm run build
+node ../../dist/cli.js execute --validate --patch-set fixtures/patch-set-ai-applied.json
 DEVFLOW_AI_FIXTURE_PATH=fixtures/patch-set-ai-applied.json \
   node ../../dist/cli.js deliver \
   --apply \
@@ -40,6 +41,7 @@ With a preview server running, verify the delivery flow:
 
 ```bash
 npm run dev -- --host 127.0.0.1
+node ../../dist/cli.js execute --validate --patch-set fixtures/patch-set-ai-applied.json
 node ../../dist/cli.js deliver \
   --apply \
   --yes \

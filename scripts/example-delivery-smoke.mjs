@@ -10,6 +10,7 @@ const sourceExampleDir = join(rootDir, "examples", "react-vite-dashboard");
 const smokeRoot = join(rootDir, ".devflow", "example-smoke");
 const smokeExampleDir = join(smokeRoot, "react-vite-dashboard");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const fixturePatchSetPath = "fixtures/patch-set-ai-applied.json";
 
 await ensureCli();
 await rm(smokeExampleDir, { recursive: true, force: true });
@@ -44,6 +45,18 @@ run(
   process.execPath,
   [
     cliPath,
+    "execute",
+    "--validate",
+    "--patch-set",
+    fixturePatchSetPath
+  ],
+  smokeExampleDir
+);
+
+run(
+  process.execPath,
+  [
+    cliPath,
     "deliver",
     "--apply",
     "--yes",
@@ -58,7 +71,7 @@ run(
   ],
   smokeExampleDir,
   {
-    DEVFLOW_AI_FIXTURE_PATH: "fixtures/patch-set-ai-applied.json"
+    DEVFLOW_AI_FIXTURE_PATH: fixturePatchSetPath
   }
 );
 
@@ -75,7 +88,7 @@ console.log(
   [
     "Example delivery smoke passed.",
     `Workspace: ${smokeExampleDir}`,
-    "Verified: build, non-destructive delivery, fixture-backed apply, delivery report."
+    "Verified: build, non-destructive delivery, patch-set validation, fixture-backed apply, delivery report."
   ].join("\n")
 );
 

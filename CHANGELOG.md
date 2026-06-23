@@ -16,6 +16,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `--no-source-context`, `DEVFLOW_SOURCE_CONTEXT=none`, and a GitHub Action `source-context` input to omit sampled repository source snippets from AI prompts.
 - Added source-context diagnostics to `dev-flow doctor` and `dev-flow doctor --json`.
 - Added `dev-flow execute --validate --patch-set <path>` for non-mutating patch-set validation.
+- Added patch-set validation to the fixture-backed example smoke flow.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.

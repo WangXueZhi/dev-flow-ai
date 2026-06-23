@@ -62,6 +62,8 @@ node ../../dist/cli.js deliver --preview-url http://127.0.0.1:5173 --visual-text
 To apply a reviewed patch set during delivery, keep the confirmation explicit:
 
 ```bash
+node ../../dist/cli.js execute --validate --patch-set fixtures/patch-set-ai-applied.json
+
 node ../../dist/cli.js deliver \
   --apply \
   --yes \
