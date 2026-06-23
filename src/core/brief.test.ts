@@ -9,7 +9,8 @@ import {
   extractApiContracts,
   extractApiDataModels,
   extractApiErrorCases,
-  extractDesignAssets
+  extractDesignAssets,
+  extractUiStateChecklist
 } from "./brief.js";
 import type { ProjectContext } from "./context.js";
 import type { StackProfile } from "./stack.js";
@@ -67,6 +68,13 @@ test("createProjectBrief extracts document signals and stack context", () => {
       exists: false
     }
   ]);
+  assert.deepEqual(brief.uiStateChecklist, [
+    {
+      kind: "responsive",
+      sourceLine: 5,
+      summary: "Desktop and mobile responsive table."
+    }
+  ]);
   assert.match(brief.openQuestions.join("\n"), /UI design asset was referenced but not found/);
   assert.deepEqual(brief.apiContracts, [
     {
@@ -96,6 +104,86 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.constraints, ["Must support offline fallback data."]);
   assert.deepEqual(brief.acceptanceCriteria, ["Filters persist after refresh."]);
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
+});
+
+test("extractUiStateChecklist captures structured UI states and keyword-driven checks", () => {
+  assert.deepEqual(
+    extractUiStateChecklist(
+      [
+        "# UI Notes",
+        "",
+        "## Screens",
+        "- Checkout dashboard with order summary.",
+        "",
+        "## Components",
+        "- Status pill with icon and label.",
+        "",
+        "## States",
+        "- Loading: show skeleton rows.",
+        "- Empty: show a helpful recovery message.",
+        "- Error: show retry action.",
+        "",
+        "## Interactions",
+        "- Search filters update the table.",
+        "",
+        "## Responsive Behavior",
+        "- Mobile stacks filters above results.",
+        "",
+        "## Accessibility",
+        "- Keyboard focus stays visible on primary actions.",
+        "",
+        "## Misc",
+        "- Disabled submit button explains missing fields."
+      ].join("\n")
+    ),
+    [
+      {
+        kind: "screen",
+        sourceLine: 4,
+        summary: "Checkout dashboard with order summary."
+      },
+      {
+        kind: "component",
+        sourceLine: 7,
+        summary: "Status pill with icon and label."
+      },
+      {
+        kind: "state",
+        sourceLine: 10,
+        summary: "Loading: show skeleton rows."
+      },
+      {
+        kind: "state",
+        sourceLine: 11,
+        summary: "Empty: show a helpful recovery message."
+      },
+      {
+        kind: "state",
+        sourceLine: 12,
+        summary: "Error: show retry action."
+      },
+      {
+        kind: "interaction",
+        sourceLine: 15,
+        summary: "Search filters update the table."
+      },
+      {
+        kind: "responsive",
+        sourceLine: 18,
+        summary: "Mobile stacks filters above results."
+      },
+      {
+        kind: "accessibility",
+        sourceLine: 21,
+        summary: "Keyboard focus stays visible on primary actions."
+      },
+      {
+        kind: "interaction",
+        sourceLine: 24,
+        summary: "Disabled submit button explains missing fields."
+      }
+    ]
+  );
 });
 
 test("extractApiErrorCases captures error sections and failure keywords", () => {

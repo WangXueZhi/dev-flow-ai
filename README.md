@@ -169,6 +169,7 @@ The brief includes:
 - Extracted requirement, UI, and API signals.
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
+- UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
 - API endpoint contracts extracted from HTTP method/path references.
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
@@ -198,7 +199,7 @@ Reads the project brief and implementation plan, then writes:
 
 The task plan splits delivery into discovery, planning, implementation, verification, and delivery phases.
 
-It also includes implementation units derived from user stories, requirement constraints, requirement signals, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
+It also includes implementation units derived from user stories, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
 
 ### `dev-flow execute`
 
@@ -291,7 +292,7 @@ dev-flow verify --command "npm run check"
 
 Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md`.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks, delivery readiness, open questions, and next actions.
 
 Use `--visual-report none` when generating a report that should not include an existing visual artifact from an earlier run:
 
@@ -368,6 +369,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - OpenAPI JSON/YAML `paths`, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
 - Stack detection for package manager, framework, build, styling, testing, scripts, and source layout.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
+- UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.
 - Generated implementation plan with phases, risks, and verification checklist.
@@ -381,7 +383,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, and optional text checks for preview URLs.
-- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.
 - Clean extension points for future coding agents.

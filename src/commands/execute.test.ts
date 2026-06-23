@@ -266,6 +266,7 @@ function writeProject(workspace: string): void {
       api: []
     },
     designAssets: [],
+    uiStateChecklist: [],
     apiContracts: [],
     apiDataModels: [],
     apiErrorCases: [],

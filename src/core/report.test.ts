@@ -49,6 +49,18 @@ const brief: ProjectBrief = {
       }
     }
   ],
+  uiStateChecklist: [
+    {
+      kind: "state",
+      sourceLine: 10,
+      summary: "Loading state uses skeleton table rows."
+    },
+    {
+      kind: "responsive",
+      sourceLine: 14,
+      summary: "Tablet layout keeps the KPI strip above the table."
+    }
+  ],
   apiContracts: [
     {
       method: "GET",
@@ -190,6 +202,9 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Known gap: 1 open question\(s\) remain/);
   assert.match(report, /Assumption: Delivery-level evidence applies to this criterion/);
   assert.match(report, /Manual QA: Exercise the user path for "Dashboard renders release health\." in the implemented UI/);
+  assert.match(report, /UI State Checklist/);
+  assert.match(report, /\[state\] Line 10: Loading state uses skeleton table rows/);
+  assert.match(report, /\[responsive\] Line 14: Tablet layout keeps the KPI strip above the table/);
   assert.match(report, /Design Assets/);
   assert.match(report, /assets\/dashboard\.svg/);
   assert.match(report, /Dimensions: 960x640/);

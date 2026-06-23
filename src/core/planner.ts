@@ -70,6 +70,8 @@ ${brief ? formatRequirementDetailsSection(brief) : ""}
 
 ${brief ? formatDesignAssetsSection(brief) : ""}
 
+${brief ? formatUiStateChecklistSection(brief) : ""}
+
 ${brief ? formatApiContractsSection(brief) : ""}
 
 ${brief ? formatApiDataModelsSection(brief) : ""}
@@ -247,6 +249,16 @@ function formatDesignAssetMetadata(metadata: ProjectBrief["designAssets"][number
     metadata.colors?.length ? `Colors: ${metadata.colors.join(", ")}` : undefined,
     metadata.textSnippets?.length ? `Text snippets: ${metadata.textSnippets.join("; ")}` : undefined
   ].filter((value): value is string => Boolean(value));
+}
+
+function formatUiStateChecklistSection(brief: ProjectBrief): string {
+  const items = brief.uiStateChecklist ?? [];
+
+  if (items.length === 0) {
+    return "## UI State Checklist\n\n- No UI state checklist items were extracted from the UI notes.\n";
+  }
+
+  return `## UI State Checklist\n\n${items.map((item) => `- [${item.kind}] Line ${item.sourceLine}: ${item.summary}`).join("\n")}\n`;
 }
 
 function formatApiContractsSection(brief: ProjectBrief): string {

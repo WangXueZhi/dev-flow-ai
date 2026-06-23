@@ -70,6 +70,10 @@ ${brief ? formatAcceptanceCriteria(brief) : "- Project brief was not available."
 
 ${brief ? formatAcceptanceEvidence(input) : "- Project brief was not available."}
 
+## UI State Checklist
+
+${brief ? formatUiStateChecklist(brief) : "- Project brief was not available."}
+
 ## Design Assets
 
 ${brief ? formatDesignAssets(brief) : "- Project brief was not available."}
@@ -359,6 +363,18 @@ function formatStack(brief: ProjectBrief): string {
   ].filter((line): line is string => Boolean(line));
 
   return lines.length ? lines.map((line) => `- ${line}`).join("\n") : "- No stack signals recorded.";
+}
+
+function formatUiStateChecklist(brief: ProjectBrief): string {
+  const items = brief.uiStateChecklist ?? [];
+
+  if (items.length === 0) {
+    return "- No UI state checklist items were extracted from the UI notes.";
+  }
+
+  return items
+    .map((item) => `- [${item.kind}] Line ${item.sourceLine}: ${item.summary}`)
+    .join("\n");
 }
 
 function formatDesignAssets(brief: ProjectBrief): string {

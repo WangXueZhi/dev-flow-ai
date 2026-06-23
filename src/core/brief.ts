@@ -25,6 +25,14 @@ export interface DesignAssetMetadata {
   textSnippets?: string[];
 }
 
+export type UiStateChecklistKind = "screen" | "component" | "state" | "interaction" | "responsive" | "accessibility";
+
+export interface UiStateChecklistItem {
+  kind: UiStateChecklistKind;
+  sourceLine: number;
+  summary: string;
+}
+
 export interface ApiContract {
   method: string;
   path: string;
@@ -68,6 +76,7 @@ export interface ProjectBrief {
     api: string[];
   };
   designAssets: DesignAsset[];
+  uiStateChecklist: UiStateChecklistItem[];
   apiContracts: ApiContract[];
   apiDataModels: ApiDataModel[];
   apiErrorCases: ApiErrorCase[];
@@ -103,6 +112,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
       api: extractMarkdownSignals(context.api)
     },
     designAssets: extractDesignAssets(context.ui, context.uiPath),
+    uiStateChecklist: extractUiStateChecklist(context.ui),
     apiContracts: extractApiContracts(context.api),
     apiDataModels: apiDataModelResult.models,
     apiErrorCases: extractApiErrorCases(context.api),
@@ -132,6 +142,58 @@ export function extractRequirementConstraints(requirementsMarkdown: string): str
     /\b(constraints?|technical constraints?|product constraints?|accessibility requirements?|performance|browser requirements?)\b/i,
     12
   );
+}
+
+export function extractUiStateChecklist(uiMarkdown: string, limit = 24): UiStateChecklistItem[] {
+  const items: UiStateChecklistItem[] = [];
+  const seen = new Set<string>();
+  const lines = uiMarkdown.split(/\r?\n/);
+  let currentKind: UiStateChecklistKind | undefined;
+  let inFence = false;
+
+  for (const [index, line] of lines.entries()) {
+    const trimmed = line.trim();
+
+    if (/^```/.test(trimmed)) {
+      inFence = !inFence;
+      continue;
+    }
+
+    if (inFence) {
+      continue;
+    }
+
+    const heading = /^#{1,6}\s+(.+)$/.exec(trimmed);
+
+    if (heading) {
+      currentKind = classifyUiChecklistHeading(heading[1] ?? "");
+      continue;
+    }
+
+    const summary = normalizeMarkdownListItem(trimmed);
+
+    if (!summary || isPlaceholderRequirementItem(summary)) {
+      continue;
+    }
+
+    const kind = currentKind ?? classifyUiChecklistKeyword(summary);
+
+    if (!kind) {
+      continue;
+    }
+
+    addUiStateChecklistItem(items, seen, {
+      kind,
+      sourceLine: index + 1,
+      summary: summary.replace(/`/g, "")
+    });
+
+    if (items.length >= limit) {
+      break;
+    }
+  }
+
+  return items;
 }
 
 export function extractApiContracts(apiMarkdown: string): ApiContract[] {
@@ -715,6 +777,69 @@ function normalizeMarkdownListItem(line: string): string | undefined {
     .trim();
 
   return item === line ? undefined : item;
+}
+
+function classifyUiChecklistHeading(heading: string): UiStateChecklistKind | undefined {
+  if (/\b(screens?|routes?|views?)\b/i.test(heading)) {
+    return "screen";
+  }
+
+  if (/\bcomponents?\b/i.test(heading)) {
+    return "component";
+  }
+
+  if (/\b(states?|status|statuses|visual states?)\b/i.test(heading)) {
+    return "state";
+  }
+
+  if (/\b(responsive|breakpoints?|viewports?|mobile|tablet|desktop)\b/i.test(heading)) {
+    return "responsive";
+  }
+
+  if (/\b(interactions?|behaviors?|controls?|actions?)\b/i.test(heading)) {
+    return "interaction";
+  }
+
+  if (/\b(accessibility|a11y|keyboard|focus|aria)\b/i.test(heading)) {
+    return "accessibility";
+  }
+
+  return undefined;
+}
+
+function classifyUiChecklistKeyword(summary: string): UiStateChecklistKind | undefined {
+  if (/\b(responsive|desktop|tablet|mobile|breakpoint|viewport|stack|single-column|two-column)\b/i.test(summary)) {
+    return "responsive";
+  }
+
+  if (/\b(accessibility|a11y|keyboard|focus|aria|screen reader|semantic|label)\b/i.test(summary)) {
+    return "accessibility";
+  }
+
+  if (/\b(hover|active|disabled|selected|checked|expanded|collapsed|drag|drop|click|tap|search|filter|sort|submit|cancel|save|retry|refresh|navigate|open|close)\b/i.test(summary)) {
+    return "interaction";
+  }
+
+  if (/\b(loading|empty|error|success|skeleton|toast|modal|drawer|healthy|warning|blocked|in progress|pending|failed|offline|stale|unavailable)\b/i.test(summary)) {
+    return "state";
+  }
+
+  return undefined;
+}
+
+function addUiStateChecklistItem(
+  items: UiStateChecklistItem[],
+  seen: Set<string>,
+  item: UiStateChecklistItem
+): void {
+  const key = `${item.kind}:${item.summary.toLowerCase()}`;
+
+  if (seen.has(key)) {
+    return;
+  }
+
+  seen.add(key);
+  items.push(item);
 }
 
 function isPlaceholderRequirementItem(item: string): boolean {

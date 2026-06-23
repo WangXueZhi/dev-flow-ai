@@ -13,7 +13,7 @@ export interface TaskPlan {
 
 export interface ImplementationUnit {
   id: string;
-  kind: "requirement" | "constraint" | "ui" | "design-asset" | "api-endpoint" | "api-model" | "api-error" | "api-auth";
+  kind: "requirement" | "constraint" | "ui" | "ui-state" | "design-asset" | "api-endpoint" | "api-model" | "api-error" | "api-auth";
   title: string;
   source: string;
   details: string[];
@@ -212,6 +212,19 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
       title: signal,
       source: brief.sourceDocuments.uiPath,
       details: ["Map this UI signal to components, responsive behavior, and visual states."]
+    });
+  }
+
+  for (const item of brief.uiStateChecklist ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "ui-state",
+      title: item.summary,
+      source: `${brief.sourceDocuments.uiPath}:${item.sourceLine}`,
+      details: [
+        `Kind: ${item.kind}`,
+        "Map this UI checklist item to component behavior, visual state, responsive handling, and verification evidence."
+      ]
     });
   }
 

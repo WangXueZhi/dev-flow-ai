@@ -51,6 +51,18 @@ const brief: ProjectBrief = {
       }
     }
   ],
+  uiStateChecklist: [
+    {
+      kind: "state",
+      sourceLine: 12,
+      summary: "Empty state shows a helpful recovery message."
+    },
+    {
+      kind: "responsive",
+      sourceLine: 16,
+      summary: "Tablet layout keeps filters above the table."
+    }
+  ],
   apiContracts: [
     {
       method: "GET",
@@ -100,6 +112,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-error" && unit.title.includes("unavailable")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-auth" && unit.title.includes("Bearer")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "design-asset"));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "ui-state" && unit.title.includes("Empty state")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "requirement" && unit.title.includes("filter orders")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "constraint" && unit.title.includes("existing table")));
   assert.equal(taskPlan.implementationUnits.filter((unit) => unit.title === "Use existing table components.").length, 1);
@@ -121,6 +134,8 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /Dimensions: 960x640/);
   assert.match(markdown, /ViewBox: 0 0 960 640/);
   assert.match(markdown, /Text snippets: Orders; Status filter; Empty state/);
+  assert.match(markdown, /\[ui-state\] Empty state shows a helpful recovery message/);
+  assert.match(markdown, /Kind: responsive/);
   assert.match(markdown, /Use existing table components/);
   assert.match(markdown, /T03-code-implementation/);
   assert.match(markdown, /Orders can be filtered by status/);

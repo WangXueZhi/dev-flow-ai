@@ -32,6 +32,7 @@ const brief: ProjectBrief = {
     api: []
   },
   designAssets: [],
+  uiStateChecklist: [],
   apiContracts: [],
   apiDataModels: [],
   apiErrorCases: [],

@@ -13,6 +13,7 @@
 - OpenAPI JSON/YAML path, component schema, request/response schema, error response, and security extraction.
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
 - Basic repository stack detection.
+- UI state checklist generation from design notes.
 - Task plan generation.
 - Dry-run patch proposal generation.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
@@ -50,7 +51,6 @@
 - Expand screenshot capture for local preview URLs beyond the default desktop/tablet set.
 - Deeper responsive viewport checks.
 - Basic overlap detection and richer screenshot heuristics beyond overflow checks.
-- UI state checklist generation from design notes.
 - Multimodal interpretation of referenced UI screenshots, wireframes, and design exports beyond lightweight image metadata.
 
 ## Milestone 4: Delivery Report
