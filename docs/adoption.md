@@ -80,6 +80,8 @@ These artifacts are meant for humans and AI coding agents. Review them before as
 
 The implementation plan includes a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections. Use those sections as a review checklist before source-changing execution.
 
+If an AI provider or fixture accidentally returns patch-set JSON during planning, DevFlow falls back to the local planner rather than writing JSON into `implementation-plan.md`. If a provider plan omits the blueprint, DevFlow appends a generated blueprint so reviewers still get the same planning checklist.
+
 ## 4. Add An AI Provider When Ready
 
 DevFlow works without paid credentials by using deterministic fallback output. For richer planning and patch proposals, configure an OpenAI-compatible provider:

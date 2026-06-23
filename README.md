@@ -157,6 +157,8 @@ Reads the configured input documents, writes `.devflow/artifacts/project-brief.j
 
 The plan includes a `Frontend Delivery Blueprint` with explicit sections for routes and navigation, components, state and interaction, data and API integration, styling and responsive rules, test planning, and accessibility checks.
 
+When an AI provider returns content that looks like a patch-set JSON response in the planner slot, DevFlow falls back to the local planner so `.devflow/artifacts/implementation-plan.md` remains a usable plan. Provider plans that omit the blueprint keep their AI-authored content and receive a generated blueprint appendix.
+
 Useful flags:
 
 ```bash
@@ -385,6 +387,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.
+- Planner guardrails that keep patch-set JSON out of implementation-plan artifacts and add missing frontend blueprint sections to provider plans.
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
 - Generated task plan for implementation phases and structured implementation units.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.

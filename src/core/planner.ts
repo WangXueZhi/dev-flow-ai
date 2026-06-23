@@ -11,7 +11,9 @@ export async function createImplementationPlan(
   const prompt = buildPlannerPrompt(context, brief);
 
   if (provider) {
-    return provider.completePlan(context, prompt);
+    const providerPlan = await provider.completePlan(context, prompt);
+
+    return normalizeProviderPlan(providerPlan, context, brief);
   }
 
   return createFallbackPlan(context, brief);
@@ -172,6 +174,24 @@ ${brief?.recommendedVerification.length ? `## Recommended Commands\n\n${brief.re
 
 ${formatDeliveryRisks(brief)}
 `;
+}
+
+function normalizeProviderPlan(plan: string, context: ProjectContext, brief?: ProjectBrief): string {
+  const trimmed = plan.trim();
+
+  if (!trimmed || looksLikePatchSetJson(trimmed)) {
+    return createFallbackPlan(context, brief);
+  }
+
+  if (hasFrontendDeliveryBlueprint(trimmed)) {
+    return `${trimmed}\n`;
+  }
+
+  const requirementSignals = brief?.signals.requirements ?? extractMarkdownSignals(context.requirements);
+  const uiSignals = brief?.signals.ui ?? extractMarkdownSignals(context.ui);
+  const apiSignals = brief?.signals.api ?? extractMarkdownSignals(context.api);
+
+  return `${trimmed}\n\n${formatFrontendDeliveryBlueprintSection(brief, requirementSignals, uiSignals, apiSignals)}`;
 }
 
 function formatSignals(signals: string[]): string {
@@ -466,6 +486,36 @@ function uiChecklistItems(
 
 function formatPlanBullets(items: string[], emptyMessage: string): string {
   return items.length ? items.map((item) => `- ${item}`).join("\n") : `- ${emptyMessage}`;
+}
+
+function hasFrontendDeliveryBlueprint(plan: string): boolean {
+  return [
+    "## Frontend Delivery Blueprint",
+    "### Routes And Navigation",
+    "### Components",
+    "### State And Interaction",
+    "### Data And API Integration",
+    "### Styling And Responsive Rules",
+    "### Test Plan",
+    "### Accessibility Checks"
+  ].every((heading) => plan.includes(heading));
+}
+
+function looksLikePatchSetJson(text: string): boolean {
+  const fencedJson = /```(?:json)?\s*([\s\S]*?)```/.exec(text);
+  const candidate = fencedJson?.[1] ?? text;
+
+  try {
+    const parsed = JSON.parse(candidate) as {
+      version?: unknown;
+      taskId?: unknown;
+      operations?: unknown;
+    };
+
+    return parsed.version === 1 && typeof parsed.taskId === "string" && Array.isArray(parsed.operations);
+  } catch {
+    return false;
+  }
 }
 
 function formatDeliveryRisks(brief: ProjectBrief | undefined): string {
