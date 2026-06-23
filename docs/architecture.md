@@ -32,7 +32,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Context: reads requirements, UI notes, and API docs.
 - Design Assets: extracts UI Markdown image references into the project brief, including local path existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
 - API Contracts: extracts recognizable HTTP method/path endpoint references, fenced JSON data model summaries, OpenAPI JSON/YAML structures, API error cases, and auth requirements into the project brief.
-- Stack Detector: detects package manager, runtime, frontend frameworks, build tools, styling, testing, scripts, source directories, and config files.
+- Stack Detector: detects package manager, runtime, frontend frameworks, build tools, styling, testing, scripts, source directories, and config files from dependency metadata plus common frontend conventions such as Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Brief: combines documents and repository signals into `.devflow/artifacts/project-brief.json`, including normalized route/view, component, data-need, and UI-state targets for downstream planning.
 - AI Provider: calls OpenAI-compatible chat completions for planning and dry-run execution when configured.
 - Planner: builds prompts from the project brief, invokes AI or deterministic fallback, and formats output with a frontend delivery blueprint for routes, components, state, data/API integration, styling/responsive rules, tests, and accessibility. Provider plans are guarded so patch-set JSON responses fall back to the local planner and provider plans missing the blueprint receive a generated blueprint appendix.

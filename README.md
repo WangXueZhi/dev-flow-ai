@@ -182,7 +182,7 @@ The brief includes:
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
 - Fenced OpenAPI JSON/YAML support for `paths`, component schemas, request/response schemas, error responses, and security schemes.
-- Detected package manager, runtime, frameworks, build tools, styling, testing, scripts, source directories, and config files.
+- Detected package manager, runtime, frameworks, build tools, styling, testing, scripts, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
 - Recommended verification commands.
 
@@ -401,7 +401,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - API data model summaries extracted from fenced `json` examples.
 - API error and auth requirement summaries extracted from API docs.
 - OpenAPI JSON/YAML `paths`, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
-- Stack detection for package manager, framework, build, styling, testing, scripts, and source layout.
+- Stack detection for package manager metadata, framework, build, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - Normalized frontend target extraction for routes/views, components, data needs, UI states, and acceptance criteria.

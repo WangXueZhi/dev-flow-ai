@@ -18,6 +18,7 @@ export interface StackProfile {
 interface PackageJson {
   type?: string;
   bin?: string | Record<string, string>;
+  packageManager?: string;
   scripts?: Record<string, string>;
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
@@ -36,11 +37,17 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   const scripts = packageJson.scripts ?? {};
   const hasDependency = (name: string) => Boolean(dependencies[name]);
 
-  const packageManager = await detectPackageManager(rootDir);
+  const packageManager = await detectPackageManager(rootDir, packageJson);
   const sourceDirectories = await detectDirectories(rootDir, [
     "app",
     "pages",
     "src",
+    "src/app",
+    "src/pages",
+    "src/routes",
+    "src/views",
+    "src/components",
+    "src/lib",
     "components",
     "lib",
     "test",
@@ -49,20 +56,56 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   ]);
   const configFiles = await detectFiles(rootDir, [
     "angular.json",
+    "astro.config.js",
     "astro.config.mjs",
+    "astro.config.ts",
+    "next.config.cjs",
     "next.config.js",
     "next.config.mjs",
+    "next.config.ts",
+    "nuxt.config.js",
+    "nuxt.config.mjs",
     "nuxt.config.ts",
+    "cypress.config.js",
+    "cypress.config.mjs",
+    "cypress.config.ts",
+    "jest.config.js",
+    "jest.config.mjs",
+    "jest.config.ts",
+    "playwright.config.js",
+    "playwright.config.mjs",
     "playwright.config.ts",
+    "postcss.config.cjs",
     "postcss.config.js",
+    "postcss.config.mjs",
     "svelte.config.js",
+    "svelte.config.mjs",
+    "tailwind.config.cjs",
     "tailwind.config.js",
+    "tailwind.config.mjs",
     "tailwind.config.ts",
     "tsconfig.json",
+    "vite.config.cjs",
     "vite.config.js",
+    "vite.config.mjs",
     "vite.config.ts",
-    "vitest.config.ts"
+    "vitest.config.js",
+    "vitest.config.mjs",
+    "vitest.config.ts",
+    "vue.config.js"
   ]);
+  const hasConfigFile = (pattern: RegExp) => configFiles.some((configFile) => pattern.test(configFile));
+  const hasReactSignal =
+    hasDependency("react") ||
+    hasDependency("react-dom") ||
+    hasDependency("@vitejs/plugin-react") ||
+    hasDependency("@vitejs/plugin-react-swc");
+  const hasVueSignal = hasDependency("vue") || hasDependency("@vitejs/plugin-vue") || hasConfigFile(/^vue\.config\./);
+  const hasAngularSignal = hasDependency("@angular/core") || hasDependency("@angular/cli") || hasConfigFile(/^angular\.json$/);
+  const hasSvelteSignal = hasDependency("svelte") || hasDependency("@sveltejs/kit") || hasConfigFile(/^svelte\.config\./);
+  const hasAstroSignal = hasDependency("astro") || hasConfigFile(/^astro\.config\./);
+  const hasNextSignal = hasDependency("next") || hasConfigFile(/^next\.config\./);
+  const hasNuxtSignal = hasDependency("nuxt") || hasDependency("nuxt3") || hasConfigFile(/^nuxt\.config\./);
 
   const runtimes = unique([
     "Node.js",
@@ -72,26 +115,27 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   ]);
 
   const frameworks = unique([
-    hasDependency("next") ? "Next.js" : undefined,
-    hasDependency("react") ? "React" : undefined,
-    hasDependency("vue") ? "Vue" : undefined,
-    hasDependency("nuxt") ? "Nuxt" : undefined,
-    hasDependency("svelte") || hasDependency("@sveltejs/kit") ? "Svelte" : undefined,
-    hasDependency("@angular/core") ? "Angular" : undefined,
-    hasDependency("astro") ? "Astro" : undefined
+    hasNextSignal ? "Next.js" : undefined,
+    hasReactSignal ? "React" : undefined,
+    hasVueSignal ? "Vue" : undefined,
+    hasNuxtSignal ? "Nuxt" : undefined,
+    hasSvelteSignal ? "Svelte" : undefined,
+    hasAngularSignal ? "Angular" : undefined,
+    hasAstroSignal ? "Astro" : undefined
   ]);
 
   const buildTools = unique([
-    hasDependency("vite") ? "Vite" : undefined,
+    hasDependency("vite") || hasConfigFile(/^vite\.config\./) ? "Vite" : undefined,
     hasDependency("webpack") ? "Webpack" : undefined,
     hasDependency("rollup") ? "Rollup" : undefined,
     hasDependency("esbuild") ? "esbuild" : undefined,
+    hasAngularSignal ? "Angular CLI" : undefined,
     hasDependency("tsx") ? "tsx" : undefined,
     hasDependency("typescript") ? "tsc" : undefined
   ]);
 
   const styling = unique([
-    hasDependency("tailwindcss") ? "Tailwind CSS" : undefined,
+    hasDependency("tailwindcss") || hasConfigFile(/^tailwind\.config\./) ? "Tailwind CSS" : undefined,
     hasDependency("sass") ? "Sass" : undefined,
     hasDependency("less") ? "Less" : undefined,
     hasDependency("styled-components") ? "styled-components" : undefined,
@@ -100,10 +144,10 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   ]);
 
   const testing = unique([
-    hasDependency("vitest") ? "Vitest" : undefined,
-    hasDependency("jest") ? "Jest" : undefined,
-    hasDependency("playwright") || hasDependency("@playwright/test") ? "Playwright" : undefined,
-    hasDependency("cypress") ? "Cypress" : undefined,
+    hasDependency("vitest") || hasConfigFile(/^vitest\.config\./) ? "Vitest" : undefined,
+    hasDependency("jest") || hasConfigFile(/^jest\.config\./) ? "Jest" : undefined,
+    hasDependency("playwright") || hasDependency("@playwright/test") || hasConfigFile(/^playwright\.config\./) ? "Playwright" : undefined,
+    hasDependency("cypress") || hasConfigFile(/^cypress\.config\./) ? "Cypress" : undefined,
     hasDependency("@testing-library/react") ? "Testing Library" : undefined,
     Object.values(scripts).some((script) => script.includes("node --test")) ? "node:test" : undefined
   ]);
@@ -138,7 +182,7 @@ async function readPackageJson(rootDir: string): Promise<PackageJson> {
   return JSON.parse(await readFile(path, "utf8")) as PackageJson;
 }
 
-async function detectPackageManager(rootDir: string): Promise<string | undefined> {
+async function detectPackageManager(rootDir: string, packageJson: PackageJson): Promise<string | undefined> {
   const checks: Array<[string, string]> = [
     ["pnpm-lock.yaml", "pnpm"],
     ["yarn.lock", "yarn"],
@@ -153,7 +197,13 @@ async function detectPackageManager(rootDir: string): Promise<string | undefined
     }
   }
 
-  return undefined;
+  return parsePackageManager(packageJson.packageManager);
+}
+
+function parsePackageManager(packageManager: string | undefined): string | undefined {
+  const match = /^([a-z][a-z0-9-]*)@/i.exec(packageManager ?? "");
+
+  return match?.[1];
 }
 
 async function detectFiles(rootDir: string, candidates: string[]): Promise<string[]> {

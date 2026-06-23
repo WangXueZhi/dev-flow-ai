@@ -17,6 +17,7 @@
 - Normalized frontend targets for routes/views, components, data needs, and UI states.
 - Acceptance-criterion-derived frontend targets.
 - Risk scoring for ambiguous requirements.
+- Expanded stack detection from package manager metadata, nested source directories, and common frontend framework/tool config files.
 - Task plan generation.
 - Dry-run patch proposal generation.
 - Dry-run proposal UI checklist and delivery risk surfacing.
@@ -43,7 +44,7 @@
 
 ## Milestone 1: Better Planning
 
-- Deeper stack detection for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro conventions.
+- Deeper stack-specific routing, data-fetching, testing, and styling conventions for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro projects.
 - Richer route/component/data/state target extraction beyond the initial normalized frontend targets.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
 - Prompt fixtures and golden output tests.
