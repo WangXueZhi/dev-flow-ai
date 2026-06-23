@@ -1814,19 +1814,26 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 function buildRecommendedVerification(stack: StackProfile): string[] {
   const scripts = stack.scripts;
   const commands: string[] = [];
-  const packageRunner = stack.packageManager === "pnpm" ? "pnpm" : stack.packageManager === "yarn" ? "yarn" : "npm run";
 
-  if (scripts.check) {
-    return [packageRunner === "npm run" ? "npm run check" : `${packageRunner} check`];
-  }
-
-  for (const name of ["lint", "typecheck", "test", "build"]) {
+  for (const name of ["check", "lint", "typecheck", "test", "build"]) {
     if (!scripts[name]) {
       continue;
     }
 
-    commands.push(packageRunner === "npm run" ? `npm run ${name}` : `${packageRunner} ${name}`);
+    commands.push(formatPackageScriptCommand(stack.packageManager, name));
   }
 
   return commands.length > 0 ? commands : ["Add or document verification commands for this project."];
+}
+
+function formatPackageScriptCommand(packageManager: string | undefined, scriptName: string): string {
+  if (packageManager === "pnpm" || packageManager === "yarn") {
+    return `${packageManager} ${scriptName}`;
+  }
+
+  if (packageManager === "bun") {
+    return `bun run ${scriptName}`;
+  }
+
+  return `npm run ${scriptName}`;
 }

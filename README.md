@@ -288,7 +288,7 @@ dev-flow deliver --apply --yes --task T03-code-implementation --no-source-contex
 
 ### `dev-flow verify`
 
-Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`.
+Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. Recommended commands are derived from detected package scripts in `check`, `lint`, `typecheck`, `test`, and `build` order.
 
 Override the command when needed:
 
@@ -403,6 +403,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - OpenAPI JSON/YAML `paths`, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
 - Stack detection for package manager metadata, framework, build, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
+- Aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - Normalized frontend target extraction for routes/views, components, data needs, UI states, and acceptance criteria.
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.

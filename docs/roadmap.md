@@ -27,6 +27,7 @@
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Validated patch-set application.
 - Human-readable task changelog generated after source-changing apply.
+- Aggregated recommended verification commands from detected package scripts.
 - Verification report with bounded failure excerpts.
 - Visual screenshot report with basic blank-screen and layout-overflow detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.
@@ -57,7 +58,7 @@
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Enrich task changelogs with reviewer notes and verification links.
-- Integrate with existing lint, typecheck, and test scripts.
+- Expand verification command selection with stack-specific script aliases and dependency-aware checks.
 - Feed verification results into the delivery report after code changes.
 
 ## Milestone 3: UI And Visual Verification

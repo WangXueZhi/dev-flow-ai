@@ -118,6 +118,41 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
 });
 
+test("createProjectBrief recommends multiple package verification scripts", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "pnpm",
+    scripts: {
+      check: "pnpm lint && pnpm test",
+      lint: "eslint .",
+      typecheck: "tsc --noEmit",
+      test: "vitest run",
+      build: "vite build"
+    }
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "pnpm check",
+    "pnpm lint",
+    "pnpm typecheck",
+    "pnpm test",
+    "pnpm build"
+  ]);
+});
+
+test("createProjectBrief formats bun verification scripts with bun run", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "bun",
+    scripts: {
+      test: "bun test",
+      build: "vite build"
+    }
+  });
+
+  assert.deepEqual(brief.recommendedVerification, ["bun run test", "bun run build"]);
+});
+
 test("assessDeliveryRisks scores ambiguous requirements and missing delivery gates", () => {
   const risks = assessDeliveryRisks(
     {
