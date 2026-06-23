@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import type { FlagMap } from "../core/args.js";
 import type { ProjectBrief } from "../core/brief.js";
 import { loadConfig } from "../core/config.js";
-import { appendExecutionLog } from "../core/execution-log.js";
+import { appendExecutionLog, formatTaskChangelog } from "../core/execution-log.js";
 import {
   buildDryRunPrompt,
   buildPatchSetPrompt,
@@ -93,6 +93,7 @@ async function runDryRun(flags: FlagMap): Promise<void> {
 async function runApply(flags: FlagMap): Promise<void> {
   const config = await loadConfig();
   const executionLogPath = join(config.artifactsDir, "execution-log.json");
+  const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
   const patchSet = flags["patch-set"] ? await readPatchSet(flags["patch-set"]) : await generateAiPatchSet(flags);
 
   if (!flags["patch-set"]) {
@@ -127,11 +128,13 @@ async function runApply(flags: FlagMap): Promise<void> {
   }
 
   report.backupManifestPath = backup.manifestPath;
-  await appendExecutionLog(executionLogPath, report);
+  const executionLog = await appendExecutionLog(executionLogPath, report);
+  await writeFile(taskChangelogPath, formatTaskChangelog(executionLog), "utf8");
 
   console.log(`Backup manifest written to ${backup.manifestPath}`);
   console.log(`Patch set applied for task ${report.taskId}`);
   console.log(`Execution log written to ${executionLogPath}`);
+  console.log(`Task changelog written to ${taskChangelogPath}`);
   console.log(`Apply status: ${report.status}`);
 }
 

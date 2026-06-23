@@ -143,7 +143,7 @@ dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --unit U18
 ```
 
-Every apply creates a backup under `.devflow/artifacts/backups/`. If an apply fails after partial writes, DevFlow restores the backup automatically.
+Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. If an apply fails after partial writes, DevFlow restores the backup automatically.
 
 Manual rollback is also available:
 
@@ -195,9 +195,9 @@ For source-changing delivery, keep confirmation explicit:
 dev-flow deliver --apply --yes --patch-set path/to/reviewed-patch-set.json
 ```
 
-The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks with embedded screenshots when available, applied changes, risk assessment, open questions, and delivery readiness.
+The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks with embedded screenshots when available, applied changes, task changelog path, risk assessment, open questions, and delivery readiness.
 
-DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, readiness, verification status, source-change status, screenshot paths, touched files, backups, open questions, and delivery risks without parsing Markdown.
+DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, readiness, verification status, source-change status, screenshot paths, touched files, task changelogs, backups, open questions, and delivery risks without parsing Markdown.
 
 Validate the manifest with `schemas/delivery-manifest.schema.json` when building stricter CI or editor integrations.
 

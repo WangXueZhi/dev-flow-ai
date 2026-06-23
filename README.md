@@ -241,7 +241,7 @@ When an AI provider is configured, `dev-flow execute --apply --task <id>` can as
 
 AI-generated patch sets are saved to `.devflow/artifacts/patch-sets/<task>.json` by default. Use `--save-patch-set <path>` to choose a different location.
 
-Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json`.
+Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json` and summarized for handoff in `.devflow/artifacts/task-changelog.md`.
 
 Use `execute --validate --patch-set <path>` to check a reviewed or AI-generated patch set without changing source files, creating backups, or writing the execution log.
 
@@ -414,7 +414,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus component, data, style, test, config, and verification candidates, with Nuxt-aware route/composable/server API targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
-- Validated patch-set application with write, replace, delete, execution logs, and rollback.
+- Validated patch-set application with write, replace, delete, execution logs, task changelogs, and rollback.
 - Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.

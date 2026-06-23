@@ -27,7 +27,7 @@ The manifest schema describes:
 - Acceptance evidence with status, evidence, known gaps, assumptions, and manual QA prompts.
 - Verification command summaries with optional bounded stdout/stderr excerpts for failed commands.
 - Visual screenshots and required text checks.
-- Applied-change summaries with touched files, operation counts, line delta, and backup manifests.
+- Applied-change summaries with touched files, operation counts, line delta, task changelog artifact, and backup manifests.
 - Delivery risks and open questions.
 
 ## Artifact Status

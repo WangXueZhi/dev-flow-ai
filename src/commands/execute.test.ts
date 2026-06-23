@@ -185,6 +185,78 @@ test("runExecute restores the backup when apply fails after partial writes", asy
   ]);
 });
 
+test("runExecute writes a task changelog after successful apply", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-changelog-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const logs: string[] = [];
+
+  t.after(() => {
+    console.log = originalLog;
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = (message?: unknown) => {
+    logs.push(String(message));
+  };
+  process.chdir(workspace);
+  mkdirSync(join(workspace, ".devflow", "artifacts"), { recursive: true });
+  mkdirSync(join(workspace, "src"), { recursive: true });
+  writeFileSync(join(workspace, "src", "existing.txt"), "before\n", "utf8");
+  writeFileSync(join(workspace, "src", "deleted.txt"), "delete me\n", "utf8");
+  writeFileSync(
+    join(workspace, "patch.json"),
+    `${JSON.stringify(
+      {
+        version: 1,
+        taskId: "T03-code-implementation",
+        summary: "Apply successful patch set.",
+        operations: [
+          {
+            type: "replace",
+            path: "src/existing.txt",
+            search: "before",
+            replace: "after",
+            expectedReplacements: 1
+          },
+          {
+            type: "write",
+            path: "src/generated.txt",
+            content: "generated\n"
+          },
+          {
+            type: "delete",
+            path: "src/deleted.txt"
+          }
+        ]
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+
+  await runExecute({ apply: "true", "patch-set": "patch.json" });
+
+  assert.equal(readFileSync(join(workspace, "src", "existing.txt"), "utf8"), "after\n");
+  assert.equal(readFileSync(join(workspace, "src", "generated.txt"), "utf8"), "generated\n");
+  assert.equal(existsSync(join(workspace, "src", "deleted.txt")), false);
+
+  const executionLog = JSON.parse(readFileSync(join(workspace, ".devflow", "artifacts", "execution-log.json"), "utf8")) as {
+    entries: Array<{ taskId: string; operations: Array<{ path: string }> }>;
+  };
+  const changelog = readFileSync(join(workspace, ".devflow", "artifacts", "task-changelog.md"), "utf8");
+
+  assert.equal(executionLog.entries[0]?.taskId, "T03-code-implementation");
+  assert.match(changelog, /# Task Changelog/);
+  assert.match(changelog, /Apply successful patch set/);
+  assert.match(changelog, /src\/existing\.txt/);
+  assert.match(changelog, /src\/generated\.txt/);
+  assert.match(changelog, /src\/deleted\.txt/);
+  assert.match(logs.join("\n"), /Task changelog written to \.devflow\/artifacts\/task-changelog\.md/);
+});
+
 test("runExecute validates patch sets without changing source files", async (t) => {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-validate-"));
   const originalCwd = process.cwd();

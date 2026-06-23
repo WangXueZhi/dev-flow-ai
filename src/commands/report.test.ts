@@ -19,6 +19,7 @@ test("runReport can suppress stale visual reports", async (t) => {
   console.log = () => undefined;
   process.chdir(workspace);
   mkdirSync(".devflow/artifacts/visual", { recursive: true });
+  writeFileSync(".devflow/artifacts/task-changelog.md", "# Task Changelog\n\n- T03-code-implementation\n", "utf8");
   writeFileSync(
     ".devflow/artifacts/visual/visual-report.json",
     `${JSON.stringify(
@@ -64,5 +65,6 @@ test("runReport can suppress stale visual reports", async (t) => {
   };
   assert.equal(manifest.status.visual, "not-run");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "visual-report")?.status, "not-applicable");
+  assert.equal(manifest.artifacts.find((artifact) => artifact.id === "task-changelog")?.status, "present");
   assert.doesNotMatch(JSON.stringify(manifest), /Stale Preview/);
 });

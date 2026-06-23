@@ -24,6 +24,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
   const taskPlanMarkdownPath = join(config.artifactsDir, "tasks.md");
   const patchProposalsDir = join(config.artifactsDir, "patch-proposals");
   const executionLogPath = join(config.artifactsDir, "execution-log.json");
+  const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
   const rollbackReportPath = join(config.artifactsDir, "rollback-report.json");
   const verificationReportPath = join(config.artifactsDir, "verification-report.json");
   const defaultVisualReportPath = join(config.artifactsDir, "visual", "visual-report.json");
@@ -48,6 +49,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
     taskPlanMarkdownPath,
     patchProposalsDir,
     executionLogPath,
+    taskChangelogPath,
     executionLog,
     rollbackReportPath,
     verificationReportPath,
@@ -75,6 +77,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
       patchProposalsDir,
       executionLogPath,
       executionLog,
+      taskChangelogPath,
       rollbackReportPath,
       verificationReportPath,
       visualReportPath,
@@ -109,6 +112,7 @@ async function collectDeliveryArtifacts(input: {
   patchProposalsDir: string;
   executionLogPath: string;
   executionLog: ExecutionLog | undefined;
+  taskChangelogPath: string;
   rollbackReportPath: string;
   verificationReportPath: string;
   visualReportPath: string;
@@ -132,6 +136,7 @@ async function collectDeliveryArtifacts(input: {
     await artifact("task-plan-markdown", "Task plan Markdown", "markdown", input.taskPlanMarkdownPath, true, "Human-readable implementation task plan."),
     await artifact("patch-proposals", "Patch proposals", "directory", input.patchProposalsDir, true, "Dry-run implementation proposals for review.", patchProposalFiles.length),
     await artifact("execution-log", "Execution log", "json", input.executionLogPath, false, "Source-changing patch-set application history.", undefined, Boolean(input.executionLog)),
+    await artifact("task-changelog", "Task changelog", "markdown", input.taskChangelogPath, false, "Human-readable source-changing task change history.", undefined, await fileExists(input.taskChangelogPath)),
     await artifact("rollback-report", "Rollback report", "json", input.rollbackReportPath, false, "Manual or automatic rollback result.", undefined, await fileExists(input.rollbackReportPath)),
     await artifact("verification-report", "Verification report", "json", input.verificationReportPath, true, "Verification command results."),
     input.visualReportEnabled
