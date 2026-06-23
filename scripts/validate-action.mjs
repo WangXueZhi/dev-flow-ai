@@ -19,11 +19,17 @@ const requiredSnippets = [
   "package_spec=\"dev-flow-ai@$package_spec\"",
   "dev-flow execute --validate --patch-set \"$PATCH_SET\"",
   "npx --yes --package \"$package_spec\" dev-flow \"${args[@]}\"",
-  "if: ${{ inputs.job-summary == 'true' }}",
+  "if: ${{ inputs.job-summary == 'true' && always() }}",
   "MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
   "node \"$GITHUB_ACTION_PATH/scripts/summarize-manifest.mjs\"",
+  "if: ${{ inputs.upload-artifacts == 'true' && always() }}",
   "uses: actions/upload-artifact@v4",
-  "if: ${{ inputs.upload-artifacts == 'true' }}"
+  "Gate DevFlow delivery status",
+  "STATUS_MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
+  "args=(status --manifest \"$STATUS_MANIFEST_PATH\")",
+  "args+=(--fail-on-attention)",
+  "args+=(--fail-on-failed-verification)",
+  "dev-flow \"${args[@]}\""
 ];
 const requiredInputs = [
   "version",
@@ -46,7 +52,9 @@ const requiredInputs = [
   "upload-artifacts",
   "artifact-name",
   "artifacts-path",
-  "job-summary"
+  "job-summary",
+  "fail-on-attention",
+  "fail-on-failed-verification"
 ];
 
 for (const snippet of requiredSnippets) {

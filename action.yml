@@ -86,6 +86,14 @@ inputs:
     description: Write a DevFlow delivery summary to the GitHub Actions job summary.
     required: false
     default: "true"
+  fail-on-attention:
+    description: Fail the action when the delivery manifest readiness is not ready for review.
+    required: false
+    default: "false"
+  fail-on-failed-verification:
+    description: Fail the action when the delivery manifest verification status is failed.
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -156,7 +164,7 @@ runs:
         npx --yes --package "$package_spec" dev-flow "${args[@]}"
 
     - name: Summarize DevFlow delivery
-      if: ${{ inputs.job-summary == 'true' }}
+      if: ${{ inputs.job-summary == 'true' && always() }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
@@ -167,9 +175,33 @@ runs:
         node "$GITHUB_ACTION_PATH/scripts/summarize-manifest.mjs"
 
     - name: Upload DevFlow artifacts
-      if: ${{ inputs.upload-artifacts == 'true' }}
+      if: ${{ inputs.upload-artifacts == 'true' && always() }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-name }}
         path: ${{ inputs.working-directory }}/${{ inputs.artifacts-path }}
         if-no-files-found: warn
+
+    - name: Gate DevFlow delivery status
+      if: ${{ (inputs.fail-on-attention == 'true' || inputs.fail-on-failed-verification == 'true') && always() }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DEVFLOW_VERSION: ${{ inputs.version }}
+        STATUS_MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json
+        FAIL_ON_ATTENTION: ${{ inputs.fail-on-attention }}
+        FAIL_ON_FAILED_VERIFICATION: ${{ inputs.fail-on-failed-verification }}
+      run: |
+        set -euo pipefail
+
+        args=(status --manifest "$STATUS_MANIFEST_PATH")
+        [[ "$FAIL_ON_ATTENTION" == "true" ]] && args+=(--fail-on-attention)
+        [[ "$FAIL_ON_FAILED_VERIFICATION" == "true" ]] && args+=(--fail-on-failed-verification)
+
+        package_spec="$DEVFLOW_VERSION"
+        case "$package_spec" in
+          dev-flow-ai|dev-flow-ai@*|*:*|*/*|*.tgz) ;;
+          *) package_spec="dev-flow-ai@$package_spec" ;;
+        esac
+
+        npx --yes --package "$package_spec" dev-flow "${args[@]}"

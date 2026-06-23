@@ -363,9 +363,9 @@ DevFlow includes a composite GitHub Action for CI usage:
 
 Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
-The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`.
+The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`. CI workflows can also enable manifest-backed gates with `fail-on-attention: "true"` and `fail-on-failed-verification: "true"`.
 
-See [GitHub Action](docs/github-action.md) for artifact uploads, visual checks, AI provider environment variables, fixture-backed CI, and reviewed patch-set examples.
+See [GitHub Action](docs/github-action.md) for artifact uploads, status gates, visual checks, AI provider environment variables, fixture-backed CI, and reviewed patch-set examples.
 
 ## CI And Local Verification
 
@@ -422,7 +422,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
-- Composite GitHub Action for running safe delivery in CI, uploading artifacts, and writing a delivery summary from the manifest.
+- Composite GitHub Action for running safe delivery in CI, uploading artifacts, writing a delivery summary from the manifest, and gating readiness or failed verification.
 - Clean extension points for future coding agents.
 
 ## Future Direction

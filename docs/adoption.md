@@ -224,6 +224,8 @@ Use the composite GitHub Action:
     api: docs/api.md
 ```
 
+Set `fail-on-attention: "true"` or `fail-on-failed-verification: "true"` in the action inputs when the workflow should fail from manifest-backed delivery status gates.
+
 Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
 The action defaults to non-destructive delivery. Source-changing CI delivery requires both `apply: "true"` and `confirm-apply: "true"`.

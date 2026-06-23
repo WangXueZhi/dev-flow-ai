@@ -50,7 +50,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Report: writes `.devflow/artifacts/delivery-report.md` for reviewers and `.devflow/artifacts/delivery-manifest.json` for tools. These summarize source documents, acceptance criteria, stack, artifact paths and statuses, touched files, applied patch sets, backup manifests, line-count deltas, verification with bounded failure excerpts, visual evidence with embedded screenshots when available, risk assessment, delivery readiness, open questions, and next actions.
 - Status: reads `.devflow/artifacts/delivery-manifest.json` and prints either a compact delivery summary or raw manifest JSON, with optional CI gate exits for readiness attention and failed verification.
 - Doctor: checks runtime and project readiness.
-- GitHub Action: wraps safe `dev-flow deliver` for CI usage and requires explicit double confirmation for source-changing delivery.
+- GitHub Action: wraps safe `dev-flow deliver` for CI usage, requires explicit double confirmation for source-changing delivery, can upload artifacts and job summaries with `always()`, and can fail CI from manifest-backed readiness or failed-verification gates.
 
 ## Configuration
 

@@ -88,6 +88,21 @@ Disable it when a workflow needs artifacts only:
     job-summary: "false"
 ```
 
+## Delivery Gates
+
+Use manifest-backed status gates when CI should fail on delivery readiness or verification state:
+
+```yaml
+- uses: WangXueZhi/dev-flow-ai@main
+  with:
+    fail-on-attention: "true"
+    fail-on-failed-verification: "true"
+```
+
+`fail-on-attention` runs `dev-flow status --fail-on-attention` after delivery and fails when readiness is not `ready for review`. `fail-on-failed-verification` runs `dev-flow status --fail-on-failed-verification` and fails when manifest verification status is `failed`.
+
+Job summaries and artifact uploads run with `always()` so failed deliveries and failed gates can still leave reviewable evidence when their inputs are enabled.
+
 ## AI Provider
 
 Pass provider configuration through environment variables or GitHub secrets. The action does not require secrets for fallback planning and dry-run proposals.
@@ -155,3 +170,5 @@ When `patch-set` is provided, the action runs `dev-flow execute --validate --pat
 - `artifact-name`: artifact name when `upload-artifacts` is enabled. Default: `devflow-artifacts`.
 - `artifacts-path`: artifact path relative to `working-directory`. Default: `.devflow/artifacts`.
 - `job-summary`: write delivery readiness, evidence counts, artifact paths, top risks, and open questions to the GitHub job summary. Default: `"true"`.
+- `fail-on-attention`: fail when delivery readiness is not `ready for review`. Default: `"false"`.
+- `fail-on-failed-verification`: fail when manifest verification status is `failed`. Default: `"false"`.
