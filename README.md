@@ -270,7 +270,7 @@ npx playwright install chromium
 DevFlow includes a composite GitHub Action for CI usage:
 
 ```yaml
-- uses: your-org/dev-flow@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
   with:
     requirements: docs/requirements.md
     ui: docs/ui.md

@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: "24"
 
-      - uses: your-org/dev-flow@v0.1.0
+      - uses: WangXueZhi/dev-flow-ai@v0.1.0
         with:
           requirements: docs/requirements.md
           ui: docs/ui.md
@@ -47,7 +47,7 @@ Start the app preview before invoking DevFlow, then pass the preview URL and tex
     npm run dev -- --host 127.0.0.1 > /tmp/devflow-preview.log 2>&1 &
     echo $! > /tmp/devflow-preview.pid
 
-- uses: your-org/dev-flow@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
   with:
     install-chromium: "true"
     preview-url: http://127.0.0.1:5173
@@ -59,7 +59,7 @@ Start the app preview before invoking DevFlow, then pass the preview URL and tex
 Pass provider configuration through environment variables or GitHub secrets. The action does not require secrets for fallback planning and dry-run proposals.
 
 ```yaml
-- uses: your-org/dev-flow@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
   env:
     DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
     DEVFLOW_AI_BASE_URL: https://api.openai.com/v1
@@ -69,7 +69,7 @@ Pass provider configuration through environment variables or GitHub secrets. The
 For deterministic CI, use a fixture:
 
 ```yaml
-- uses: your-org/dev-flow@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
   env:
     DEVFLOW_AI_FIXTURE_PATH: fixtures/patch-set.json
 ```
@@ -79,7 +79,7 @@ For deterministic CI, use a fixture:
 Source-changing delivery must be explicit:
 
 ```yaml
-- uses: your-org/dev-flow@v0.1.0
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
   with:
     apply: "true"
     confirm-apply: "true"
