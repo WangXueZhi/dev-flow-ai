@@ -51,11 +51,21 @@ test("runExecute sends sampled source context to AI dry-run providers", async (t
   const request = requests[0] as { messages?: Array<{ role: string; content: string }> };
   const prompt = request.messages?.find((message) => message.role === "user")?.content ?? "";
   const proposal = readFileSync(".devflow/artifacts/patch-proposals/T03-code-implementation.md", "utf8");
+  const sourceContextSummary = JSON.parse(readFileSync(".devflow/artifacts/source-context-summary.json", "utf8")) as {
+    entries: Array<{
+      mode: string;
+      taskId: string;
+      entries: Array<{ path: string; kind: string }>;
+    }>;
+  };
 
   assert.match(prompt, /Existing Repository Source Context/);
   assert.match(prompt, /src\/App\.tsx/);
   assert.match(prompt, /Existing App Shell/);
   assert.match(proposal, /AI proposal from test provider/);
+  assert.equal(sourceContextSummary.entries[0]?.mode, "dry-run");
+  assert.equal(sourceContextSummary.entries[0]?.taskId, "T03-code-implementation");
+  assert.ok(sourceContextSummary.entries[0]?.entries.some((entry) => entry.path === "src/App.tsx" && entry.kind === "file"));
 });
 
 test("runExecute can disable sampled source context for AI dry-run providers", async (t) => {
@@ -108,6 +118,7 @@ test("runExecute can disable sampled source context for AI dry-run providers", a
     assert.match(prompt, /Project Brief/);
     assert.match(prompt, /T03-code-implementation/);
   }
+  assert.equal(existsSync(join(workspace, ".devflow", "artifacts", "source-context-summary.json")), false);
 });
 
 test("runExecute restores the backup when apply fails after partial writes", async (t) => {

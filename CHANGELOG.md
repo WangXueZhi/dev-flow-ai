@@ -63,6 +63,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added data/API target profile candidates derived from explicit API endpoint paths.
 - Added selected-unit-prioritized target profile candidates for normalized frontend route, component, and data units.
 - Added selected-unit-prioritized source-context sampling so AI prompts see relevant route, component, or data candidates before broader repository files.
+- Added `.devflow/artifacts/source-context-summary.json` plus delivery report and manifest evidence for path-level AI source-context sampling.
 - Expanded target profiles with Nuxt-aware route, layout, composable, server API, style, Playwright, and Cypress candidates.
 - Expanded target profiles with Svelte/SvelteKit, Astro, and Angular route, layout, server/API, service, style, and spec candidates.
 - Added bounded repository source-context sampling for AI dry-run and patch-set prompts.

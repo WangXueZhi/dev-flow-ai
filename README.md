@@ -226,7 +226,7 @@ Use `--unit <id>` to focus execution on one implementation unit from `.devflow/a
 
 For normalized frontend units, DevFlow also prioritizes likely files from the selected unit itself: `frontend-route` units can push the matching route/page candidates to the front, `frontend-component` units can prioritize the named component, and `frontend-data` units can derive API/data client candidates from endpoint text in the unit. AI source-context sampling follows that selected-unit order so the prompt sees the most relevant route, component, or data files before broader repository candidates.
 
-When an AI provider is configured through `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`, or `DEVFLOW_AI_FIXTURE_PATH`, dry-run execution asks the provider for a task-specific implementation proposal grounded in the project brief, task plan, target profile, and sampled repository source context. Without a provider, it uses a deterministic local proposal template.
+When an AI provider is configured through `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`, or `DEVFLOW_AI_FIXTURE_PATH`, dry-run execution asks the provider for a task-specific implementation proposal grounded in the project brief, task plan, target profile, and sampled repository source context. Sampled source-context paths are summarized in `.devflow/artifacts/source-context-summary.json` for review and later delivery reports. Without a provider, it uses a deterministic local proposal template.
 
 Source-changing execution is available through validated patch sets:
 
@@ -301,6 +301,8 @@ dev-flow verify --command "npm run check"
 ### `dev-flow report`
 
 Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus `.devflow/artifacts/delivery-manifest.json`.
+
+When `.devflow/artifacts/source-context-summary.json` exists, the delivery report and manifest include path-level source-context sampling evidence so reviewers can see which files were sampled for AI prompts without exposing duplicated source snippets.
 
 The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 

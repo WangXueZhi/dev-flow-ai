@@ -17,7 +17,14 @@ import { fileExists } from "../core/fs.js";
 import { createPatchBackup, restorePatchBackup } from "../core/patch-backup.js";
 import { applyPatchSet, parsePatchSet, type PatchSet } from "../core/patch-set.js";
 import { createAiProviderFromEnv } from "../core/provider.js";
-import { collectSourceContext, sourceContextCandidatePaths } from "../core/source-context.js";
+import {
+  collectSourceContext,
+  createSourceContextSummaryEntry,
+  sourceContextCandidatePaths,
+  type SourceContext,
+  type SourceContextSummaryEntry,
+  type SourceContextSummaryLog
+} from "../core/source-context.js";
 import { shouldIncludeSourceContext } from "../core/source-context-policy.js";
 import { createImplementationTargetProfile } from "../core/target-profile.js";
 import type { ImplementationTask, ImplementationUnit, TaskPlan } from "../core/tasks.js";
@@ -55,6 +62,7 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   const projectBriefPath = join(config.artifactsDir, "project-brief.json");
   const taskPlanPath = flags.tasks ?? join(config.artifactsDir, "tasks.json");
   const outDir = flags.out ?? join(config.artifactsDir, "patch-proposals");
+  const sourceContextSummaryPath = join(config.artifactsDir, "source-context-summary.json");
   const brief = await readRequiredJson<ProjectBrief>(projectBriefPath, "Run dev-flow brief or dev-flow plan first.");
   const taskPlan = await readRequiredJson<TaskPlan>(taskPlanPath, "Run dev-flow tasks first.");
   const selectedUnit = flags.unit ? selectUnit(taskPlan, flags.unit) : undefined;
@@ -64,11 +72,15 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   await mkdir(outDir, { recursive: true });
 
   for (const task of selectedTasks) {
-    const includeSourceContext = shouldIncludeSourceContext(flags);
-    const sourceContext = provider && includeSourceContext
-      ? await collectSourceContext(
-          sourceContextCandidatePaths(createImplementationTargetProfile(task, brief, selectedUnit), selectedUnit)
-        )
+    const sourceContext = provider
+      ? await collectExecutionSourceContext({
+          flags,
+          brief,
+          task,
+          unit: selectedUnit,
+          mode: "dry-run",
+          summaryPath: sourceContextSummaryPath
+        })
       : undefined;
     const proposalMarkdown = provider
       ? await provider.complete({
@@ -186,15 +198,19 @@ async function generateAiPatchSet(flags: FlagMap): Promise<PatchSet> {
   const config = await loadConfig();
   const projectBriefPath = join(config.artifactsDir, "project-brief.json");
   const taskPlanPath = flags.tasks ?? join(config.artifactsDir, "tasks.json");
+  const sourceContextSummaryPath = join(config.artifactsDir, "source-context-summary.json");
   const brief = await readRequiredJson<ProjectBrief>(projectBriefPath, "Run dev-flow brief or dev-flow plan first.");
   const taskPlan = await readRequiredJson<TaskPlan>(taskPlanPath, "Run dev-flow tasks first.");
   const [task] = selectTasks(taskPlan, taskId);
   const selectedUnit = flags.unit ? selectUnit(taskPlan, flags.unit) : undefined;
-  const sourceContext = shouldIncludeSourceContext(flags)
-    ? await collectSourceContext(
-        sourceContextCandidatePaths(createImplementationTargetProfile(task, brief, selectedUnit), selectedUnit)
-      )
-    : undefined;
+  const sourceContext = await collectExecutionSourceContext({
+    flags,
+    brief,
+    task,
+    unit: selectedUnit,
+    mode: "apply",
+    summaryPath: sourceContextSummaryPath
+  });
   const response = await provider.complete({
     system: patchSetSystemPrompt,
     prompt: buildPatchSetPrompt(task, brief, selectedUnit, sourceContext),
@@ -205,8 +221,56 @@ async function generateAiPatchSet(flags: FlagMap): Promise<PatchSet> {
   return parsePatchSet(response);
 }
 
+async function collectExecutionSourceContext(input: {
+  flags: FlagMap;
+  brief: ProjectBrief;
+  task: ImplementationTask;
+  unit?: ImplementationUnit;
+  mode: SourceContextSummaryEntry["mode"];
+  summaryPath: string;
+}): Promise<SourceContext | undefined> {
+  if (!shouldIncludeSourceContext(input.flags)) {
+    return undefined;
+  }
+
+  const sourceContext = await collectSourceContext(
+    sourceContextCandidatePaths(createImplementationTargetProfile(input.task, input.brief, input.unit), input.unit)
+  );
+  await appendSourceContextSummary(
+    input.summaryPath,
+    createSourceContextSummaryEntry({
+      context: sourceContext,
+      generatedAt: new Date().toISOString(),
+      mode: input.mode,
+      taskId: input.task.id,
+      unit: input.unit
+    })
+  );
+
+  return sourceContext;
+}
+
+async function appendSourceContextSummary(path: string, entry: SourceContextSummaryEntry): Promise<void> {
+  const existing = await readJsonIfExists<SourceContextSummaryLog>(path);
+  const log: SourceContextSummaryLog = {
+    version: 1,
+    entries: [...(existing?.entries ?? []), entry]
+  };
+
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(log, null, 2)}\n`, "utf8");
+}
+
 async function readPatchSet(path: string): Promise<PatchSet> {
   return parsePatchSet(await readFile(path, "utf8"));
+}
+
+async function readJsonIfExists<T>(path: string): Promise<T | undefined> {
+  if (!(await fileExists(path))) {
+    return undefined;
+  }
+
+  return JSON.parse(await readFile(path, "utf8")) as T;
 }
 
 function selectTasks(taskPlan: TaskPlan, taskId: string | undefined): ImplementationTask[] {

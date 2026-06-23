@@ -15,6 +15,30 @@ export interface SourceContext {
   };
 }
 
+export interface SourceContextSummaryLog {
+  version: 1;
+  entries: SourceContextSummaryEntry[];
+}
+
+export interface SourceContextSummaryEntry {
+  generatedAt: string;
+  mode: "apply" | "dry-run";
+  taskId: string;
+  unit?: {
+    id: string;
+    kind: ImplementationUnit["kind"];
+    title: string;
+  };
+  entries: Array<{
+    kind: SourceContextEntry["kind"];
+    path: string;
+    sizeBytes?: number;
+    truncated?: boolean;
+  }>;
+  omitted: string[];
+  limits: SourceContext["limits"];
+}
+
 export type SourceContextEntry =
   | SourceFileContextEntry
   | SourceDirectoryContextEntry
@@ -157,6 +181,55 @@ export function sourceContextCandidatePaths(
     ...sourcePathsFromUnit(unit),
     ...profilePathsForUnit(profile, unit)
   ]);
+}
+
+export function createSourceContextSummaryEntry(input: {
+  context: SourceContext;
+  generatedAt: string;
+  mode: SourceContextSummaryEntry["mode"];
+  taskId: string;
+  unit?: ImplementationUnit;
+}): SourceContextSummaryEntry {
+  const summary: SourceContextSummaryEntry = {
+    generatedAt: input.generatedAt,
+    mode: input.mode,
+    taskId: input.taskId,
+    entries: input.context.entries.map((entry) => {
+      const common = {
+        kind: entry.kind,
+        path: entry.path
+      };
+
+      if (entry.kind === "file" || entry.kind === "binary") {
+        return {
+          ...common,
+          sizeBytes: entry.sizeBytes,
+          ...(entry.kind === "file" ? { truncated: entry.truncated } : {})
+        };
+      }
+
+      if (entry.kind === "directory") {
+        return {
+          ...common,
+          truncated: entry.truncated
+        };
+      }
+
+      return common;
+    }),
+    omitted: input.context.omitted,
+    limits: input.context.limits
+  };
+
+  if (input.unit) {
+    summary.unit = {
+      id: input.unit.id,
+      kind: input.unit.kind,
+      title: input.unit.title
+    };
+  }
+
+  return summary;
 }
 
 function profilePathsForUnit(profile: ImplementationTargetProfile, unit: ImplementationUnit | undefined): string[] {

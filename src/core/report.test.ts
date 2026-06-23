@@ -135,6 +135,33 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
     taskPlanPath: ".devflow/artifacts/tasks.json",
     taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
     patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    sourceContextSummaryPath: ".devflow/artifacts/source-context-summary.json",
+    sourceContextSummary: {
+      version: 1,
+      entries: [
+        {
+          generatedAt: "2026-01-01T00:00:00.250Z",
+          mode: "dry-run",
+          taskId: "T03-code-implementation",
+          unit: {
+            id: "U07",
+            kind: "frontend-route",
+            title: "Route path /dashboard"
+          },
+          entries: [
+            { kind: "file", path: "src/App.tsx", sizeBytes: 2048, truncated: false },
+            { kind: "missing", path: "src/pages/Dashboard.tsx" }
+          ],
+          omitted: ["src/legacy.tsx (entry limit reached)"],
+          limits: {
+            maxEntries: 14,
+            maxFileBytes: 12_000,
+            maxTotalBytes: 48_000,
+            maxDirectoryEntries: 30
+          }
+        }
+      ]
+    },
     executionLogPath: ".devflow/artifacts/execution-log.json",
     executionLog: {
       version: 1,
@@ -250,6 +277,12 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /replace `src\/App\.tsx`: written, 2048 bytes, 1 replacements, lines 80->86 \(\+6\)/);
   assert.match(report, /delete `src\/ObsoletePanel\.tsx`: deleted, 0 bytes, lines 24->0 \(-24\)/);
   assert.match(report, /Frameworks: React/);
+  assert.match(report, /Source Context Sampling/);
+  assert.match(report, /Sampling runs recorded: 1/);
+  assert.match(report, /dry-run T03-code-implementation, unit U07 \[frontend-route\] Route path \/dashboard/);
+  assert.match(report, /`src\/App\.tsx` \(file\)/);
+  assert.match(report, /`src\/pages\/Dashboard\.tsx` \(missing\)/);
+  assert.match(report, /Omitted: src\/legacy\.tsx \(entry limit reached\)/);
   assert.match(report, /Status: failed/);
   assert.match(report, /desktop 1440x1000/);
   assert.match(report, /!\[desktop screenshot\]\(\.devflow\/artifacts\/visual\/desktop\.png\)/);
@@ -359,6 +392,25 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
     taskPlanPath: ".devflow/artifacts/tasks.json",
     taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
     patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    sourceContextSummaryPath: ".devflow/artifacts/source-context-summary.json",
+    sourceContextSummary: {
+      version: 1,
+      entries: [
+        {
+          generatedAt: "2026-01-01T00:00:00.250Z",
+          mode: "apply",
+          taskId: "T03-code-implementation",
+          entries: [{ kind: "file", path: "src/App.tsx", sizeBytes: 2048, truncated: false }],
+          omitted: [],
+          limits: {
+            maxEntries: 14,
+            maxFileBytes: 12_000,
+            maxTotalBytes: 48_000,
+            maxDirectoryEntries: 30
+          }
+        }
+      ]
+    },
     executionLogPath: ".devflow/artifacts/execution-log.json",
     executionLog: {
       version: 1,
@@ -471,6 +523,8 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.deepEqual(manifest.evidence.appliedChanges.backupManifestPaths, [".devflow/artifacts/backups/backup/manifest.json"]);
   assert.equal(manifest.evidence.visualScreenshots[0]?.blank, false);
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
+  assert.equal(manifest.evidence.sourceContext?.[0]?.mode, "apply");
+  assert.equal(manifest.evidence.sourceContext?.[0]?.entries[0]?.path, "src/App.tsx");
   assert.equal(manifest.evidence.deliveryRisks.length, 2);
   assert.deepEqual(manifest.evidence.openQuestions, ["Confirm empty state copy."]);
 });

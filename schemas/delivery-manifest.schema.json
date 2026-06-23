@@ -205,6 +205,12 @@
         "appliedChanges": {
           "$ref": "#/$defs/appliedChanges"
         },
+        "sourceContext": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceContextEntry"
+          }
+        },
         "deliveryRisks": {
           "type": "array",
           "items": {
@@ -360,6 +366,91 @@
         },
         "backupManifestPaths": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "sourceContextEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generatedAt", "mode", "taskId", "entries", "omitted", "limits"],
+      "properties": {
+        "generatedAt": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "mode": {
+          "enum": ["apply", "dry-run"]
+        },
+        "taskId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "unit": {
+          "$ref": "#/$defs/sourceContextUnit"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceContextSample"
+          }
+        },
+        "omitted": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "limits": {
+          "$ref": "#/$defs/sourceContextLimits"
+        }
+      }
+    },
+    "sourceContextUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "kind": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "sourceContextSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": {
+          "enum": ["binary", "directory", "file", "glob", "missing"]
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sizeBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sourceContextLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxEntries", "maxFileBytes", "maxTotalBytes", "maxDirectoryEntries"],
+      "properties": {
+        "maxEntries": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "maxFileBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "maxTotalBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "maxDirectoryEntries": {
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },

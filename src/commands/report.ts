@@ -13,6 +13,7 @@ import {
   type DeliveryArtifactKind,
   type DeliveryArtifactStatus
 } from "../core/report.js";
+import type { SourceContextSummaryLog } from "../core/source-context.js";
 import type { VerificationReport } from "../core/verification.js";
 import type { VisualReport } from "../core/visual.js";
 
@@ -23,6 +24,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
   const taskPlanPath = join(config.artifactsDir, "tasks.json");
   const taskPlanMarkdownPath = join(config.artifactsDir, "tasks.md");
   const patchProposalsDir = join(config.artifactsDir, "patch-proposals");
+  const sourceContextSummaryPath = join(config.artifactsDir, "source-context-summary.json");
   const executionLogPath = join(config.artifactsDir, "execution-log.json");
   const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
   const rollbackReportPath = join(config.artifactsDir, "rollback-report.json");
@@ -34,6 +36,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
   const outPath = flags.out ?? join(config.artifactsDir, "delivery-report.md");
   const manifestPath = flags["manifest-out"] ?? join(config.artifactsDir, "delivery-manifest.json");
   const brief = await readJsonIfExists<ProjectBrief>(projectBriefPath);
+  const sourceContextSummary = await readJsonIfExists<SourceContextSummaryLog>(sourceContextSummaryPath);
   const executionLog = await readJsonIfExists<ExecutionLog>(executionLogPath);
   const verification = await readJsonIfExists<VerificationReport>(verificationReportPath);
   const visualReportEnabled = flags["visual-report"] !== "none";
@@ -48,6 +51,8 @@ export async function runReport(flags: FlagMap): Promise<void> {
     taskPlanPath,
     taskPlanMarkdownPath,
     patchProposalsDir,
+    sourceContextSummaryPath,
+    sourceContextSummary,
     executionLogPath,
     taskChangelogPath,
     executionLog,
@@ -75,6 +80,8 @@ export async function runReport(flags: FlagMap): Promise<void> {
       taskPlanPath,
       taskPlanMarkdownPath,
       patchProposalsDir,
+      sourceContextSummaryPath,
+      sourceContextSummary,
       executionLogPath,
       executionLog,
       taskChangelogPath,
@@ -110,6 +117,8 @@ async function collectDeliveryArtifacts(input: {
   taskPlanPath: string;
   taskPlanMarkdownPath: string;
   patchProposalsDir: string;
+  sourceContextSummaryPath: string;
+  sourceContextSummary: SourceContextSummaryLog | undefined;
   executionLogPath: string;
   executionLog: ExecutionLog | undefined;
   taskChangelogPath: string;
@@ -135,6 +144,7 @@ async function collectDeliveryArtifacts(input: {
     await artifact("task-plan-json", "Task plan JSON", "json", input.taskPlanPath, true, "Machine-readable implementation task plan."),
     await artifact("task-plan-markdown", "Task plan Markdown", "markdown", input.taskPlanMarkdownPath, true, "Human-readable implementation task plan."),
     await artifact("patch-proposals", "Patch proposals", "directory", input.patchProposalsDir, true, "Dry-run implementation proposals for review.", patchProposalFiles.length),
+    await artifact("source-context-summary", "Source context summary", "json", input.sourceContextSummaryPath, false, "Path-level summary of source-context files sampled for AI prompts.", input.sourceContextSummary?.entries.length, Boolean(input.sourceContextSummary)),
     await artifact("execution-log", "Execution log", "json", input.executionLogPath, false, "Source-changing patch-set application history.", undefined, Boolean(input.executionLog)),
     await artifact("task-changelog", "Task changelog", "markdown", input.taskChangelogPath, false, "Human-readable source-changing task change history.", undefined, await fileExists(input.taskChangelogPath)),
     await artifact("rollback-report", "Rollback report", "json", input.rollbackReportPath, false, "Manual or automatic rollback result.", undefined, await fileExists(input.rollbackReportPath)),

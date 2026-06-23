@@ -30,6 +30,14 @@ const schema = JSON.parse(
     acceptanceEvidence: unknown;
     appliedChanges: unknown;
     deliveryRisk: unknown;
+    sourceContextEntry: unknown;
+    sourceContextLimits: unknown;
+    sourceContextSample: {
+      properties: {
+        kind: { enum: string[] };
+      };
+    };
+    sourceContextUnit: unknown;
     verificationCommand: {
       properties: {
         outputExcerpt: { $ref: string };
@@ -74,6 +82,10 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.acceptanceEvidence);
   assert.ok(schema.$defs.appliedChanges);
   assert.ok(schema.$defs.deliveryRisk);
+  assert.ok(schema.$defs.sourceContextEntry);
+  assert.ok(schema.$defs.sourceContextLimits);
+  assert.ok(schema.$defs.sourceContextUnit);
+  assert.deepEqual(schema.$defs.sourceContextSample.properties.kind.enum, ["binary", "directory", "file", "glob", "missing"]);
   assert.ok(schema.$defs.verificationCommand);
   assert.equal(schema.$defs.verificationCommand.properties.outputExcerpt.$ref, "#/$defs/verificationOutputExcerpt");
   assert.ok(schema.$defs.verificationOutputExcerpt);
