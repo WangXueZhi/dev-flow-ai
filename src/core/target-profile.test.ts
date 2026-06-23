@@ -119,7 +119,14 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
     },
     designAssets: [],
     uiStateChecklist: [],
-    apiContracts: [],
+    apiContracts: [
+      {
+        method: "GET",
+        path: "/api/release/summary",
+        sourceLine: 12,
+        summary: "GET /api/release/summary"
+      }
+    ],
     apiDataModels: [],
     apiErrorCases: [],
     apiAuthRequirements: [],
@@ -159,6 +166,11 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
     "src/components/RetryBanner.tsx",
     "src/features/retry-banner/RetryBanner.tsx",
     "src/App.tsx"
+  ]);
+  assert.deepEqual(profile.dataCandidates.slice(0, 3), [
+    "src/lib/api/release-summary.ts",
+    "src/services/release-summary.ts",
+    "src/api/release-summary.ts"
   ]);
 });
 

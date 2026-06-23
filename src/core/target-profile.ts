@@ -237,6 +237,7 @@ function capitalize(value: string): string {
 
 function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
   const candidates = [
+    ...buildExplicitApiDataCandidates(brief, root, moduleExtension),
     `${root}/api/`,
     `${root}/lib/api.${moduleExtension}`,
     `${root}/services/`,
@@ -269,6 +270,47 @@ function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension:
   }
 
   return unique(candidates);
+}
+
+function buildExplicitApiDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
+  return brief.apiContracts.slice(0, 6).flatMap((contract) => {
+    const subpath = apiSubpath(contract.path);
+    if (!subpath) {
+      return [];
+    }
+
+    const resourceName = kebabCase(pascalCaseFromPath(subpath));
+    const pascalName = pascalCaseFromPath(subpath);
+    const candidates: string[] = [];
+
+    if (hasFramework(brief, "Next.js")) {
+      candidates.push(`app/api/${subpath}/route.${moduleExtension}`, `pages/api/${subpath}.${moduleExtension}`, `${root}/app/api/${subpath}/route.${moduleExtension}`);
+    }
+
+    if (hasFramework(brief, "Nuxt")) {
+      candidates.push(`server/api/${subpath}.${moduleExtension}`, `server/api/${subpath}/index.${moduleExtension}`, `composables/use${pascalName}Api.${moduleExtension}`);
+    }
+
+    if (hasFramework(brief, "Svelte")) {
+      candidates.push(`src/routes/api/${subpath}/+server.${moduleExtension}`, `${root}/routes/api/${subpath}/+server.${moduleExtension}`, `src/lib/server/${resourceName}.${moduleExtension}`);
+    }
+
+    if (hasFramework(brief, "Astro")) {
+      candidates.push(`src/pages/api/${subpath}.${moduleExtension}`, `${root}/pages/api/${subpath}.${moduleExtension}`);
+    }
+
+    if (hasFramework(brief, "Angular")) {
+      candidates.push(`${root}/app/services/${resourceName}.service.${moduleExtension}`);
+    }
+
+    candidates.push(`${root}/lib/api/${resourceName}.${moduleExtension}`, `${root}/services/${resourceName}.${moduleExtension}`, `${root}/api/${resourceName}.${moduleExtension}`);
+
+    return candidates;
+  });
+}
+
+function apiSubpath(path: string): string | undefined {
+  return routeSubpath(path)?.replace(/^api\//i, "");
 }
 
 function buildStyleCandidates(brief: ProjectBrief, root: string): string[] {
