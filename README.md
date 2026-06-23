@@ -296,7 +296,7 @@ DevFlow includes a composite GitHub Action for CI usage:
 
 The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`.
 
-See [GitHub Action](docs/github-action.md) for visual checks, AI provider environment variables, fixture-backed CI, and reviewed patch-set examples.
+See [GitHub Action](docs/github-action.md) for artifact uploads, visual checks, AI provider environment variables, fixture-backed CI, and reviewed patch-set examples.
 
 ## CI And Local Verification
 

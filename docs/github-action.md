@@ -28,12 +28,7 @@ jobs:
           requirements: docs/requirements.md
           ui: docs/ui.md
           api: docs/api.md
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: devflow-artifacts
-          path: .devflow/artifacts
+          upload-artifacts: "true"
 ```
 
 ## Visual Checks
@@ -53,6 +48,19 @@ Start the app preview before invoking DevFlow, then pass the preview URL and tex
     preview-url: http://127.0.0.1:5173
     visual-text: OpsBoard,Checkout
 ```
+
+## Artifact Uploads
+
+Set `upload-artifacts: "true"` to upload `.devflow/artifacts` from the selected working directory after delivery:
+
+```yaml
+- uses: WangXueZhi/dev-flow-ai@v0.1.0
+  with:
+    upload-artifacts: "true"
+    artifact-name: devflow-artifacts
+```
+
+Use `artifacts-path` when your project writes artifacts somewhere other than `.devflow/artifacts`.
 
 ## AI Provider
 
@@ -106,3 +114,6 @@ Without `confirm-apply: "true"`, the action exits before running `dev-flow deliv
 - `confirm-apply`: required confirmation for source-changing delivery. Default: `"false"`.
 - `patch-set`: optional reviewed patch-set JSON path.
 - `save-patch-set`: optional path for saving AI-generated patch sets.
+- `upload-artifacts`: upload DevFlow artifacts after delivery. Default: `"false"`.
+- `artifact-name`: artifact name when `upload-artifacts` is enabled. Default: `devflow-artifacts`.
+- `artifacts-path`: artifact path relative to `working-directory`. Default: `.devflow/artifacts`.

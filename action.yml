@@ -66,6 +66,18 @@ inputs:
     description: Optional path for saving AI-generated patch sets.
     required: false
     default: ""
+  upload-artifacts:
+    description: Upload DevFlow artifacts with actions/upload-artifact after delivery.
+    required: false
+    default: "false"
+  artifact-name:
+    description: Artifact name to use when upload-artifacts=true.
+    required: false
+    default: devflow-artifacts
+  artifacts-path:
+    description: Path to DevFlow artifacts, relative to working-directory.
+    required: false
+    default: .devflow/artifacts
 
 runs:
   using: composite
@@ -120,3 +132,11 @@ runs:
         fi
 
         npx --yes --package "dev-flow-ai@$DEVFLOW_VERSION" dev-flow "${args[@]}"
+
+    - name: Upload DevFlow artifacts
+      if: ${{ inputs.upload-artifacts == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.working-directory }}/${{ inputs.artifacts-path }}
+        if-no-files-found: warn

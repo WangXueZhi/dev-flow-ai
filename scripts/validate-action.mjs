@@ -11,7 +11,9 @@ const requiredSnippets = [
   "using: composite",
   "working-directory: ${{ inputs.working-directory }}",
   "DevFlow source-changing delivery requires confirm-apply=true.",
-  "npx --yes --package \"dev-flow-ai@$DEVFLOW_VERSION\" dev-flow \"${args[@]}\""
+  "npx --yes --package \"dev-flow-ai@$DEVFLOW_VERSION\" dev-flow \"${args[@]}\"",
+  "uses: actions/upload-artifact@v4",
+  "if: ${{ inputs.upload-artifacts == 'true' }}"
 ];
 const requiredInputs = [
   "version",
@@ -29,7 +31,10 @@ const requiredInputs = [
   "apply",
   "confirm-apply",
   "patch-set",
-  "save-patch-set"
+  "save-patch-set",
+  "upload-artifacts",
+  "artifact-name",
+  "artifacts-path"
 ];
 
 for (const snippet of requiredSnippets) {
