@@ -184,7 +184,7 @@ The brief includes:
 - Fenced OpenAPI JSON/YAML support for `paths`, component schemas, request/response schemas, error responses, and security schemes.
 - Detected package manager, runtime, frameworks, build tools, styling, testing, scripts, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
-- Recommended verification commands.
+- Recommended verification commands from package scripts, common script aliases, or inferred TypeScript, test, and build tooling.
 
 ### `dev-flow doctor`
 
@@ -288,7 +288,7 @@ dev-flow deliver --apply --yes --task T03-code-implementation --no-source-contex
 
 ### `dev-flow verify`
 
-Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. Recommended commands are derived from detected package scripts in `check`, `lint`, `typecheck`, `test`, and `build` order.
+Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. Recommended commands are derived from detected package scripts in `check`, `lint`, `typecheck`, `test`, and `build` order, including common script aliases such as `validate`, `type-check`, `test:unit`, and `compile`. When explicit verification scripts are missing, DevFlow can infer package-manager-aware commands from detected TypeScript, Vitest, Jest, Playwright, Cypress, Vite, Next.js, Nuxt, Astro, or Angular signals.
 
 Override the command when needed:
 
@@ -403,7 +403,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - OpenAPI JSON/YAML `paths`, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
 - Stack detection for package manager metadata, framework, build, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
-- Aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts.
+- Aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts, common aliases, or inferred TypeScript, test, and build tooling.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - Normalized frontend target extraction for routes/views, components, data needs, UI states, and acceptance criteria.
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.

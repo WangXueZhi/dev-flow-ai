@@ -51,6 +51,7 @@ All notable changes to DevFlow will be documented in this file.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Added structured project brief generation.
 - Added aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts.
+- Added recommended verification command detection for common package script aliases and dependency-aware TypeScript, test, and build tool fallbacks when explicit verification scripts are missing.
 - Added structured user story and requirement constraint extraction from requirements documents.
 - Added deterministic fallback planning and OpenAI-compatible provider support.
 - Added an optional live provider smoke test script for release validation without making paid AI credentials mandatory for contributors.

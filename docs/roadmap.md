@@ -28,6 +28,7 @@
 - Validated patch-set application.
 - Human-readable task changelog generated after source-changing apply.
 - Aggregated recommended verification commands from detected package scripts.
+- Recommended verification command selection from common script aliases and dependency-aware TypeScript, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Visual screenshot report with basic blank-screen and layout-overflow detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.
@@ -58,7 +59,7 @@
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Enrich task changelogs with reviewer notes and verification links.
-- Expand verification command selection with stack-specific script aliases and dependency-aware checks.
+- Further expand verification command selection with stack-specific framework aliases and dependency-aware checks.
 - Feed verification results into the delivery report after code changes.
 
 ## Milestone 3: UI And Visual Verification

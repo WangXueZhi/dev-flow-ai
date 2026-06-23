@@ -1813,17 +1813,52 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function buildRecommendedVerification(stack: StackProfile): string[] {
   const scripts = stack.scripts;
-  const commands: string[] = [];
+  const scriptCommands = buildPackageScriptVerificationCommands(stack.packageManager, scripts);
 
-  for (const name of ["check", "lint", "typecheck", "test", "build"]) {
-    if (!scripts[name]) {
-      continue;
-    }
-
-    commands.push(formatPackageScriptCommand(stack.packageManager, name));
+  if (scriptCommands.length > 0) {
+    return scriptCommands;
   }
 
-  return commands.length > 0 ? commands : ["Add or document verification commands for this project."];
+  const inferredCommands = buildInferredVerificationCommands(stack);
+
+  return inferredCommands.length > 0 ? inferredCommands : ["Add or document verification commands for this project."];
+}
+
+function buildPackageScriptVerificationCommands(
+  packageManager: string | undefined,
+  scripts: Record<string, string>
+): string[] {
+  const scriptGroups = [
+    ["check", "verify", "validate", "ci"],
+    ["lint", "lint:ci", "lint:check", "eslint"],
+    ["typecheck", "type-check", "typecheck:ci", "type-check:ci"],
+    ["test", "test:ci", "test:unit", "test:run"],
+    ["build", "build:ci", "build:prod", "compile"]
+  ];
+
+  return scriptGroups
+    .map((names) => names.find((name) => scripts[name]))
+    .filter((name): name is string => Boolean(name))
+    .map((name) => formatPackageScriptCommand(packageManager, name));
+}
+
+function buildInferredVerificationCommands(stack: StackProfile): string[] {
+  const commands = [
+    hasStackSignal(stack, "runtimes", "TypeScript") ||
+    hasStackSignal(stack, "buildTools", "tsc") ||
+    stack.configFiles.includes("tsconfig.json")
+      ? formatPackageExecCommand(stack.packageManager, "tsc", "--noEmit")
+      : undefined,
+    hasStackSignal(stack, "testing", "Vitest") ? formatPackageExecCommand(stack.packageManager, "vitest", "run") : undefined,
+    !hasStackSignal(stack, "testing", "Vitest") && hasStackSignal(stack, "testing", "Jest")
+      ? formatPackageExecCommand(stack.packageManager, "jest", "--runInBand")
+      : undefined,
+    hasStackSignal(stack, "testing", "Playwright") ? formatPackageExecCommand(stack.packageManager, "playwright", "test") : undefined,
+    hasStackSignal(stack, "testing", "Cypress") ? formatPackageExecCommand(stack.packageManager, "cypress", "run") : undefined,
+    inferBuildCommand(stack)
+  ];
+
+  return uniqueStrings(commands.filter((command): command is string => Boolean(command)));
 }
 
 function formatPackageScriptCommand(packageManager: string | undefined, scriptName: string): string {
@@ -1836,4 +1871,54 @@ function formatPackageScriptCommand(packageManager: string | undefined, scriptNa
   }
 
   return `npm run ${scriptName}`;
+}
+
+function formatPackageExecCommand(packageManager: string | undefined, binary: string, args = ""): string {
+  const command = args ? `${binary} ${args}` : binary;
+
+  if (packageManager === "pnpm") {
+    return `pnpm exec ${command}`;
+  }
+
+  if (packageManager === "yarn") {
+    return `yarn ${command}`;
+  }
+
+  if (packageManager === "bun") {
+    return `bunx ${command}`;
+  }
+
+  return `npx --no-install ${command}`;
+}
+
+function inferBuildCommand(stack: StackProfile): string | undefined {
+  if (hasStackSignal(stack, "buildTools", "Vite")) {
+    return formatPackageExecCommand(stack.packageManager, "vite", "build");
+  }
+
+  if (hasStackSignal(stack, "frameworks", "Next.js")) {
+    return formatPackageExecCommand(stack.packageManager, "next", "build");
+  }
+
+  if (hasStackSignal(stack, "frameworks", "Nuxt")) {
+    return formatPackageExecCommand(stack.packageManager, "nuxt", "build");
+  }
+
+  if (hasStackSignal(stack, "frameworks", "Astro")) {
+    return formatPackageExecCommand(stack.packageManager, "astro", "build");
+  }
+
+  if (hasStackSignal(stack, "frameworks", "Angular") || hasStackSignal(stack, "buildTools", "Angular CLI")) {
+    return formatPackageExecCommand(stack.packageManager, "ng", "build");
+  }
+
+  return undefined;
+}
+
+function hasStackSignal(stack: StackProfile, field: "buildTools" | "frameworks" | "runtimes" | "testing", value: string): boolean {
+  return stack[field].includes(value);
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values)];
 }

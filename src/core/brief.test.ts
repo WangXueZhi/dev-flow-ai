@@ -153,6 +153,64 @@ test("createProjectBrief formats bun verification scripts with bun run", () => {
   assert.deepEqual(brief.recommendedVerification, ["bun run test", "bun run build"]);
 });
 
+test("createProjectBrief recognizes common verification script aliases", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "npm",
+    scripts: {
+      validate: "npm run lint && npm test",
+      "type-check": "tsc --noEmit",
+      "test:unit": "vitest run",
+      compile: "vite build"
+    }
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "npm run validate",
+    "npm run type-check",
+    "npm run test:unit",
+    "npm run compile"
+  ]);
+});
+
+test("createProjectBrief infers verification commands from detected frontend tooling", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "pnpm",
+    scripts: {},
+    runtimes: ["Node.js", "TypeScript"],
+    frameworks: ["React"],
+    buildTools: ["Vite", "tsc"],
+    testing: ["Vitest", "Playwright"],
+    configFiles: ["tsconfig.json", "vite.config.ts", "playwright.config.ts"]
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "pnpm exec tsc --noEmit",
+    "pnpm exec vitest run",
+    "pnpm exec playwright test",
+    "pnpm exec vite build"
+  ]);
+});
+
+test("createProjectBrief formats inferred npm commands without a detected package manager", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: undefined,
+    scripts: {},
+    runtimes: ["Node.js"],
+    frameworks: ["Next.js"],
+    buildTools: [],
+    testing: ["Jest"],
+    configFiles: ["jest.config.js"]
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "npx --no-install jest --runInBand",
+    "npx --no-install next build"
+  ]);
+});
+
 test("assessDeliveryRisks scores ambiguous requirements and missing delivery gates", () => {
   const risks = assessDeliveryRisks(
     {
