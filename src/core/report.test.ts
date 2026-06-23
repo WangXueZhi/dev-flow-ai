@@ -93,6 +93,21 @@ const brief: ProjectBrief = {
   userStories: ["As a release owner, I want dashboard health visible so that release risk is clear."],
   constraints: ["Keep the dashboard dense and operational."],
   acceptanceCriteria: ["Dashboard renders release health.", "Deploy confidence is visible."],
+  deliveryRisks: [
+    {
+      level: "high",
+      source: "requirements",
+      sourceLine: 8,
+      summary: "Requirement contains an unresolved placeholder: TODO confirm empty state copy.",
+      recommendation: "Resolve the placeholder before source-changing execution."
+    },
+    {
+      level: "medium",
+      source: "ui",
+      summary: "UI checklist does not include responsive behavior.",
+      recommendation: "Document desktop, tablet, and mobile expectations before visual verification."
+    }
+  ],
   openQuestions: ["Confirm empty state copy."],
   recommendedVerification: ["npm run check"]
 };
@@ -231,9 +246,14 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /desktop 1440x1000/);
   assert.match(report, /blank: no, distinct pixels: 25\.00%/);
   assert.match(report, /Layout issues: none/);
+  assert.match(report, /Risk Assessment/);
+  assert.match(report, /\[high\] requirements:8: Requirement contains an unresolved placeholder/);
+  assert.match(report, /\[medium\] ui: UI checklist does not include responsive behavior/);
   assert.match(report, /Delivery Readiness/);
   assert.match(report, /Status: needs attention/);
   assert.match(report, /Evidence: 2 acceptance criteria recorded/);
+  assert.match(report, /Evidence: 1 medium delivery risk\(s\) recorded for review/);
+  assert.match(report, /Attention: 1 high delivery risk\(s\) remain/);
   assert.match(report, /Attention: 1 open question\(s\) remain/);
   assert.match(report, /Confirm empty state copy/);
 });

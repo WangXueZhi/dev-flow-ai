@@ -24,7 +24,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 
 - [ ] `dev-flow init` creates `.devflow/config.json`, `.devflow/artifacts/`, and structured starter document files for requirements, UI notes, and API docs.
 - [ ] `dev-flow brief` writes `.devflow/artifacts/project-brief.json`.
-- [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, open questions, and verification commands.
+- [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, delivery risks, open questions, and verification commands.
 - [ ] The project brief includes UI design assets referenced by Markdown image links, local file existence, lightweight SVG metadata including color swatches, and PNG/JPEG dimensions when available.
 - [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references.
 - [ ] The project brief includes API data model summaries extracted from fenced `json` examples.

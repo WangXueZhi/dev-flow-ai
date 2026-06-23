@@ -41,6 +41,7 @@ const brief: ProjectBrief = {
   userStories: [],
   constraints: [],
   acceptanceCriteria: [],
+  deliveryRisks: [],
   openQuestions: [],
   recommendedVerification: ["npm run check"]
 };

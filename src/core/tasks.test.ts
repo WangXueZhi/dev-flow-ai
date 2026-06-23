@@ -95,6 +95,15 @@ const brief: ProjectBrief = {
   userStories: ["As an operator, I want to filter orders by status so that I can focus the queue."],
   constraints: ["Use existing table components."],
   acceptanceCriteria: ["Orders can be filtered by status."],
+  deliveryRisks: [
+    {
+      level: "medium",
+      source: "requirements",
+      sourceLine: 12,
+      summary: "Requirement uses tentative scope language: Maybe add bulk actions later.",
+      recommendation: "Clarify whether this behavior is in scope for the current delivery."
+    }
+  ],
   openQuestions: ["Confirm default filter."],
   recommendedVerification: ["npm run check"]
 };
@@ -121,6 +130,7 @@ test("createTaskPlan generates executable delivery phases", () => {
     1
   );
   assert.equal(taskPlan.tasks.length, 5);
+  assert.match(taskPlan.tasks[0]?.acceptanceCriteria.join("\n") ?? "", /Risk accepted or mitigated: \[medium\]/);
   assert.equal(taskPlan.tasks[2]?.id, "T03-code-implementation");
   assert.deepEqual(taskPlan.tasks[2]?.verification, ["npm run check"]);
   assert.equal(taskPlan.tasks[4]?.phase, "Delivery");
@@ -137,6 +147,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /\[ui-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /Kind: responsive/);
   assert.match(markdown, /Use existing table components/);
+  assert.match(markdown, /Risk accepted or mitigated: \[medium\]/);
   assert.match(markdown, /T03-code-implementation/);
   assert.match(markdown, /Orders can be filtered by status/);
 });

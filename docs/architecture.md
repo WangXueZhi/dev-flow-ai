@@ -45,7 +45,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Rollback: restores files from `.devflow/artifacts/backups/<id>/manifest.json`, writes `.devflow/artifacts/rollback-report.json`, and is invoked automatically when source-changing apply fails after backup creation.
 - Verification: runs recommended project commands and writes `.devflow/artifacts/verification-report.json`.
 - Visual Verification: captures screenshots, blank-screen analysis, layout-overflow checks, and text checks for preview URLs into `.devflow/artifacts/visual/visual-report.json`.
-- Report: summarizes source documents, acceptance criteria, stack, artifacts, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence, delivery readiness, open questions, and next actions.
+- Report: summarizes source documents, acceptance criteria, stack, artifacts, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence, risk assessment, delivery readiness, open questions, and next actions.
 - Doctor: checks runtime and project readiness.
 - GitHub Action: wraps safe `dev-flow deliver` for CI usage and requires explicit double confirmation for source-changing delivery.
 
@@ -76,6 +76,7 @@ The brief contains:
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
 - OpenAPI JSON/YAML paths, component schemas, request/response schemas, error responses, and security requirements extracted from fenced blocks.
+- Delivery risks scored from ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - Open questions.
 - Repository stack profile.
 - Recommended verification commands.

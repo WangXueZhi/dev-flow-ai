@@ -43,6 +43,7 @@ export function createTaskPlan(
     : ["Implementation satisfies the reviewed requirements."];
   const recommendedVerification = brief.recommendedVerification.filter((command) => !command.startsWith("Add or document"));
   const hasImplementationPlan = implementationPlanMarkdown.trim().length > 0;
+  const contextReviewCriteria = createContextReviewCriteria(brief);
 
   return {
     version: 1,
@@ -64,8 +65,8 @@ export function createTaskPlan(
           source.projectBriefPath
         ],
         expectedOutputs: ["Confirmed assumptions", "Resolved or accepted open questions"],
-        acceptanceCriteria: brief.openQuestions.length
-          ? brief.openQuestions.map((question) => `Question resolved or explicitly accepted: ${question}`)
+        acceptanceCriteria: contextReviewCriteria.length
+          ? contextReviewCriteria
           : ["Project context is reviewed and ready for implementation."],
         verification: []
       },
@@ -137,6 +138,16 @@ export function createTaskPlan(
       "Dry-run execution should produce patch proposals before any source-changing command is allowed."
     ]
   };
+}
+
+function createContextReviewCriteria(brief: ProjectBrief): string[] {
+  const riskCriteria = (brief.deliveryRisks ?? [])
+    .filter((risk) => risk.level !== "low")
+    .slice(0, 8)
+    .map((risk) => `Risk accepted or mitigated: [${risk.level}] ${risk.summary}`);
+  const questionCriteria = brief.openQuestions.map((question) => `Question resolved or explicitly accepted: ${question}`);
+
+  return [...questionCriteria, ...riskCriteria];
 }
 
 export function formatTaskPlanMarkdown(taskPlan: TaskPlan): string {

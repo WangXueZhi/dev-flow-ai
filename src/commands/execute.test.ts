@@ -275,6 +275,7 @@ function writeProject(workspace: string): void {
     userStories: ["As a user, I want the existing shell to remain visible so that navigation stays stable."],
     constraints: ["Keep the existing React shell mounted."],
     acceptanceCriteria: ["Existing shell remains visible."],
+    deliveryRisks: [],
     openQuestions: [],
     recommendedVerification: ["npm run check"]
   };

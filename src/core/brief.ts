@@ -33,6 +33,17 @@ export interface UiStateChecklistItem {
   summary: string;
 }
 
+export type DeliveryRiskLevel = "low" | "medium" | "high";
+export type DeliveryRiskSource = "requirements" | "ui" | "api" | "repository";
+
+export interface DeliveryRisk {
+  level: DeliveryRiskLevel;
+  source: DeliveryRiskSource;
+  sourceLine?: number;
+  summary: string;
+  recommendation: string;
+}
+
 export interface ApiContract {
   method: string;
   path: string;
@@ -85,6 +96,7 @@ export interface ProjectBrief {
   userStories: string[];
   constraints: string[];
   acceptanceCriteria: string[];
+  deliveryRisks: DeliveryRisk[];
   openQuestions: string[];
   recommendedVerification: string[];
 }
@@ -97,6 +109,12 @@ interface MarkdownCodeBlock {
 export function createProjectBrief(context: ProjectContext, stack: StackProfile): ProjectBrief {
   const acceptanceCriteria = extractChecklistItems(context.requirements);
   const apiDataModelResult = extractApiDataModels(context.api);
+  const designAssets = extractDesignAssets(context.ui, context.uiPath);
+  const uiStateChecklist = extractUiStateChecklist(context.ui);
+  const apiContracts = extractApiContracts(context.api);
+  const apiErrorCases = extractApiErrorCases(context.api);
+  const apiAuthRequirements = extractApiAuthRequirements(context.api);
+  const recommendedVerification = buildRecommendedVerification(stack);
 
   return {
     version: 1,
@@ -111,18 +129,28 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
       ui: extractMarkdownSignals(context.ui),
       api: extractMarkdownSignals(context.api)
     },
-    designAssets: extractDesignAssets(context.ui, context.uiPath),
-    uiStateChecklist: extractUiStateChecklist(context.ui),
-    apiContracts: extractApiContracts(context.api),
+    designAssets,
+    uiStateChecklist,
+    apiContracts,
     apiDataModels: apiDataModelResult.models,
-    apiErrorCases: extractApiErrorCases(context.api),
-    apiAuthRequirements: extractApiAuthRequirements(context.api),
+    apiErrorCases,
+    apiAuthRequirements,
     invalidApiDataModels: apiDataModelResult.invalid,
     userStories: extractRequirementUserStories(context.requirements),
     constraints: extractRequirementConstraints(context.requirements),
     acceptanceCriteria,
+    deliveryRisks: assessDeliveryRisks(context, stack, {
+      acceptanceCriteria,
+      designAssets,
+      uiStateChecklist,
+      apiContracts,
+      apiErrorCases,
+      apiAuthRequirements,
+      invalidApiDataModels: apiDataModelResult.invalid,
+      recommendedVerification
+    }),
     openQuestions: buildOpenQuestions(context, stack, acceptanceCriteria),
-    recommendedVerification: buildRecommendedVerification(stack)
+    recommendedVerification
   };
 }
 
@@ -194,6 +222,128 @@ export function extractUiStateChecklist(uiMarkdown: string, limit = 24): UiState
   }
 
   return items;
+}
+
+interface DeliveryRiskAssessmentInput {
+  acceptanceCriteria: string[];
+  designAssets: DesignAsset[];
+  uiStateChecklist: UiStateChecklistItem[];
+  apiContracts: ApiContract[];
+  apiErrorCases: ApiErrorCase[];
+  apiAuthRequirements: ApiAuthRequirement[];
+  invalidApiDataModels: InvalidApiDataModel[];
+  recommendedVerification: string[];
+}
+
+export function assessDeliveryRisks(
+  context: ProjectContext,
+  stack: StackProfile,
+  input?: Partial<DeliveryRiskAssessmentInput>
+): DeliveryRisk[] {
+  const acceptanceCriteria = input?.acceptanceCriteria ?? extractChecklistItems(context.requirements);
+  const designAssets = input?.designAssets ?? extractDesignAssets(context.ui, context.uiPath);
+  const uiStateChecklist = input?.uiStateChecklist ?? extractUiStateChecklist(context.ui);
+  const apiContracts = input?.apiContracts ?? extractApiContracts(context.api);
+  const apiErrorCases = input?.apiErrorCases ?? extractApiErrorCases(context.api);
+  const apiAuthRequirements = input?.apiAuthRequirements ?? extractApiAuthRequirements(context.api);
+  const invalidApiDataModels = input?.invalidApiDataModels ?? extractApiDataModels(context.api).invalid;
+  const recommendedVerification = input?.recommendedVerification ?? buildRecommendedVerification(stack);
+  const risks: DeliveryRisk[] = [];
+
+  if (acceptanceCriteria.length === 0) {
+    risks.push({
+      level: "high",
+      source: "requirements",
+      summary: "Requirements do not include explicit acceptance criteria.",
+      recommendation: "Add testable acceptance criteria before autonomous source-changing execution."
+    });
+  }
+
+  risks.push(...extractAmbiguousRequirementRisks(context.requirements));
+
+  if (stack.frameworks.length === 0) {
+    risks.push({
+      level: "high",
+      source: "repository",
+      summary: "No frontend framework was detected.",
+      recommendation: "Confirm the target frontend stack and source entry points before implementation."
+    });
+  }
+
+  if (recommendedVerification.some((command) => command.startsWith("Add or document"))) {
+    risks.push({
+      level: "high",
+      source: "repository",
+      summary: "No runnable verification command was detected.",
+      recommendation: "Add or document at least one build, lint, typecheck, test, or check command."
+    });
+  }
+
+  if (uiStateChecklist.length === 0) {
+    risks.push({
+      level: "medium",
+      source: "ui",
+      summary: "UI notes do not include structured screen, component, state, interaction, responsive, or accessibility checklist items.",
+      recommendation: "Add UI state notes so implementation can cover loading, empty, error, success, interaction, and responsive behavior."
+    });
+  } else if (!uiStateChecklist.some((item) => item.kind === "responsive")) {
+    risks.push({
+      level: "medium",
+      source: "ui",
+      summary: "UI checklist does not include responsive behavior.",
+      recommendation: "Document desktop, tablet, and mobile expectations before visual verification."
+    });
+  }
+
+  for (const asset of designAssets) {
+    if (asset.kind === "local" && asset.exists === false) {
+      risks.push({
+        level: "medium",
+        source: "ui",
+        summary: `Referenced UI design asset was not found: ${asset.reference}.`,
+        recommendation: "Add the missing asset or update the UI notes to a valid design reference."
+      });
+    }
+  }
+
+  if (apiContracts.length === 0) {
+    risks.push({
+      level: "high",
+      source: "api",
+      summary: "API docs do not include recognizable HTTP endpoint contracts.",
+      recommendation: "Document endpoints or OpenAPI paths before implementation depends on API data."
+    });
+  }
+
+  if (apiErrorCases.length === 0) {
+    risks.push({
+      level: "medium",
+      source: "api",
+      summary: "API docs do not explicitly describe error handling.",
+      recommendation: "Document error responses and user-facing failure behavior."
+    });
+  }
+
+  if (apiAuthRequirements.length === 0) {
+    risks.push({
+      level: "medium",
+      source: "api",
+      summary: "API docs do not explicitly describe authentication or authorization requirements.",
+      recommendation: "Clarify auth headers, session behavior, and unauthorized UI before integration."
+    });
+  }
+
+  for (const invalidModel of invalidApiDataModels) {
+    risks.push({
+      level: "high",
+      source: "api",
+      sourceLine: invalidModel.sourceLine,
+      summary: `API docs contain an invalid data model: ${invalidModel.error}`,
+      recommendation: "Fix the invalid JSON or OpenAPI block before generating source-changing patches."
+    });
+  }
+
+  return uniqueDeliveryRisks(risks, 16);
 }
 
 export function extractApiContracts(apiMarkdown: string): ApiContract[] {
@@ -840,6 +990,87 @@ function addUiStateChecklistItem(
 
   seen.add(key);
   items.push(item);
+}
+
+function extractAmbiguousRequirementRisks(requirementsMarkdown: string): DeliveryRisk[] {
+  const risks: DeliveryRisk[] = [];
+  const lines = requirementsMarkdown.split(/\r?\n/);
+  let inFence = false;
+
+  for (const [index, line] of lines.entries()) {
+    const trimmed = line.trim();
+
+    if (/^```/.test(trimmed)) {
+      inFence = !inFence;
+      continue;
+    }
+
+    if (inFence || !trimmed) {
+      continue;
+    }
+
+    const summary = normalizeMarkdownListItem(trimmed) ?? trimmed.replace(/^#{1,6}\s+/, "");
+
+    if (/^(?:requirements?|goal|user stories?|acceptance criteria|constraints?)$/i.test(summary)) {
+      continue;
+    }
+
+    if (/\b(TBD|TODO|FIXME|unknown|not sure|to be decided|to be confirmed)\b/i.test(summary)) {
+      risks.push({
+        level: "high",
+        source: "requirements",
+        sourceLine: index + 1,
+        summary: `Requirement contains an unresolved placeholder: ${summary}`,
+        recommendation: "Resolve the placeholder before source-changing execution."
+      });
+      continue;
+    }
+
+    if (/\b(maybe|probably|roughly|nice to have|eventually|later|future|etc\.?)\b/i.test(summary)) {
+      risks.push({
+        level: "medium",
+        source: "requirements",
+        sourceLine: index + 1,
+        summary: `Requirement uses tentative scope language: ${summary}`,
+        recommendation: "Clarify whether this behavior is in scope for the current delivery."
+      });
+      continue;
+    }
+
+    if (/\b(fast|intuitive|simple|clean|polished|beautiful|modern|easy)\b/i.test(summary)) {
+      risks.push({
+        level: "medium",
+        source: "requirements",
+        sourceLine: index + 1,
+        summary: `Requirement uses subjective quality language: ${summary}`,
+        recommendation: "Convert subjective quality goals into measurable acceptance criteria or visual checks."
+      });
+    }
+  }
+
+  return risks;
+}
+
+function uniqueDeliveryRisks(risks: DeliveryRisk[], limit: number): DeliveryRisk[] {
+  const uniqueRisks: DeliveryRisk[] = [];
+  const seen = new Set<string>();
+
+  for (const risk of risks) {
+    const key = `${risk.level}:${risk.source}:${risk.sourceLine ?? ""}:${risk.summary.toLowerCase()}`;
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    uniqueRisks.push(risk);
+
+    if (uniqueRisks.length >= limit) {
+      break;
+    }
+  }
+
+  return uniqueRisks;
 }
 
 function isPlaceholderRequirementItem(item: string): boolean {

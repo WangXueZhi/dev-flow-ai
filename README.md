@@ -175,7 +175,7 @@ The brief includes:
 - API error cases and authentication requirements extracted from API docs.
 - Fenced OpenAPI JSON/YAML support for `paths`, component schemas, request/response schemas, error responses, and security schemes.
 - Detected package manager, runtime, frameworks, build tools, styling, testing, scripts, source directories, and config files.
-- Acceptance criteria and open questions.
+- Acceptance criteria, delivery risk assessment, and open questions.
 - Recommended verification commands.
 
 ### `dev-flow doctor`
@@ -292,7 +292,7 @@ dev-flow verify --command "npm run check"
 
 Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md`.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks, delivery readiness, open questions, and next actions.
 
 Use `--visual-report none` when generating a report that should not include an existing visual artifact from an earlier run:
 
@@ -370,6 +370,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Stack detection for package manager, framework, build, styling, testing, scripts, and source layout.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
+- Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.
 - Generated implementation plan with phases, risks, and verification checklist.
@@ -383,7 +384,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, and optional text checks for preview URLs.
-- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.
 - Clean extension points for future coding agents.

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  assessDeliveryRisks,
   createProjectBrief,
   extractApiAuthRequirements,
   extractApiContracts,
@@ -103,7 +104,47 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.userStories, ["As a user, I want saved filters so that I can return to focused views."]);
   assert.deepEqual(brief.constraints, ["Must support offline fallback data."]);
   assert.deepEqual(brief.acceptanceCriteria, ["Filters persist after refresh."]);
+  assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /Referenced UI design asset was not found/);
+  assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /authentication or authorization/);
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
+});
+
+test("assessDeliveryRisks scores ambiguous requirements and missing delivery gates", () => {
+  const risks = assessDeliveryRisks(
+    {
+      requirementsPath: "docs/requirements.md",
+      requirements: [
+        "# Requirements",
+        "",
+        "- [ ] TODO confirm checkout error states.",
+        "- Maybe add bulk actions later.",
+        "- The UI should feel fast and intuitive."
+      ].join("\n"),
+      uiPath: "docs/ui.md",
+      ui: "# UI Notes\n\n- Checkout table.",
+      apiPath: "docs/api.md",
+      api: "# API Docs\n\n```json\n{bad json}\n```"
+    },
+    {
+      packageManager: "npm",
+      runtimes: ["Node.js"],
+      frameworks: [],
+      buildTools: [],
+      styling: [],
+      testing: [],
+      scripts: {},
+      sourceDirectories: [],
+      configFiles: [],
+      notes: []
+    }
+  );
+
+  assert.ok(risks.some((risk) => risk.level === "high" && /TODO confirm/.test(risk.summary)));
+  assert.ok(risks.some((risk) => risk.level === "medium" && /tentative scope/.test(risk.summary)));
+  assert.ok(risks.some((risk) => risk.level === "medium" && /subjective quality/.test(risk.summary)));
+  assert.ok(risks.some((risk) => risk.level === "high" && /No frontend framework/.test(risk.summary)));
+  assert.ok(risks.some((risk) => risk.level === "high" && /No runnable verification/.test(risk.summary)));
+  assert.ok(risks.some((risk) => risk.level === "high" && /invalid data model/.test(risk.summary)));
 });
 
 test("extractUiStateChecklist captures structured UI states and keyword-driven checks", () => {

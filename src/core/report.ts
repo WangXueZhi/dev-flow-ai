@@ -110,6 +110,10 @@ ${verification ? formatVerification(verification) : "- Verification has not been
 
 ${input.visualReport ? formatVisual(input.visualReport) : "- Visual verification has not been run yet."}
 
+## Risk Assessment
+
+${brief ? formatRiskAssessment(brief) : "- Project brief was not available."}
+
 ## Delivery Readiness
 
 ${formatDeliveryReadiness(input)}
@@ -313,6 +317,9 @@ function formatDeliveryReadiness(input: DeliveryReportInput): string {
   if (!input.brief) {
     blockers.push("Project brief was not available.");
   } else {
+    const highRisks = (input.brief.deliveryRisks ?? []).filter((risk) => risk.level === "high");
+    const mediumRisks = (input.brief.deliveryRisks ?? []).filter((risk) => risk.level === "medium");
+
     if (input.brief.acceptanceCriteria.length === 0) {
       blockers.push("Requirements do not include explicit acceptance criteria.");
     } else {
@@ -321,6 +328,14 @@ function formatDeliveryReadiness(input: DeliveryReportInput): string {
 
     if (input.brief.openQuestions.length > 0) {
       blockers.push(`${input.brief.openQuestions.length} open question(s) remain.`);
+    }
+
+    if (highRisks.length > 0) {
+      blockers.push(`${highRisks.length} high delivery risk(s) remain.`);
+    }
+
+    if (mediumRisks.length > 0) {
+      evidence.push(`${mediumRisks.length} medium delivery risk(s) recorded for review.`);
     }
   }
 
@@ -375,6 +390,20 @@ function formatUiStateChecklist(brief: ProjectBrief): string {
   return items
     .map((item) => `- [${item.kind}] Line ${item.sourceLine}: ${item.summary}`)
     .join("\n");
+}
+
+function formatRiskAssessment(brief: ProjectBrief): string {
+  const risks = brief.deliveryRisks ?? [];
+
+  if (risks.length === 0) {
+    return "- No delivery risks were detected from the current project brief.";
+  }
+
+  return risks.map((risk) => {
+    const source = risk.sourceLine === undefined ? risk.source : `${risk.source}:${risk.sourceLine}`;
+
+    return `- [${risk.level}] ${source}: ${risk.summary} Recommendation: ${risk.recommendation}`;
+  }).join("\n");
 }
 
 function formatDesignAssets(brief: ProjectBrief): string {

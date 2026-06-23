@@ -164,10 +164,7 @@ ${brief?.recommendedVerification.length ? `## Recommended Commands\n\n${brief.re
 
 ## Delivery Risks
 
-- Requirements may be too ambiguous for autonomous coding.
-- UI notes may omit responsive or interactive states.
-- API docs may not include error shape or auth behavior.
-- Existing repository conventions may override generic implementation choices.
+${formatDeliveryRisks(brief)}
 `;
 }
 
@@ -259,6 +256,25 @@ function formatUiStateChecklistSection(brief: ProjectBrief): string {
   }
 
   return `## UI State Checklist\n\n${items.map((item) => `- [${item.kind}] Line ${item.sourceLine}: ${item.summary}`).join("\n")}\n`;
+}
+
+function formatDeliveryRisks(brief: ProjectBrief | undefined): string {
+  const risks = brief?.deliveryRisks ?? [];
+
+  if (risks.length === 0) {
+    return [
+      "- Requirements may be too ambiguous for autonomous coding.",
+      "- UI notes may omit responsive or interactive states.",
+      "- API docs may not include error shape or auth behavior.",
+      "- Existing repository conventions may override generic implementation choices."
+    ].join("\n");
+  }
+
+  return risks.map((risk) => {
+    const source = risk.sourceLine === undefined ? risk.source : `${risk.source}:${risk.sourceLine}`;
+
+    return `- [${risk.level}] ${source}: ${risk.summary} Recommendation: ${risk.recommendation}`;
+  }).join("\n");
 }
 
 function formatApiContractsSection(brief: ProjectBrief): string {

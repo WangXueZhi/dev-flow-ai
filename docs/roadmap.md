@@ -14,6 +14,7 @@
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
+- Risk scoring for ambiguous requirements.
 - Task plan generation.
 - Dry-run patch proposal generation.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
@@ -34,7 +35,6 @@
 - Better structured project brief and task output with normalized routes, components, data needs, and UI states.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
 - Plan sections for routes, components, state, data fetching, styling, tests, and accessibility.
-- Risk scoring for ambiguous requirements.
 - Prompt fixtures and golden output tests.
 
 ## Milestone 2: Assisted Implementation

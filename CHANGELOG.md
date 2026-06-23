@@ -22,6 +22,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `npm run release:preflight` for consolidated release checks and residue scanning.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
+- Added delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - Added UI state checklist extraction for screens, components, states, interactions, responsive behavior, and accessibility notes.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added acceptance-criterion status, known gaps, assumptions, and manual QA prompts to generated delivery reports.
