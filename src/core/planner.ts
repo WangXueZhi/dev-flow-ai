@@ -24,10 +24,14 @@ The plan must include:
 - Summary
 - Assumptions
 - Implementation phases
-- Component and route breakdown
-- API integration tasks
-- State, loading, empty, and error handling
-- Accessibility and responsive checks
+- Frontend Delivery Blueprint with these exact subsections:
+  - Routes And Navigation
+  - Components
+  - State And Interaction
+  - Data And API Integration
+  - Styling And Responsive Rules
+  - Test Plan
+  - Accessibility Checks
 - Test and verification checklist
 - Delivery risks
 
@@ -93,6 +97,8 @@ ${formatSignals(uiSignals)}
 ### API
 
 ${formatSignals(apiSignals)}
+
+${formatFrontendDeliveryBlueprintSection(brief, requirementSignals, uiSignals, apiSignals)}
 
 ${brief?.openQuestions.length ? `## Open Questions\n\n${brief.openQuestions.map((question) => `- ${question}`).join("\n")}\n` : ""}
 
@@ -258,6 +264,210 @@ function formatUiStateChecklistSection(brief: ProjectBrief): string {
   return `## UI State Checklist\n\n${items.map((item) => `- [${item.kind}] Line ${item.sourceLine}: ${item.summary}`).join("\n")}\n`;
 }
 
+function formatFrontendDeliveryBlueprintSection(
+  brief: ProjectBrief | undefined,
+  requirementSignals: string[],
+  uiSignals: string[],
+  apiSignals: string[]
+): string {
+  return `## Frontend Delivery Blueprint
+
+### Routes And Navigation
+
+${formatRoutesAndNavigation(brief, requirementSignals, uiSignals)}
+
+### Components
+
+${formatComponentsBlueprint(brief, uiSignals)}
+
+### State And Interaction
+
+${formatStateAndInteractionBlueprint(brief, uiSignals)}
+
+### Data And API Integration
+
+${formatDataIntegrationBlueprint(brief, apiSignals)}
+
+### Styling And Responsive Rules
+
+${formatStylingBlueprint(brief, uiSignals)}
+
+### Test Plan
+
+${formatTestBlueprint(brief)}
+
+### Accessibility Checks
+
+${formatAccessibilityBlueprint(brief)}
+`;
+}
+
+function formatRoutesAndNavigation(
+  brief: ProjectBrief | undefined,
+  requirementSignals: string[],
+  uiSignals: string[]
+): string {
+  const screenItems = uiChecklistItems(brief, "screen").map(
+    (item) => `Define a route or view boundary for UI screen note at line ${item.sourceLine}: ${item.summary}`
+  );
+  const storyItems = (brief?.userStories ?? requirementSignals).slice(0, 4).map(
+    (story) => `Ensure navigation exposes the user path for: ${story}`
+  );
+  const fallbackItems = uiSignals.slice(0, 4).map((signal) => `Derive route or view ownership from UI signal: ${signal}`);
+
+  return formatPlanBullets(
+    unique([...screenItems, ...storyItems, ...fallbackItems]).slice(0, 8),
+    "Identify route, page, or view boundaries from the UI notes and existing router conventions."
+  );
+}
+
+function formatComponentsBlueprint(brief: ProjectBrief | undefined, uiSignals: string[]): string {
+  const componentItems = uiChecklistItems(brief, "component").map(
+    (item) => `Create or update component boundary from UI note line ${item.sourceLine}: ${item.summary}`
+  );
+  const assetItems = (brief?.designAssets ?? []).slice(0, 4).map((asset) =>
+    `Use design asset ${asset.altText ? `"${asset.altText}"` : `\`${asset.reference}\``} as visual evidence for layout and component composition.`
+  );
+  const fallbackItems = componentItems.length || assetItems.length
+    ? []
+    : uiSignals.slice(0, 4).map((signal) => `Map UI signal to page, feature, or shared component ownership: ${signal}`);
+
+  return formatPlanBullets(
+    unique([
+      "Keep page-level components responsible for layout and data orchestration.",
+      "Keep reusable feature components focused on one interaction or display responsibility.",
+      ...componentItems,
+      ...assetItems,
+      ...fallbackItems
+    ]).slice(0, 10),
+    "Define page, feature, and shared component boundaries before coding."
+  );
+}
+
+function formatStateAndInteractionBlueprint(brief: ProjectBrief | undefined, uiSignals: string[]): string {
+  const stateItems = uiChecklistItems(brief, "state").map(
+    (item) => `Implement documented UI state from line ${item.sourceLine}: ${item.summary}`
+  );
+  const interactionItems = uiChecklistItems(brief, "interaction").map(
+    (item) => `Implement documented interaction from line ${item.sourceLine}: ${item.summary}`
+  );
+  const errorItems = (brief?.apiErrorCases ?? []).map(
+    (item) => `Map API failure at line ${item.sourceLine} to visible retry, stale, unavailable, or blocked UI behavior: ${item.summary}`
+  );
+  const fallbackItems = stateItems.length || interactionItems.length || errorItems.length
+    ? []
+    : uiSignals.slice(0, 4).map((signal) => `Identify loading, empty, error, success, and interaction states for: ${signal}`);
+
+  return formatPlanBullets(
+    unique([...stateItems, ...interactionItems, ...errorItems, ...fallbackItems]).slice(0, 10),
+    "Cover loading, empty, error, success, disabled, and user-triggered interaction states."
+  );
+}
+
+function formatDataIntegrationBlueprint(brief: ProjectBrief | undefined, apiSignals: string[]): string {
+  const contractItems = (brief?.apiContracts ?? []).map(
+    (contract) => `Integrate \`${contract.method} ${contract.path}\` from API line ${contract.sourceLine}: ${contract.summary}`
+  );
+  const modelItems = (brief?.apiDataModels ?? []).map((model) => {
+    const fields = model.fields.length ? model.fields.join(", ") : "no fields listed";
+
+    return `Shape UI data around \`${model.name}\` fields: ${fields}.`;
+  });
+  const authItems = (brief?.apiAuthRequirements ?? []).map(
+    (item) => `Account for API auth requirement at line ${item.sourceLine}: ${item.summary}`
+  );
+  const fallbackItems = contractItems.length || modelItems.length || authItems.length
+    ? []
+    : apiSignals.slice(0, 5).map((signal) => `Translate API signal into data-fetching and error-handling work: ${signal}`);
+
+  return formatPlanBullets(
+    unique([
+      ...contractItems,
+      ...modelItems,
+      ...authItems,
+      ...fallbackItems,
+      "Keep transport, mapping, and mock or fixture data isolated from presentation components."
+    ]).slice(0, 12),
+    "Map API contracts into data clients, data shapes, auth handling, and UI state transitions."
+  );
+}
+
+function formatStylingBlueprint(brief: ProjectBrief | undefined, uiSignals: string[]): string {
+  const responsiveItems = uiChecklistItems(brief, "responsive").map(
+    (item) => `Apply responsive rule from UI note line ${item.sourceLine}: ${item.summary}`
+  );
+  const stylingItems = brief?.stack.styling.length
+    ? [`Use detected styling approach: ${brief.stack.styling.join(", ")}.`]
+    : [];
+  const assetItems = (brief?.designAssets ?? []).flatMap((asset) => {
+    const colors = asset.metadata?.colors?.length ? `Color references: ${asset.metadata.colors.join(", ")}.` : undefined;
+    const dimensions = asset.metadata?.width || asset.metadata?.height
+      ? `Design dimensions: ${asset.metadata.width ?? "unknown"}x${asset.metadata.height ?? "unknown"}.`
+      : undefined;
+
+    return [colors, dimensions].filter((item): item is string => Boolean(item));
+  }).slice(0, 4);
+  const fallbackItems = responsiveItems.length || stylingItems.length || assetItems.length
+    ? []
+    : uiSignals.slice(0, 3).map((signal) => `Derive spacing, density, and responsive treatment from UI signal: ${signal}`);
+
+  return formatPlanBullets(
+    unique([
+      ...stylingItems,
+      ...responsiveItems,
+      ...assetItems,
+      ...fallbackItems,
+      "Check text fit and layout stability across desktop, tablet, and mobile widths."
+    ]).slice(0, 10),
+    "Follow existing styling conventions and verify responsive layout behavior."
+  );
+}
+
+function formatTestBlueprint(brief: ProjectBrief | undefined): string {
+  const acceptanceItems = (brief?.acceptanceCriteria ?? []).slice(0, 6).map(
+    (criterion) => `Cover acceptance criterion with automated test or documented manual QA: ${criterion}`
+  );
+  const commandItems = (brief?.recommendedVerification ?? []).map((command) => `Run verification command: \`${command}\``);
+  const testingItems = brief?.stack.testing.length ? [`Use detected test stack: ${brief.stack.testing.join(", ")}.`] : [];
+
+  return formatPlanBullets(
+    unique([
+      ...testingItems,
+      ...acceptanceItems,
+      ...commandItems,
+      "Add focused tests for data mapping, visible states, and critical user interactions when the repository has a matching test setup."
+    ]).slice(0, 12),
+    "Define automated or manual checks for each acceptance criterion and run the detected verification commands."
+  );
+}
+
+function formatAccessibilityBlueprint(brief: ProjectBrief | undefined): string {
+  const accessibilityItems = uiChecklistItems(brief, "accessibility").map(
+    (item) => `Honor accessibility note from UI line ${item.sourceLine}: ${item.summary}`
+  );
+
+  return formatPlanBullets(
+    unique([
+      ...accessibilityItems,
+      "Use semantic landmarks, headings, labels, and button/link roles that match the interaction.",
+      "Verify keyboard navigation, focus visibility, and screen-reader friendly state changes.",
+      "Confirm color and text treatments remain readable in documented visual states."
+    ]).slice(0, 8),
+    "Check semantic structure, keyboard access, focus states, labels, and state announcements."
+  );
+}
+
+function uiChecklistItems(
+  brief: ProjectBrief | undefined,
+  kind: ProjectBrief["uiStateChecklist"][number]["kind"]
+): ProjectBrief["uiStateChecklist"] {
+  return (brief?.uiStateChecklist ?? []).filter((item) => item.kind === kind);
+}
+
+function formatPlanBullets(items: string[], emptyMessage: string): string {
+  return items.length ? items.map((item) => `- ${item}`).join("\n") : `- ${emptyMessage}`;
+}
+
 function formatDeliveryRisks(brief: ProjectBrief | undefined): string {
   const risks = brief?.deliveryRisks ?? [];
 
@@ -323,4 +533,8 @@ function formatAcceptanceCriteria(brief: ProjectBrief | undefined): string {
   }
 
   return brief.acceptanceCriteria.map((item) => `- [ ] ${item}`).join("\n");
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values.filter((value) => value.trim().length > 0))];
 }

@@ -78,6 +78,8 @@ DevFlow writes:
 
 These artifacts are meant for humans and AI coding agents. Review them before asking DevFlow to propose or apply source changes.
 
+The implementation plan includes a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections. Use those sections as a review checklist before source-changing execution.
+
 ## 4. Add An AI Provider When Ready
 
 DevFlow works without paid credentials by using deterministic fallback output. For richer planning and patch proposals, configure an OpenAI-compatible provider:

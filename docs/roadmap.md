@@ -29,6 +29,7 @@
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.
 - Embedded screenshots in delivery reports when visual artifacts are available.
 - Machine-readable delivery manifest for artifact status, readiness, verification, visual, source-change, screenshot, touched-file, backup, open-question, and delivery-risk summaries.
+- Frontend delivery blueprint sections in implementation plans for routes, components, state, data fetching, styling, tests, and accessibility.
 - Safe deliver orchestration command with explicit source-changing apply.
 - Composite GitHub Action for safe CI delivery runs.
 - React/Vite dashboard example.
@@ -38,7 +39,6 @@
 - Deeper stack detection for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro conventions.
 - Better structured project brief and task output with normalized routes, components, data needs, and UI states.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
-- Plan sections for routes, components, state, data fetching, styling, tests, and accessibility.
 - Prompt fixtures and golden output tests.
 
 ## Milestone 2: Assisted Implementation

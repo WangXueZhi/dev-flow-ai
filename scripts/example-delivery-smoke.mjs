@@ -40,6 +40,7 @@ run(
   ],
   smokeExampleDir
 );
+await assertImplementationPlanBlueprint(smokeExampleDir);
 
 run(
   process.execPath,
@@ -57,11 +58,28 @@ run(
   process.execPath,
   [
     cliPath,
+    "execute",
+    "--apply",
+    "--task",
+    "T03-code-implementation"
+  ],
+  smokeExampleDir,
+  {
+    DEVFLOW_AI_FIXTURE_PATH: fixturePatchSetPath
+  }
+);
+
+run(
+  process.execPath,
+  [
+    cliPath,
     "deliver",
     "--apply",
     "--yes",
     "--unit",
     "U18",
+    "--patch-set",
+    fixturePatchSetPath,
     "--requirements",
     "docs/requirements.md",
     "--ui",
@@ -69,10 +87,7 @@ run(
     "--api",
     "docs/api.md"
   ],
-  smokeExampleDir,
-  {
-    DEVFLOW_AI_FIXTURE_PATH: fixturePatchSetPath
-  }
+  smokeExampleDir
 );
 
 const appSource = await readFile(join(smokeExampleDir, "src", "App.jsx"), "utf8");
@@ -83,12 +98,13 @@ if (!appSource.includes("AI applied")) {
 await access(join(smokeExampleDir, ".devflow", "artifacts", "project-brief.json"));
 await access(join(smokeExampleDir, ".devflow", "artifacts", "tasks.json"));
 await access(join(smokeExampleDir, ".devflow", "artifacts", "delivery-report.md"));
+await assertImplementationPlanBlueprint(smokeExampleDir);
 
 console.log(
   [
     "Example delivery smoke passed.",
     `Workspace: ${smokeExampleDir}`,
-    "Verified: build, non-destructive delivery, patch-set validation, fixture-backed apply, delivery report."
+    "Verified: build, non-destructive delivery, implementation blueprint, patch-set validation, fixture-backed apply, reviewed patch-set delivery, delivery report."
   ].join("\n")
 );
 
@@ -97,6 +113,26 @@ async function ensureCli() {
     await access(cliPath);
   } catch {
     run(npmCommand, ["run", "build"], rootDir);
+  }
+}
+
+async function assertImplementationPlanBlueprint(workspaceDir) {
+  const plan = await readFile(join(workspaceDir, ".devflow", "artifacts", "implementation-plan.md"), "utf8");
+  const headings = [
+    "## Frontend Delivery Blueprint",
+    "### Routes And Navigation",
+    "### Components",
+    "### State And Interaction",
+    "### Data And API Integration",
+    "### Styling And Responsive Rules",
+    "### Test Plan",
+    "### Accessibility Checks"
+  ];
+
+  for (const heading of headings) {
+    if (!plan.includes(heading)) {
+      throw new Error(`Example smoke implementation plan is missing heading: ${heading}`);
+    }
   }
 }
 

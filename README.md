@@ -155,6 +155,8 @@ Existing handoff documents are preserved. `init` creates missing starter files a
 
 Reads the configured input documents, writes `.devflow/artifacts/project-brief.json`, and writes an implementation plan.
 
+The plan includes a `Frontend Delivery Blueprint` with explicit sections for routes and navigation, components, state and interaction, data and API integration, styling and responsive rules, test planning, and accessibility checks.
+
 Useful flags:
 
 ```bash
@@ -383,7 +385,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.
-- Generated implementation plan with phases, risks, and verification checklist.
+- Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
 - Generated task plan for implementation phases and structured implementation units.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including component, data, style, test, config, and verification candidates.

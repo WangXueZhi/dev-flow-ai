@@ -35,7 +35,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Stack Detector: detects package manager, runtime, frontend frameworks, build tools, styling, testing, scripts, source directories, and config files.
 - Brief: combines documents and repository signals into `.devflow/artifacts/project-brief.json`.
 - AI Provider: calls OpenAI-compatible chat completions for planning and dry-run execution when configured.
-- Planner: builds prompts from the project brief, invokes AI or deterministic fallback, and formats output.
+- Planner: builds prompts from the project brief, invokes AI or deterministic fallback, and formats output with a frontend delivery blueprint for routes, components, state, data/API integration, styling/responsive rules, tests, and accessibility.
 - Task Planner: writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`, including structured implementation units derived from user stories, requirement constraints, requirements, UI, design assets, API endpoints, data models, error cases, and auth requirements.
 - Target Profile: derives stack-specific component, data, style, test, config, and verification candidates from the project brief and selected implementation unit.
 - Source Context: samples a bounded set of existing repository files, directories, and missing/glob candidates from the target profile so AI prompts can see local source conventions without reading the whole repository.

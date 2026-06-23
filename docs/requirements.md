@@ -32,6 +32,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] The project brief includes API contracts, API data models, API error cases, and API auth requirements extracted from fenced OpenAPI JSON/YAML blocks.
 - [ ] `dev-flow plan` reads configured documents and writes `.devflow/artifacts/implementation-plan.md`.
 - [ ] `dev-flow plan` also writes `.devflow/artifacts/project-brief.json`.
+- [ ] Implementation plans include a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections.
 - [ ] `dev-flow tasks` writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`.
 - [ ] Task plans include implementation units derived from user stories, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
