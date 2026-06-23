@@ -224,6 +224,8 @@ Dry-run execution writes reviewable patch proposal documents to `.devflow/artifa
 
 Use `--unit <id>` to focus execution on one implementation unit from `.devflow/artifacts/tasks.json`. When `--unit` is provided without `--task`, DevFlow scopes the proposal to `T03-code-implementation` by default.
 
+For normalized frontend units, DevFlow also prioritizes likely files from the selected unit itself: `frontend-route` units can push the matching route/page candidates to the front, `frontend-component` units can prioritize the named component, and `frontend-data` units can derive API/data client candidates from endpoint text in the unit.
+
 When an AI provider is configured through `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`, or `DEVFLOW_AI_FIXTURE_PATH`, dry-run execution asks the provider for a task-specific implementation proposal grounded in the project brief, task plan, target profile, and sampled repository source context. Without a provider, it uses a deterministic local proposal template.
 
 Source-changing execution is available through validated patch sets:
@@ -413,7 +415,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
 - Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, and API docs, and structured implementation units for explicit route/view, component, frontend data, and frontend state targets.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
-- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
+- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Validated patch-set application with write, replace, delete, execution logs, task changelogs, and rollback.
 - Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.

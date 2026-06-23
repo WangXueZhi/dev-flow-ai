@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { ProjectBrief } from "./brief.js";
 import { createImplementationTargetProfile } from "./target-profile.js";
-import type { ImplementationTask } from "./tasks.js";
+import type { ImplementationTask, ImplementationUnit } from "./tasks.js";
 
 const task: ImplementationTask = {
   id: "T03-code-implementation",
@@ -168,6 +168,131 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
     "src/App.tsx"
   ]);
   assert.deepEqual(profile.dataCandidates.slice(0, 3), [
+    "src/lib/api/release-summary.ts",
+    "src/services/release-summary.ts",
+    "src/api/release-summary.ts"
+  ]);
+});
+
+test("createImplementationTargetProfile prioritizes candidates from selected frontend units", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js", "TypeScript"],
+      frameworks: ["React"],
+      buildTools: ["Vite"],
+      styling: [],
+      testing: ["Vitest"],
+      scripts: {
+        test: "vitest run"
+      },
+      sourceDirectories: ["src"],
+      configFiles: ["vite.config.ts"],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    frontendTargets: {
+      routes: [
+        {
+          source: "requirements",
+          summary: "Route path /settings/profile",
+          evidence: ["Acceptance criterion"]
+        },
+        {
+          source: "requirements",
+          summary: "Route path /settings/security",
+          evidence: ["Acceptance criterion"]
+        }
+      ],
+      components: [
+        {
+          source: "ui",
+          summary: "Component RetryBanner",
+          evidence: ["UI signal"]
+        },
+        {
+          source: "ui",
+          summary: "Component AuditPanel",
+          evidence: ["UI signal"]
+        }
+      ],
+      dataNeeds: [
+        {
+          source: "api",
+          summary: "Integrate GET /api/release/summary",
+          evidence: ["GET /api/release/summary"]
+        }
+      ],
+      uiStates: []
+    },
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: ["npm run test"]
+  };
+  const routeUnit: ImplementationUnit = {
+    id: "U01",
+    kind: "frontend-route",
+    title: "Route path /settings/security",
+    source: "docs/requirements.md",
+    details: ["Target source: requirements"]
+  };
+  const componentUnit: ImplementationUnit = {
+    id: "U02",
+    kind: "frontend-component",
+    title: "Component AuditPanel",
+    source: "docs/ui.md",
+    details: ["Target source: ui"]
+  };
+  const dataUnit: ImplementationUnit = {
+    id: "U03",
+    kind: "frontend-data",
+    title: "Integrate GET /api/release/summary",
+    source: "docs/api.md",
+    details: ["Target source: api", "Evidence: GET /api/release/summary"]
+  };
+
+  const routeProfile = createImplementationTargetProfile(task, brief, routeUnit);
+  const componentProfile = createImplementationTargetProfile(task, brief, componentUnit);
+  const dataProfile = createImplementationTargetProfile(task, brief, dataUnit);
+
+  assert.deepEqual(routeProfile.componentCandidates.slice(0, 3), [
+    "src/pages/SettingsSecurity.tsx",
+    "src/routes/SettingsSecurity.tsx",
+    "src/features/settings-security/"
+  ]);
+  assert.ok(
+    routeProfile.componentCandidates.indexOf("src/pages/SettingsSecurity.tsx") <
+      routeProfile.componentCandidates.indexOf("src/pages/SettingsProfile.tsx")
+  );
+  assert.deepEqual(componentProfile.componentCandidates.slice(0, 2), [
+    "src/components/AuditPanel.tsx",
+    "src/features/audit-panel/AuditPanel.tsx"
+  ]);
+  assert.ok(
+    componentProfile.componentCandidates.indexOf("src/components/AuditPanel.tsx") <
+      componentProfile.componentCandidates.indexOf("src/components/RetryBanner.tsx")
+  );
+  assert.deepEqual(dataProfile.dataCandidates.slice(0, 3), [
     "src/lib/api/release-summary.ts",
     "src/services/release-summary.ts",
     "src/api/release-summary.ts"

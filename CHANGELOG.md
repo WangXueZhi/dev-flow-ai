@@ -61,6 +61,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added dry-run patch proposals with stack-specific target profiles for likely component, data, style, test, config, and verification targets.
 - Added source-context target profile candidates derived from explicit route paths and component names in requirements and UI notes.
 - Added data/API target profile candidates derived from explicit API endpoint paths.
+- Added selected-unit-prioritized target profile candidates for normalized frontend route, component, and data units.
 - Expanded target profiles with Nuxt-aware route, layout, composable, server API, style, Playwright, and Cypress candidates.
 - Expanded target profiles with Svelte/SvelteKit, Astro, and Angular route, layout, server/API, service, style, and spec candidates.
 - Added bounded repository source-context sampling for AI dry-run and patch-set prompts.

@@ -40,8 +40,8 @@ export function createImplementationTargetProfile(
       ...brief.stack.testing
     ]),
     frontendTargets: buildFrontendTargetSummary(brief),
-    componentCandidates: buildComponentCandidates(brief, primaryRoot, jsxExtension, moduleExtension),
-    dataCandidates: hasApiWork ? buildDataCandidates(brief, primaryRoot, moduleExtension) : [],
+    componentCandidates: buildComponentCandidates(brief, primaryRoot, jsxExtension, moduleExtension, unit),
+    dataCandidates: hasApiWork ? buildDataCandidates(brief, primaryRoot, moduleExtension, unit) : [],
     styleCandidates: buildStyleCandidates(brief, primaryRoot),
     testCandidates: buildTestCandidates(brief, primaryRoot, jsxExtension, moduleExtension),
     configCandidates: unique(["package.json", ...brief.stack.configFiles]),
@@ -71,9 +71,12 @@ function buildComponentCandidates(
   brief: ProjectBrief,
   root: string,
   jsxExtension: string,
-  moduleExtension: string
+  moduleExtension: string,
+  unit?: ImplementationUnit
 ): string[] {
   const candidates: string[] = [
+    ...explicitRoutePathsFromUnit(unit).flatMap((routePath) => routeCandidatesForPath(brief, root, jsxExtension, moduleExtension, routePath)),
+    ...explicitComponentNamesFromUnit(unit).flatMap((name) => componentCandidatesForName(brief, root, jsxExtension, name)),
     ...buildExplicitRouteCandidates(brief, root, jsxExtension, moduleExtension),
     ...buildExplicitComponentCandidates(brief, root, jsxExtension)
   ];
@@ -119,75 +122,90 @@ function buildExplicitRouteCandidates(
   jsxExtension: string,
   moduleExtension: string
 ): string[] {
-  return explicitRoutePaths(brief).flatMap((routePath) => {
-    const subpath = routeSubpath(routePath);
-    if (!subpath) {
-      return [];
-    }
+  return explicitRoutePaths(brief).flatMap((routePath) => routeCandidatesForPath(brief, root, jsxExtension, moduleExtension, routePath));
+}
 
-    const componentName = pascalCaseFromPath(subpath);
-    const kebabName = kebabCase(componentName);
-    const candidates: string[] = [];
+function routeCandidatesForPath(
+  brief: ProjectBrief,
+  root: string,
+  jsxExtension: string,
+  moduleExtension: string,
+  routePath: string
+): string[] {
+  const subpath = routeSubpath(routePath);
+  if (!subpath) {
+    return [];
+  }
 
-    if (hasFramework(brief, "Next.js")) {
-      candidates.push(`app/${subpath}/page.${jsxExtension}`, `pages/${subpath}.${jsxExtension}`, `${root}/app/${subpath}/page.${jsxExtension}`, `${root}/pages/${subpath}.${jsxExtension}`);
-    }
+  const componentName = pascalCaseFromPath(subpath);
+  const kebabName = kebabCase(componentName);
+  const candidates: string[] = [];
 
-    if (hasFramework(brief, "Nuxt")) {
-      candidates.push(`pages/${subpath}.vue`, `${root}/pages/${subpath}.vue`);
-    }
+  if (hasFramework(brief, "Next.js")) {
+    candidates.push(`app/${subpath}/page.${jsxExtension}`, `pages/${subpath}.${jsxExtension}`, `${root}/app/${subpath}/page.${jsxExtension}`, `${root}/pages/${subpath}.${jsxExtension}`);
+  }
 
-    if (hasFramework(brief, "Vue")) {
-      candidates.push(`${root}/views/${componentName}.vue`, `${root}/router/`);
-    }
+  if (hasFramework(brief, "Nuxt")) {
+    candidates.push(`pages/${subpath}.vue`, `${root}/pages/${subpath}.vue`);
+  }
 
-    if (hasFramework(brief, "Svelte")) {
-      candidates.push(`src/routes/${subpath}/+page.svelte`, `${root}/routes/${subpath}/+page.svelte`);
-    }
+  if (hasFramework(brief, "Vue")) {
+    candidates.push(`${root}/views/${componentName}.vue`, `${root}/router/`);
+  }
 
-    if (hasFramework(brief, "Astro")) {
-      candidates.push(`src/pages/${subpath}.astro`, `${root}/pages/${subpath}.astro`);
-    }
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push(`src/routes/${subpath}/+page.svelte`, `${root}/routes/${subpath}/+page.svelte`);
+  }
 
-    if (hasFramework(brief, "Angular")) {
-      candidates.push(`${root}/app/${kebabName}/`, `${root}/app/${kebabName}/${kebabName}.component.${moduleExtension}`, `${root}/app/app.routes.${moduleExtension}`);
-    }
+  if (hasFramework(brief, "Astro")) {
+    candidates.push(`src/pages/${subpath}.astro`, `${root}/pages/${subpath}.astro`);
+  }
 
-    if (hasFramework(brief, "React") || candidates.length === 0) {
-      candidates.push(`${root}/pages/${componentName}.${jsxExtension}`, `${root}/routes/${componentName}.${jsxExtension}`, `${root}/features/${kebabName}/`);
-    }
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/app/${kebabName}/`, `${root}/app/${kebabName}/${kebabName}.component.${moduleExtension}`, `${root}/app/app.routes.${moduleExtension}`);
+  }
 
-    return candidates;
-  });
+  if (hasFramework(brief, "React") || candidates.length === 0) {
+    candidates.push(`${root}/pages/${componentName}.${jsxExtension}`, `${root}/routes/${componentName}.${jsxExtension}`, `${root}/features/${kebabName}/`);
+  }
+
+  return candidates;
 }
 
 function buildExplicitComponentCandidates(brief: ProjectBrief, root: string, jsxExtension: string): string[] {
-  return explicitComponentNames(brief).flatMap((name) => {
-    const kebabName = kebabCase(name);
-    const candidates: string[] = [];
+  return explicitComponentNames(brief).flatMap((name) => componentCandidatesForName(brief, root, jsxExtension, name));
+}
 
-    if (hasFramework(brief, "Vue") || hasFramework(brief, "Nuxt")) {
-      candidates.push(`${root}/components/${name}.vue`, `components/${name}.vue`);
-    }
+function componentCandidatesForName(
+  brief: ProjectBrief,
+  root: string,
+  jsxExtension: string,
+  name: string
+): string[] {
+  const kebabName = kebabCase(name);
+  const candidates: string[] = [];
 
-    if (hasFramework(brief, "Svelte")) {
-      candidates.push(`src/lib/${name}.svelte`, `${root}/lib/${name}.svelte`);
-    }
+  if (hasFramework(brief, "Vue") || hasFramework(brief, "Nuxt")) {
+    candidates.push(`${root}/components/${name}.vue`, `components/${name}.vue`);
+  }
 
-    if (hasFramework(brief, "Astro")) {
-      candidates.push(`src/components/${name}.astro`, `${root}/components/${name}.astro`);
-    }
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push(`src/lib/${name}.svelte`, `${root}/lib/${name}.svelte`);
+  }
 
-    if (hasFramework(brief, "Angular")) {
-      candidates.push(`${root}/app/${kebabName}/${kebabName}.component.ts`);
-    }
+  if (hasFramework(brief, "Astro")) {
+    candidates.push(`src/components/${name}.astro`, `${root}/components/${name}.astro`);
+  }
 
-    if (hasFramework(brief, "React") || hasFramework(brief, "Next.js") || candidates.length === 0) {
-      candidates.push(`${root}/components/${name}.${jsxExtension}`, `${root}/features/${kebabName}/${name}.${jsxExtension}`);
-    }
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/app/${kebabName}/${kebabName}.component.ts`);
+  }
 
-    return candidates;
-  });
+  if (hasFramework(brief, "React") || hasFramework(brief, "Next.js") || candidates.length === 0) {
+    candidates.push(`${root}/components/${name}.${jsxExtension}`, `${root}/features/${kebabName}/${name}.${jsxExtension}`);
+  }
+
+  return candidates;
 }
 
 function explicitRoutePaths(brief: ProjectBrief): string[] {
@@ -202,6 +220,34 @@ function explicitComponentNames(brief: ProjectBrief): string[] {
     .map((target) => /^Component\s+([A-Z][A-Za-z0-9.]*)$/i.exec(target.summary)?.[1])
     .filter((name): name is string => Boolean(name))
     .slice(0, 6);
+}
+
+function explicitRoutePathsFromUnit(unit: ImplementationUnit | undefined): string[] {
+  if (unit?.kind !== "frontend-route") {
+    return [];
+  }
+
+  return extractRoutePathsFromText([unit.title, ...unit.details]).slice(0, 2);
+}
+
+function explicitComponentNamesFromUnit(unit: ImplementationUnit | undefined): string[] {
+  if (unit?.kind !== "frontend-component") {
+    return [];
+  }
+
+  return extractComponentNamesFromText([unit.title, ...unit.details]).slice(0, 2);
+}
+
+function extractRoutePathsFromText(values: string[]): string[] {
+  return unique(values
+    .map((value) => /^Route path\s+(\S+)$/i.exec(value)?.[1])
+    .filter((path): path is string => Boolean(path)));
+}
+
+function extractComponentNamesFromText(values: string[]): string[] {
+  return unique(values
+    .map((value) => /^Component\s+([A-Z][A-Za-z0-9.]*)$/i.exec(value)?.[1])
+    .filter((name): name is string => Boolean(name)));
 }
 
 function routeSubpath(routePath: string): string | undefined {
@@ -235,9 +281,14 @@ function capitalize(value: string): string {
   return value ? `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}` : "";
 }
 
-function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
+function buildDataCandidates(
+  brief: ProjectBrief,
+  root: string,
+  moduleExtension: string,
+  unit?: ImplementationUnit
+): string[] {
   const candidates = [
-    ...buildExplicitApiDataCandidates(brief, root, moduleExtension),
+    ...buildExplicitApiDataCandidates(brief, root, moduleExtension, unit),
     `${root}/api/`,
     `${root}/lib/api.${moduleExtension}`,
     `${root}/services/`,
@@ -272,41 +323,73 @@ function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension:
   return unique(candidates);
 }
 
-function buildExplicitApiDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
-  return brief.apiContracts.slice(0, 6).flatMap((contract) => {
-    const subpath = apiSubpath(contract.path);
-    if (!subpath) {
-      return [];
-    }
+function buildExplicitApiDataCandidates(
+  brief: ProjectBrief,
+  root: string,
+  moduleExtension: string,
+  unit?: ImplementationUnit
+): string[] {
+  const unitPaths = explicitApiPathsFromUnit(unit);
+  const contractPaths = brief.apiContracts.map((contract) => contract.path).slice(0, 6);
 
-    const resourceName = kebabCase(pascalCaseFromPath(subpath));
-    const pascalName = pascalCaseFromPath(subpath);
-    const candidates: string[] = [];
+  return unique([...unitPaths, ...contractPaths])
+    .flatMap((path) => apiDataCandidatesForPath(brief, root, moduleExtension, path));
+}
 
-    if (hasFramework(brief, "Next.js")) {
-      candidates.push(`app/api/${subpath}/route.${moduleExtension}`, `pages/api/${subpath}.${moduleExtension}`, `${root}/app/api/${subpath}/route.${moduleExtension}`);
-    }
+function apiDataCandidatesForPath(
+  brief: ProjectBrief,
+  root: string,
+  moduleExtension: string,
+  path: string
+): string[] {
+  const subpath = apiSubpath(path);
+  if (!subpath) {
+    return [];
+  }
 
-    if (hasFramework(brief, "Nuxt")) {
-      candidates.push(`server/api/${subpath}.${moduleExtension}`, `server/api/${subpath}/index.${moduleExtension}`, `composables/use${pascalName}Api.${moduleExtension}`);
-    }
+  const resourceName = kebabCase(pascalCaseFromPath(subpath));
+  const pascalName = pascalCaseFromPath(subpath);
+  const candidates: string[] = [];
 
-    if (hasFramework(brief, "Svelte")) {
-      candidates.push(`src/routes/api/${subpath}/+server.${moduleExtension}`, `${root}/routes/api/${subpath}/+server.${moduleExtension}`, `src/lib/server/${resourceName}.${moduleExtension}`);
-    }
+  if (hasFramework(brief, "Next.js")) {
+    candidates.push(`app/api/${subpath}/route.${moduleExtension}`, `pages/api/${subpath}.${moduleExtension}`, `${root}/app/api/${subpath}/route.${moduleExtension}`);
+  }
 
-    if (hasFramework(brief, "Astro")) {
-      candidates.push(`src/pages/api/${subpath}.${moduleExtension}`, `${root}/pages/api/${subpath}.${moduleExtension}`);
-    }
+  if (hasFramework(brief, "Nuxt")) {
+    candidates.push(`server/api/${subpath}.${moduleExtension}`, `server/api/${subpath}/index.${moduleExtension}`, `composables/use${pascalName}Api.${moduleExtension}`);
+  }
 
-    if (hasFramework(brief, "Angular")) {
-      candidates.push(`${root}/app/services/${resourceName}.service.${moduleExtension}`);
-    }
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push(`src/routes/api/${subpath}/+server.${moduleExtension}`, `${root}/routes/api/${subpath}/+server.${moduleExtension}`, `src/lib/server/${resourceName}.${moduleExtension}`);
+  }
 
-    candidates.push(`${root}/lib/api/${resourceName}.${moduleExtension}`, `${root}/services/${resourceName}.${moduleExtension}`, `${root}/api/${resourceName}.${moduleExtension}`);
+  if (hasFramework(brief, "Astro")) {
+    candidates.push(`src/pages/api/${subpath}.${moduleExtension}`, `${root}/pages/api/${subpath}.${moduleExtension}`);
+  }
 
-    return candidates;
-  });
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/app/services/${resourceName}.service.${moduleExtension}`);
+  }
+
+  candidates.push(`${root}/lib/api/${resourceName}.${moduleExtension}`, `${root}/services/${resourceName}.${moduleExtension}`, `${root}/api/${resourceName}.${moduleExtension}`);
+
+  return candidates;
+}
+
+function explicitApiPathsFromUnit(unit: ImplementationUnit | undefined): string[] {
+  if (unit?.kind !== "frontend-data" && unit?.kind !== "api-endpoint") {
+    return [];
+  }
+
+  return extractApiPathsFromText([unit.title, ...unit.details]).slice(0, 4);
+}
+
+function extractApiPathsFromText(values: string[]): string[] {
+  return unique(values.flatMap((value) => {
+    const matches = value.matchAll(/\b(?:GET|POST|PUT|PATCH|DELETE)\s+(\/[^\s`),;]+)/gi);
+
+    return [...matches].map((match) => match[1]).filter((path): path is string => Boolean(path));
+  }));
 }
 
 function apiSubpath(path: string): string | undefined {
