@@ -73,6 +73,7 @@ The workflow:
 - Runs `npm run pack:dry-run`.
 - Runs `npm run pack:smoke`.
 - Runs optional `npm run smoke:live`.
+- Checks that the `NPM_TOKEN` repository secret is configured before publish.
 - Publishes with `npm publish --provenance --access public`.
 
 Required repository setup:

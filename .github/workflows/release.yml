@@ -44,6 +44,15 @@ jobs:
       - name: Optional live provider smoke
         run: npm run smoke:live
 
+      - name: Check npm token
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "NPM_TOKEN repository secret is required to publish dev-flow-ai." >&2
+            exit 1
+          fi
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
