@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFile } from "node:fs/promises";
 import { runBrief } from "./commands/brief.js";
 import { runDeliver } from "./commands/deliver.js";
 import { runDoctor } from "./commands/doctor.js";
@@ -46,6 +47,9 @@ async function main(argv: string[]): Promise<void> {
     case "doctor":
       await runDoctor(parsed.flags);
       return;
+    case "version":
+      await printVersion();
+      return;
     case "help":
     case undefined:
       printHelp();
@@ -71,6 +75,7 @@ Usage:
   dev-flow visual --url <preview-url> [--text <a,b>] [--viewport <name:widthxheight>] [--out <dir>]
   dev-flow report [--out <path>] [--visual-report <path|none>]
   dev-flow doctor
+  dev-flow version
 
 Commands:
   init      Create .devflow config and starter docs
@@ -83,6 +88,7 @@ Commands:
   visual    Capture screenshots, blank-screen checks, and text checks for a preview URL
   report    Generate a delivery report from DevFlow artifacts
   doctor    Check local runtime and project readiness
+  version   Print the installed DevFlow version
 
 Environment:
   DEVFLOW_AI_API_KEY       Optional API key for an OpenAI-compatible provider
@@ -91,6 +97,13 @@ Environment:
   DEVFLOW_AI_MODEL         Optional model, defaults to gpt-4.1
   DEVFLOW_AI_FIXTURE_PATH  Optional fixture response file for tests and CI
 `);
+}
+
+async function printVersion(): Promise<void> {
+  const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8")) as {
+    version?: string;
+  };
+  console.log(`dev-flow ${packageJson.version ?? "unknown"}`);
 }
 
 main(process.argv.slice(2)).catch((error: unknown) => {

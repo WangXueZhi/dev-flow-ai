@@ -28,9 +28,14 @@ try {
 
   const devFlowBin = join(installDir, "node_modules", ".bin", binName);
   const help = run(devFlowBin, ["help"], projectDir).stdout;
+  const version = run(devFlowBin, ["version"], projectDir).stdout.trim();
 
   if (!help.includes("DevFlow") || !help.includes("dev-flow deliver")) {
     throw new Error("Installed dev-flow binary did not print the expected help output.");
+  }
+
+  if (version !== `dev-flow ${pack.version}`) {
+    throw new Error(`Installed dev-flow binary printed unexpected version: ${version}`);
   }
 
   run(devFlowBin, ["init"], projectDir);
@@ -39,7 +44,7 @@ try {
   await access(join(projectDir, "docs", "ui.md"));
   await access(join(projectDir, "docs", "api.md"));
 
-  console.log(`Pack smoke passed: installed ${pack.filename} and ran dev-flow help/init.`);
+  console.log(`Pack smoke passed: installed ${pack.filename} and ran dev-flow help/version/init.`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

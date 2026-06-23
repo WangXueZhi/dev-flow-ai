@@ -33,6 +33,7 @@ Until the first npm release is published, install the CLI directly from GitHub:
 ```bash
 npm install --global github:WangXueZhi/dev-flow-ai
 dev-flow help
+dev-flow --version
 ```
 
 For local development from a clone:
@@ -112,6 +113,7 @@ dev-flow verify
 dev-flow visual
 dev-flow report
 dev-flow doctor
+dev-flow version
 ```
 
 ### `dev-flow init`

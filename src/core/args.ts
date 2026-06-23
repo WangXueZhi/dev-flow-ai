@@ -43,5 +43,9 @@ function normalizeCommand(command: string | undefined): string | undefined {
     return "help";
   }
 
+  if (command === "--version" || command === "-v") {
+    return "version";
+  }
+
   return command;
 }

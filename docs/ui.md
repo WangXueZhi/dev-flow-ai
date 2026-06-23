@@ -24,6 +24,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow deliver --apply --yes --unit <id>`: runs approved source-changing execution for one implementation unit.
 - `dev-flow doctor`: prints readiness checks with simple status prefixes.
 - `dev-flow --help`: shows command usage, flags, and AI environment variables.
+- `dev-flow --version`: prints the installed CLI version.
 
 ## Output Style
 
