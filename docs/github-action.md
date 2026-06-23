@@ -76,6 +76,14 @@ Pass provider configuration through environment variables or GitHub secrets. The
     DEVFLOW_AI_MODEL: gpt-4.1
 ```
 
+Set `source-context: "false"` to omit sampled repository source snippets from AI prompts while still sending requirements, UI notes, API docs, project brief, task plan, and target profile context:
+
+```yaml
+- uses: WangXueZhi/dev-flow-ai@main
+  with:
+    source-context: "false"
+```
+
 For deterministic CI, use a fixture:
 
 ```yaml
@@ -116,6 +124,7 @@ Without `confirm-apply: "true"`, the action exits before running `dev-flow deliv
 - `confirm-apply`: required confirmation for source-changing delivery. Default: `"false"`.
 - `patch-set`: optional reviewed patch-set JSON path.
 - `save-patch-set`: optional path for saving AI-generated patch sets.
+- `source-context`: include bounded repository source snippets in AI prompts. Set to `"false"` to omit sampled source snippets. Default: `"true"`.
 - `upload-artifacts`: upload DevFlow artifacts after delivery. Default: `"false"`.
 - `artifact-name`: artifact name when `upload-artifacts` is enabled. Default: `devflow-artifacts`.
 - `artifacts-path`: artifact path relative to `working-directory`. Default: `.devflow/artifacts`.

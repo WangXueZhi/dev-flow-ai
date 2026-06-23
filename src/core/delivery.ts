@@ -27,7 +27,8 @@ export function createDeliveryExecutionPlan(flags: FlagMap): DeliveryExecutionPl
       unit: flags.unit,
       tasks: flags.tasks,
       "patch-set": flags["patch-set"],
-      "save-patch-set": flags["save-patch-set"]
+      "save-patch-set": flags["save-patch-set"],
+      "no-source-context": flags["no-source-context"]
     }
   };
 }

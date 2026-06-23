@@ -67,10 +67,10 @@ Usage:
   dev-flow brief [--requirements <path>] [--ui <path>] [--api <path>] [--out <path>]
   dev-flow plan [--requirements <path>] [--ui <path>] [--api <path>] [--out <path>]
   dev-flow tasks [--out <path>] [--markdown-out <path>]
-  dev-flow execute --dry-run [--task <id>] [--unit <id>] [--out <dir>]
-  dev-flow execute --apply [--task <id>] [--unit <id>] [--patch-set <path>] [--save-patch-set <path>]
+  dev-flow execute --dry-run [--task <id>] [--unit <id>] [--out <dir>] [--no-source-context]
+  dev-flow execute --apply [--task <id>] [--unit <id>] [--patch-set <path>] [--save-patch-set <path>] [--no-source-context]
   dev-flow execute --rollback --backup <manifest-path> [--out <path>]
-  dev-flow deliver [--requirements <path>] [--ui <path>] [--api <path>] [--task <id>] [--unit <id>] [--apply --yes] [--patch-set <path>] [--preview-url <url>] [--visual-text <a,b>]
+  dev-flow deliver [--requirements <path>] [--ui <path>] [--api <path>] [--task <id>] [--unit <id>] [--apply --yes] [--patch-set <path>] [--preview-url <url>] [--visual-text <a,b>] [--no-source-context]
   dev-flow verify [--command <shell-command>] [--out <path>]
   dev-flow visual --url <preview-url> [--text <a,b>] [--viewport <name:widthxheight>] [--out <dir>]
   dev-flow report [--out <path>] [--visual-report <path|none>]
@@ -96,6 +96,7 @@ Environment:
   DEVFLOW_AI_BASE_URL      Optional base URL, defaults to https://api.openai.com/v1
   DEVFLOW_AI_MODEL         Optional model, defaults to gpt-4.1
   DEVFLOW_AI_FIXTURE_PATH  Optional fixture response file for tests and CI
+  DEVFLOW_SOURCE_CONTEXT   Set to none, false, off, 0, or disabled to omit source snippets from AI prompts
 `);
 }
 

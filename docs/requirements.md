@@ -37,6 +37,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
 - [ ] Dry-run patch proposals include a stack-specific target profile with candidate component, data, style, test, config, and verification targets.
 - [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates.
+- [ ] AI dry-run and AI patch-set prompts can omit sampled repository source snippets with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`.
 - [ ] `dev-flow execute --dry-run --unit <id>` scopes patch proposals to one implementation unit.
 - [ ] `dev-flow execute --dry-run` uses the AI provider for patch proposals when a provider key or fixture is configured.
 - [ ] `dev-flow execute --apply --patch-set <path>` validates and applies patch set write, replace, and delete operations.

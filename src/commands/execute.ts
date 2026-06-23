@@ -57,7 +57,8 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   await mkdir(outDir, { recursive: true });
 
   for (const task of selectedTasks) {
-    const sourceContext = provider
+    const includeSourceContext = shouldIncludeSourceContext(flags);
+    const sourceContext = provider && includeSourceContext
       ? await collectSourceContext(
           sourceContextCandidatePaths(createImplementationTargetProfile(task, brief, selectedUnit), selectedUnit)
         )
@@ -163,9 +164,11 @@ async function generateAiPatchSet(flags: FlagMap): Promise<PatchSet> {
   const taskPlan = await readRequiredJson<TaskPlan>(taskPlanPath, "Run dev-flow tasks first.");
   const [task] = selectTasks(taskPlan, taskId);
   const selectedUnit = flags.unit ? selectUnit(taskPlan, flags.unit) : undefined;
-  const sourceContext = await collectSourceContext(
-    sourceContextCandidatePaths(createImplementationTargetProfile(task, brief, selectedUnit), selectedUnit)
-  );
+  const sourceContext = shouldIncludeSourceContext(flags)
+    ? await collectSourceContext(
+        sourceContextCandidatePaths(createImplementationTargetProfile(task, brief, selectedUnit), selectedUnit)
+      )
+    : undefined;
   const response = await provider.complete({
     system: patchSetSystemPrompt,
     prompt: buildPatchSetPrompt(task, brief, selectedUnit, sourceContext),
@@ -218,4 +221,14 @@ function safeTimestamp(): string {
 
 function formatErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function shouldIncludeSourceContext(flags: FlagMap): boolean {
+  if (flags["no-source-context"] === "true") {
+    return false;
+  }
+
+  const mode = process.env.DEVFLOW_SOURCE_CONTEXT?.trim().toLowerCase();
+
+  return !["0", "false", "none", "off", "disabled"].includes(mode ?? "");
 }

@@ -101,6 +101,13 @@ dev-flow doctor
 dev-flow doctor --json
 ```
 
+When using a live provider, DevFlow can omit sampled repository source snippets while still sending requirements, UI notes, API docs, project brief, task plan, and target profile context:
+
+```bash
+DEVFLOW_SOURCE_CONTEXT=none dev-flow execute --dry-run
+dev-flow deliver --no-source-context
+```
+
 ## 5. Propose Changes Before Applying Them
 
 Start with a non-destructive dry run:

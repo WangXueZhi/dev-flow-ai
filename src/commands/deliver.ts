@@ -21,7 +21,8 @@ export async function runDeliver(flags: FlagMap): Promise<void> {
   await runExecute({
     "dry-run": "true",
     task: flags.task,
-    unit: flags.unit
+    unit: flags.unit,
+    "no-source-context": flags["no-source-context"]
   });
 
   if (executionPlan.mode === "apply") {

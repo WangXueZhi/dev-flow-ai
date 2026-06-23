@@ -12,6 +12,8 @@ const requiredSnippets = [
   "working-directory: ${{ inputs.working-directory }}",
   "DevFlow source-changing delivery requires confirm-apply=true.",
   "default: github:WangXueZhi/dev-flow-ai#main",
+  "SOURCE_CONTEXT: ${{ inputs.source-context }}",
+  "args+=(--no-source-context)",
   "case \"$package_spec\" in",
   "dev-flow-ai|dev-flow-ai@*|*:*|*/*|*.tgz) ;;",
   "package_spec=\"dev-flow-ai@$package_spec\"",
@@ -36,6 +38,7 @@ const requiredInputs = [
   "confirm-apply",
   "patch-set",
   "save-patch-set",
+  "source-context",
   "upload-artifacts",
   "artifact-name",
   "artifacts-path"

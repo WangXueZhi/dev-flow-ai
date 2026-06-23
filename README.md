@@ -96,7 +96,13 @@ export DEVFLOW_AI_MODEL="gpt-4.1"
 
 Without an API key, `dev-flow plan` and `dev-flow execute --dry-run` fall back to deterministic local output. That fallback is intentionally useful for development and tests, but the AI path is where richer implementation plans and patch proposals come from.
 
-When a live provider is configured, execution prompts may include bounded snippets of existing repository files selected from the target profile. Use the fallback or fixture mode when source code must not leave the local environment.
+When a live provider is configured, execution prompts may include bounded snippets of existing repository files selected from the target profile. To use an AI provider without sending sampled source snippets, pass `--no-source-context` to `dev-flow execute` or `dev-flow deliver`, or set:
+
+```bash
+export DEVFLOW_SOURCE_CONTEXT=none
+```
+
+Requirements, UI notes, API docs, project brief, task plan, and target profile context are still included; only sampled repository source snippets are omitted.
 
 For reproducible tests or CI without a live model, point `DEVFLOW_AI_FIXTURE_PATH` at a file containing the model response to replay:
 
@@ -199,6 +205,7 @@ The safest path is dry-run first:
 dev-flow execute --dry-run
 dev-flow execute --dry-run --task T03-code-implementation
 dev-flow execute --dry-run --unit U18
+dev-flow execute --dry-run --no-source-context
 ```
 
 Dry-run execution writes reviewable patch proposal documents to `.devflow/artifacts/patch-proposals/` without changing source files.
@@ -213,6 +220,7 @@ Source-changing execution is available through validated patch sets:
 dev-flow execute --apply --patch-set path/to/patch-set.json
 dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --task T03-code-implementation --unit U18
+dev-flow execute --apply --task T03-code-implementation --no-source-context
 dev-flow execute --rollback --backup .devflow/artifacts/backups/<id>/manifest.json
 ```
 
@@ -256,6 +264,7 @@ For source-changing delivery, keep the dry-run artifact and opt in explicitly:
 dev-flow deliver --apply --yes --task T03-code-implementation
 dev-flow deliver --apply --yes --unit U18
 dev-flow deliver --apply --yes --patch-set .devflow/artifacts/patch-sets/reviewed.json
+dev-flow deliver --apply --yes --task T03-code-implementation --no-source-context
 ```
 
 `deliver --apply` runs the same plan, tasks, and dry-run proposal steps first, then applies either an AI-generated task/unit patch set or a reviewed local patch set before verification, visual checks, and the final report. The `--yes` flag is required so CI and local scripts cannot modify source files by accident.
@@ -356,6 +365,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Generated task plan for implementation phases and structured implementation units.
 - AI-assisted dry-run patch proposals for review before source-changing execution.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including component, data, style, test, config, and verification candidates.
+- Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Validated patch-set application with write, replace, delete, execution logs, and rollback.
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.

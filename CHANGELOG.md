@@ -13,6 +13,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
+- Added `--no-source-context`, `DEVFLOW_SOURCE_CONTEXT=none`, and a GitHub Action `source-context` input to omit sampled repository source snippets from AI prompts.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.

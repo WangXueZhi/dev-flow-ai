@@ -18,7 +18,8 @@ test("runExecute sends sampled source context to AI dry-run providers", async (t
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     DEVFLOW_AI_BASE_URL: process.env.DEVFLOW_AI_BASE_URL,
     DEVFLOW_AI_MODEL: process.env.DEVFLOW_AI_MODEL,
-    DEVFLOW_AI_FIXTURE_PATH: process.env.DEVFLOW_AI_FIXTURE_PATH
+    DEVFLOW_AI_FIXTURE_PATH: process.env.DEVFLOW_AI_FIXTURE_PATH,
+    DEVFLOW_SOURCE_CONTEXT: process.env.DEVFLOW_SOURCE_CONTEXT
   };
   const requests: unknown[] = [];
   const server = await startProviderServer(requests);
@@ -55,6 +56,58 @@ test("runExecute sends sampled source context to AI dry-run providers", async (t
   assert.match(prompt, /src\/App\.tsx/);
   assert.match(prompt, /Existing App Shell/);
   assert.match(proposal, /AI proposal from test provider/);
+});
+
+test("runExecute can disable sampled source context for AI dry-run providers", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-no-source-context-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const originalEnv = {
+    DEVFLOW_AI_API_KEY: process.env.DEVFLOW_AI_API_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    DEVFLOW_AI_BASE_URL: process.env.DEVFLOW_AI_BASE_URL,
+    DEVFLOW_AI_MODEL: process.env.DEVFLOW_AI_MODEL,
+    DEVFLOW_AI_FIXTURE_PATH: process.env.DEVFLOW_AI_FIXTURE_PATH,
+    DEVFLOW_SOURCE_CONTEXT: process.env.DEVFLOW_SOURCE_CONTEXT
+  };
+  const requests: unknown[] = [];
+  const server = await startProviderServer(requests);
+  const address = server.address() as AddressInfo;
+
+  assert.equal(typeof address.port, "number");
+
+  t.after(async () => {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    console.log = originalLog;
+    restoreEnv(originalEnv);
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = () => undefined;
+  process.chdir(workspace);
+  writeProject(workspace);
+
+  process.env.DEVFLOW_AI_API_KEY = "test-key";
+  delete process.env.OPENAI_API_KEY;
+  process.env.DEVFLOW_AI_BASE_URL = `http://127.0.0.1:${address.port}/v1`;
+  process.env.DEVFLOW_AI_MODEL = "test-model";
+  delete process.env.DEVFLOW_AI_FIXTURE_PATH;
+
+  await runExecute({ "dry-run": "true", task: "T03-code-implementation", "no-source-context": "true" });
+
+  process.env.DEVFLOW_SOURCE_CONTEXT = "none";
+  await runExecute({ "dry-run": "true", task: "T03-code-implementation" });
+
+  assert.equal(requests.length, 2);
+  for (const request of requests as Array<{ messages?: Array<{ role: string; content: string }> }>) {
+    const prompt = request.messages?.find((message) => message.role === "user")?.content ?? "";
+
+    assert.doesNotMatch(prompt, /Existing Repository Source Context/);
+    assert.doesNotMatch(prompt, /Existing App Shell/);
+    assert.match(prompt, /Project Brief/);
+    assert.match(prompt, /T03-code-implementation/);
+  }
 });
 
 test("runExecute restores the backup when apply fails after partial writes", async (t) => {

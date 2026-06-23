@@ -66,6 +66,10 @@ inputs:
     description: Optional path for saving AI-generated patch sets.
     required: false
     default: ""
+  source-context:
+    description: Include bounded repository source snippets in AI prompts. Set to false to omit source snippets.
+    required: false
+    default: "true"
   upload-artifacts:
     description: Upload DevFlow artifacts with actions/upload-artifact after delivery.
     required: false
@@ -106,6 +110,7 @@ runs:
         CONFIRM_APPLY: ${{ inputs.confirm-apply }}
         PATCH_SET: ${{ inputs.patch-set }}
         SAVE_PATCH_SET: ${{ inputs.save-patch-set }}
+        SOURCE_CONTEXT: ${{ inputs.source-context }}
       run: |
         set -euo pipefail
 
@@ -126,6 +131,9 @@ runs:
         [[ -n "$VERIFY_COMMAND" ]] && args+=(--command "$VERIFY_COMMAND")
         [[ -n "$PATCH_SET" ]] && args+=(--patch-set "$PATCH_SET")
         [[ -n "$SAVE_PATCH_SET" ]] && args+=(--save-patch-set "$SAVE_PATCH_SET")
+        if [[ "${SOURCE_CONTEXT,,}" == "false" ]]; then
+          args+=(--no-source-context)
+        fi
 
         if [[ "$APPLY" == "true" ]]; then
           args+=(--apply --yes)

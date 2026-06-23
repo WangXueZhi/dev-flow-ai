@@ -36,7 +36,8 @@ test("createDeliveryExecutionPlan supports AI task apply", () => {
       unit: undefined,
       tasks: undefined,
       "patch-set": undefined,
-      "save-patch-set": undefined
+      "save-patch-set": undefined,
+      "no-source-context": undefined
     }
   });
 });
@@ -50,7 +51,8 @@ test("createDeliveryExecutionPlan supports AI unit apply", () => {
       unit: "U18",
       tasks: undefined,
       "patch-set": undefined,
-      "save-patch-set": undefined
+      "save-patch-set": undefined,
+      "no-source-context": undefined
     }
   });
 });
@@ -70,7 +72,31 @@ test("createDeliveryExecutionPlan supports reviewed patch-set apply", () => {
         unit: undefined,
         tasks: undefined,
         "patch-set": ".devflow/artifacts/patch-sets/reviewed.json",
-        "save-patch-set": undefined
+        "save-patch-set": undefined,
+        "no-source-context": undefined
+      }
+    }
+  );
+});
+
+test("createDeliveryExecutionPlan forwards source context privacy flags", () => {
+  assert.deepEqual(
+    createDeliveryExecutionPlan({
+      apply: "true",
+      yes: "true",
+      task: "T03-code-implementation",
+      "no-source-context": "true"
+    }),
+    {
+      mode: "apply",
+      applyFlags: {
+        apply: "true",
+        task: "T03-code-implementation",
+        unit: undefined,
+        tasks: undefined,
+        "patch-set": undefined,
+        "save-patch-set": undefined,
+        "no-source-context": "true"
       }
     }
   );
