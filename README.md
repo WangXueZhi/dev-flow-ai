@@ -28,6 +28,15 @@ This repository currently contains the first MVP slice: a CLI that initializes a
 
 ## Quick Start
 
+Until the first npm release is published, install the CLI directly from GitHub:
+
+```bash
+npm install --global github:WangXueZhi/dev-flow-ai
+dev-flow help
+```
+
+For local development from a clone:
+
 ```bash
 npm install
 npm run build

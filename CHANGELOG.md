@@ -31,5 +31,6 @@ All notable changes to DevFlow will be documented in this file.
 - Added a trackable React/Vite example fixture for replaying source-changing delivery while keeping generated `.devflow` artifacts ignored.
 - Added a GitHub Release workflow for npm publishing with provenance.
 - Added public npm publish configuration for the CLI package.
+- Added GitHub install support through the package `prepare` lifecycle so developers can install the CLI before the first npm release.
 - Added open-source governance files and GitHub issue and pull request templates.
 - Added a React/Vite dashboard example and CI coverage for the core workflow.

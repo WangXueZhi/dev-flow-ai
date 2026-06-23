@@ -35,7 +35,7 @@
     "pack:dry-run": "npm pack --dry-run",
     "pack:smoke": "node scripts/smoke-pack.mjs",
     "smoke:live": "node scripts/live-provider-smoke.mjs",
-    "prepack": "npm run build",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run check",
     "test": "node --test \"dist/**/*.test.js\""
   },
