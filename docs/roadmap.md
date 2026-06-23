@@ -20,6 +20,7 @@
 - Dry-run patch proposal generation.
 - Dry-run proposal UI checklist and delivery risk surfacing.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
+- Normalized frontend target summaries in AI execution target profiles.
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Validated patch-set application.
 - Verification report with bounded failure excerpts.

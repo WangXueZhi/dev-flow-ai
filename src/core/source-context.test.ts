@@ -42,6 +42,12 @@ test("sourceContextCandidatePaths includes target profile and resolved design as
   const profile: ImplementationTargetProfile = {
     sourceRoots: ["src"],
     stackTags: ["React"],
+    frontendTargets: {
+      routes: [],
+      components: [],
+      dataNeeds: [],
+      uiStates: []
+    },
     componentCandidates: ["src/App.tsx"],
     dataCandidates: ["src/lib/api.ts"],
     styleCandidates: ["src/index.css"],

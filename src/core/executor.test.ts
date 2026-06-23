@@ -44,6 +44,39 @@ const brief: ProjectBrief = {
   apiErrorCases: [],
   apiAuthRequirements: [],
   invalidApiDataModels: [],
+  frontendTargets: {
+    routes: [
+      {
+        source: "requirements",
+        summary: "Route or view for requirement: Checkout summary is visible.",
+        evidence: ["Requirement signal"]
+      }
+    ],
+    components: [
+      {
+        source: "ui",
+        sourceLine: 8,
+        summary: "Checkout summary card",
+        evidence: ["UI component note"]
+      }
+    ],
+    dataNeeds: [
+      {
+        source: "api",
+        sourceLine: 7,
+        summary: "Integrate GET /api/release/summary",
+        evidence: ["GET /api/release/summary"]
+      }
+    ],
+    uiStates: [
+      {
+        source: "ui",
+        sourceLine: 12,
+        summary: "Loading state uses skeleton cards.",
+        evidence: ["UI state note"]
+      }
+    ]
+  },
   userStories: [],
   constraints: [],
   acceptanceCriteria: [],
@@ -88,10 +121,14 @@ test("createDryRunProposal creates reviewable proposal without source changes", 
 
   assert.equal(proposal.taskId, "T03-code-implementation");
   assert.ok(proposal.suggestedFiles.includes("src/App.tsx"));
+  assert.ok(proposal.targetProfile.frontendTargets.routes.some((target) => target.includes("Checkout summary")));
   assert.ok(proposal.targetProfile.componentCandidates.includes("src/main.tsx"));
   assert.ok(proposal.targetProfile.testCandidates.includes("src/**/*.test.tsx"));
   assert.match(markdown, /No source files have been changed/);
   assert.match(markdown, /Stack Targeting/);
+  assert.match(markdown, /Route targets/);
+  assert.match(markdown, /Checkout summary card/);
+  assert.match(markdown, /Integrate GET \/api\/release\/summary/);
   assert.match(markdown, /UI Checklist/);
   assert.match(markdown, /Loading state uses skeleton cards/);
   assert.match(markdown, /Delivery Risks/);
@@ -121,6 +158,8 @@ test("buildDryRunPrompt includes task and project brief context", () => {
   assert.match(prompt, /UI checklist coverage/);
   assert.match(prompt, /Delivery risks and mitigations/);
   assert.match(prompt, /Repository Target Profile/);
+  assert.match(prompt, /frontendTargets/);
+  assert.match(prompt, /Checkout summary is visible/);
   assert.match(prompt, /Project Brief/);
   assert.match(prompt, /docs\/requirements\.md/);
   assert.match(prompt, /npm run check/);

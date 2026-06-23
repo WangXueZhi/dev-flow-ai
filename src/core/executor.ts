@@ -309,6 +309,10 @@ function formatTargetProfile(profile: ImplementationTargetProfile): string {
   return [
     `- Source roots: ${formatInlineList(profile.sourceRoots)}`,
     `- Stack tags: ${profile.stackTags.length ? formatInlineList(profile.stackTags) : "none detected"}`,
+    `- Route targets: ${formatInlineListOrNone(profile.frontendTargets.routes)}`,
+    `- Component targets: ${formatInlineListOrNone(profile.frontendTargets.components)}`,
+    `- Data targets: ${formatInlineListOrNone(profile.frontendTargets.dataNeeds)}`,
+    `- UI state targets: ${formatInlineListOrNone(profile.frontendTargets.uiStates)}`,
     `- Component candidates: ${formatInlineList(profile.componentCandidates)}`,
     `- Data candidates: ${profile.dataCandidates.length ? formatInlineList(profile.dataCandidates) : "none for this task"}`,
     `- Style candidates: ${formatInlineList(profile.styleCandidates)}`,
@@ -320,6 +324,10 @@ function formatTargetProfile(profile: ImplementationTargetProfile): string {
 
 function formatInlineList(values: string[]): string {
   return values.map((value) => `\`${value}\``).join(", ");
+}
+
+function formatInlineListOrNone(values: string[]): string {
+  return values.length ? formatInlineList(values) : "none extracted";
 }
 
 function unique(values: string[]): string[] {

@@ -4,6 +4,12 @@ import type { ImplementationTask, ImplementationUnit } from "./tasks.js";
 export interface ImplementationTargetProfile {
   sourceRoots: string[];
   stackTags: string[];
+  frontendTargets: {
+    routes: string[];
+    components: string[];
+    dataNeeds: string[];
+    uiStates: string[];
+  };
   componentCandidates: string[];
   dataCandidates: string[];
   styleCandidates: string[];
@@ -33,6 +39,7 @@ export function createImplementationTargetProfile(
       ...brief.stack.styling,
       ...brief.stack.testing
     ]),
+    frontendTargets: buildFrontendTargetSummary(brief),
     componentCandidates: buildComponentCandidates(brief, primaryRoot, jsxExtension, moduleExtension),
     dataCandidates: hasApiWork ? buildDataCandidates(primaryRoot, moduleExtension) : [],
     styleCandidates: buildStyleCandidates(brief, primaryRoot),
@@ -41,6 +48,23 @@ export function createImplementationTargetProfile(
     verificationCommands: task.verification.length ? task.verification : brief.recommendedVerification,
     notes: buildTargetNotes(task, brief, unit, hasApiWork)
   };
+}
+
+function buildFrontendTargetSummary(brief: ProjectBrief): ImplementationTargetProfile["frontendTargets"] {
+  return {
+    routes: summarizeFrontendTargets(brief.frontendTargets?.routes),
+    components: summarizeFrontendTargets(brief.frontendTargets?.components),
+    dataNeeds: summarizeFrontendTargets(brief.frontendTargets?.dataNeeds),
+    uiStates: summarizeFrontendTargets(brief.frontendTargets?.uiStates)
+  };
+}
+
+function summarizeFrontendTargets(targets: NonNullable<ProjectBrief["frontendTargets"]>[keyof NonNullable<ProjectBrief["frontendTargets"]>] | undefined): string[] {
+  return (targets ?? []).slice(0, 6).map((target) => {
+    const location = target.sourceLine === undefined ? target.source : `${target.source}:${target.sourceLine}`;
+
+    return `${target.summary} (${location})`;
+  });
 }
 
 function buildComponentCandidates(
