@@ -155,12 +155,58 @@ export function sourceContextCandidatePaths(
 ): string[] {
   return unique([
     ...sourcePathsFromUnit(unit),
+    ...profilePathsForUnit(profile, unit)
+  ]);
+}
+
+function profilePathsForUnit(profile: ImplementationTargetProfile, unit: ImplementationUnit | undefined): string[] {
+  if (isDataOrApiUnit(unit)) {
+    return [
+      ...profile.dataCandidates,
+      ...profile.componentCandidates.slice(0, 6),
+      ...profile.testCandidates,
+      ...profile.configCandidates,
+      ...profile.styleCandidates
+    ];
+  }
+
+  if (unit?.kind === "frontend-route") {
+    return [
+      ...profile.componentCandidates,
+      ...profile.dataCandidates.slice(0, 4),
+      ...profile.styleCandidates,
+      ...profile.testCandidates,
+      ...profile.configCandidates
+    ];
+  }
+
+  if (unit?.kind === "frontend-component") {
+    return [
+      ...profile.componentCandidates,
+      ...profile.styleCandidates,
+      ...profile.testCandidates,
+      ...profile.dataCandidates.slice(0, 4),
+      ...profile.configCandidates
+    ];
+  }
+
+  if (unit?.kind === "frontend-state" || unit?.kind === "ui-state") {
+    return [
+      ...profile.componentCandidates,
+      ...profile.dataCandidates.slice(0, 4),
+      ...profile.styleCandidates,
+      ...profile.testCandidates,
+      ...profile.configCandidates
+    ];
+  }
+
+  return [
     ...profile.componentCandidates,
     ...profile.dataCandidates,
     ...profile.styleCandidates,
     ...profile.configCandidates,
     ...profile.testCandidates
-  ]);
+  ];
 }
 
 export function formatSourceContextForPrompt(context: SourceContext): string {
@@ -186,11 +232,19 @@ function sourcePathsFromUnit(unit: ImplementationUnit | undefined): string[] {
     .map((detail) => /^Resolved path:\s+(.+)$/i.exec(detail)?.[1]?.trim())
     .filter((value): value is string => Boolean(value));
 
-  if (unit.source.includes(":")) {
+  if (unit.source.includes(":") || isFrontendUnit(unit)) {
     return resolvedAssetPaths;
   }
 
   return [unit.source, ...resolvedAssetPaths];
+}
+
+function isFrontendUnit(unit: ImplementationUnit): boolean {
+  return unit.kind === "frontend-route" || unit.kind === "frontend-component" || unit.kind === "frontend-data" || unit.kind === "frontend-state";
+}
+
+function isDataOrApiUnit(unit: ImplementationUnit | undefined): boolean {
+  return unit?.kind === "frontend-data" || unit?.kind === "api-endpoint" || unit?.kind === "api-model" || unit?.kind === "api-error" || unit?.kind === "api-auth";
 }
 
 async function readDirectoryContext(

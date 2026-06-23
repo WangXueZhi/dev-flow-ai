@@ -74,3 +74,60 @@ test("sourceContextCandidatePaths includes target profile and resolved design as
     "src/**/*.test.tsx"
   ]);
 });
+
+test("sourceContextCandidatePaths prioritizes selected frontend unit source candidates", () => {
+  const profile: ImplementationTargetProfile = {
+    sourceRoots: ["src"],
+    stackTags: ["React"],
+    frontendTargets: {
+      routes: ["Route path /settings/security (requirements)"],
+      components: ["Component SecurityPanel (ui)"],
+      dataNeeds: ["Integrate GET /api/security/summary (api)"],
+      uiStates: []
+    },
+    componentCandidates: [
+      "src/pages/SettingsSecurity.tsx",
+      "src/routes/SettingsSecurity.tsx",
+      "src/components/SecurityPanel.tsx",
+      "src/App.tsx"
+    ],
+    dataCandidates: [
+      "src/lib/api/security-summary.ts",
+      "src/services/security-summary.ts",
+      "src/api/security-summary.ts"
+    ],
+    styleCandidates: ["src/index.css"],
+    testCandidates: ["src/**/*.test.tsx"],
+    configCandidates: ["package.json"],
+    verificationCommands: ["npm run check"],
+    notes: []
+  };
+  const routeUnit: ImplementationUnit = {
+    id: "U21",
+    kind: "frontend-route",
+    title: "Route path /settings/security",
+    source: "docs/requirements.md",
+    details: ["Target source: requirements"]
+  };
+  const dataUnit: ImplementationUnit = {
+    id: "U22",
+    kind: "frontend-data",
+    title: "Integrate GET /api/security/summary",
+    source: "docs/api.md",
+    details: ["Target source: api", "Evidence: GET /api/security/summary"]
+  };
+
+  assert.deepEqual(sourceContextCandidatePaths(profile, routeUnit).slice(0, 4), [
+    "src/pages/SettingsSecurity.tsx",
+    "src/routes/SettingsSecurity.tsx",
+    "src/components/SecurityPanel.tsx",
+    "src/App.tsx"
+  ]);
+  assert.equal(sourceContextCandidatePaths(profile, routeUnit).includes("docs/requirements.md"), false);
+  assert.deepEqual(sourceContextCandidatePaths(profile, dataUnit).slice(0, 3), [
+    "src/lib/api/security-summary.ts",
+    "src/services/security-summary.ts",
+    "src/api/security-summary.ts"
+  ]);
+  assert.equal(sourceContextCandidatePaths(profile, dataUnit).includes("docs/api.md"), false);
+});

@@ -38,7 +38,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Task plans include normalized frontend targets and implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
 - [ ] Dry-run patch proposals include a stack-specific target profile with normalized frontend targets and candidate explicit route/component/API, data, style, test, config, and verification targets, prioritizing the selected frontend unit's route path, component name, or endpoint when `--unit` is used.
-- [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates.
+- [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates, with selected frontend unit candidates sampled before broader repository candidates when `--unit` is used.
 - [ ] AI dry-run and AI patch-set prompts can omit sampled repository source snippets with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`.
 - [ ] `dev-flow execute --dry-run --unit <id>` scopes patch proposals to one implementation unit.
 - [ ] `dev-flow execute --dry-run` uses the AI provider for patch proposals when a provider key or fixture is configured.
