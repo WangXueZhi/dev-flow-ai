@@ -37,7 +37,8 @@ const requiredFiles = [
   "scripts/example-delivery-smoke.mjs",
   "scripts/release-preflight.mjs",
   "scripts/smoke-github-install.mjs",
-  "scripts/live-provider-smoke.mjs"
+  "scripts/live-provider-smoke.mjs",
+  "scripts/summarize-manifest.mjs"
 ];
 
 const forbiddenPatterns = [

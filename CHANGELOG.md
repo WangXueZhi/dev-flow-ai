@@ -11,6 +11,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the bug report template to collect sanitized `dev-flow doctor --json` diagnostics.
 - Added optional artifact uploads to the composite GitHub Action.
 - Added manifest-backed GitHub Actions job summaries for delivery readiness, verification, visual status, source changes, artifact paths, risks, and open questions.
+- Extracted the GitHub Actions delivery summary formatter into a tested script.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
 - Added manifest-backed `dev-flow status` assertions to the example delivery smoke flow.

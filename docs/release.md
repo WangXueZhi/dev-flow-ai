@@ -58,7 +58,7 @@ node ../../dist/cli.js deliver \
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run release:preflight` passes.
-- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, and `scripts/live-provider-smoke.mjs`.
+- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `scripts/live-provider-smoke.mjs`, and `scripts/summarize-manifest.mjs`.
 - Confirm `schemas/patch-set.schema.json` is included in the npm package.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.
 - Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release.

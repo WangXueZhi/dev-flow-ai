@@ -21,7 +21,7 @@ const requiredSnippets = [
   "npx --yes --package \"$package_spec\" dev-flow \"${args[@]}\"",
   "if: ${{ inputs.job-summary == 'true' }}",
   "MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
-  "### DevFlow Delivery",
+  "node \"$GITHUB_ACTION_PATH/scripts/summarize-manifest.mjs\"",
   "uses: actions/upload-artifact@v4",
   "if: ${{ inputs.upload-artifacts == 'true' }}"
 ];

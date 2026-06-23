@@ -37,7 +37,8 @@
     "scripts/example-delivery-smoke.mjs",
     "scripts/release-preflight.mjs",
     "scripts/smoke-github-install.mjs",
-    "scripts/live-provider-smoke.mjs"
+    "scripts/live-provider-smoke.mjs",
+    "scripts/summarize-manifest.mjs"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -53,7 +54,7 @@
     "smoke:live": "node scripts/live-provider-smoke.mjs",
     "prepare": "npm run build",
     "prepublishOnly": "npm run check",
-    "test": "node --test \"dist/**/*.test.js\""
+    "test": "node --test \"dist/**/*.test.js\" \"scripts/**/*.test.mjs\""
   },
   "keywords": [
     "ai",
