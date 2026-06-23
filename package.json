@@ -37,10 +37,11 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "check": "npm run build && npm test && npm run check:action",
+    "check": "npm run build && npm test && npm run check:action && npm run check:package",
     "check:action": "node scripts/validate-action.mjs",
+    "check:package": "node scripts/validate-package.mjs",
     "dev": "tsx src/cli.ts",
-    "pack:dry-run": "npm pack --dry-run",
+    "pack:dry-run": "npm run check:package",
     "pack:smoke": "node scripts/smoke-pack.mjs",
     "smoke:live": "node scripts/live-provider-smoke.mjs",
     "prepare": "npm run build",

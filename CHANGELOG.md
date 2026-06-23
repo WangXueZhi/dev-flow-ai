@@ -34,5 +34,6 @@ All notable changes to DevFlow will be documented in this file.
 - Added GitHub install support through the package `prepare` lifecycle so developers can install the CLI before the first npm release.
 - Added an adoption guide for running DevFlow inside existing frontend repositories.
 - Included project docs and the React/Vite example source in the published package so README links remain useful after install without shipping generated artifacts.
+- Added an automated package contents check to prevent generated artifacts, dependencies, and test outputs from entering npm tarballs.
 - Added open-source governance files and GitHub issue and pull request templates.
 - Added a React/Vite dashboard example and CI coverage for the core workflow.
