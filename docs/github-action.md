@@ -4,6 +4,8 @@ DevFlow includes a composite GitHub Action for running the safe delivery workflo
 
 The action defaults to non-destructive delivery. It runs `dev-flow deliver`, writes DevFlow artifacts, and only performs source-changing execution when both `apply: "true"` and `confirm-apply: "true"` are provided.
 
+By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts, key artifact paths, top risks, and open questions.
+
 ## Basic Workflow
 
 ```yaml
@@ -67,6 +69,24 @@ Use `artifacts-path` when your project writes artifacts somewhere other than `.d
 Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, screenshots, touched files, backups, open questions, and delivery risks.
 
 Tools that inspect the uploaded manifest can validate it with `schemas/delivery-manifest.schema.json`.
+
+## Job Summary
+
+The action writes a compact delivery summary to `$GITHUB_STEP_SUMMARY` by default:
+
+```yaml
+- uses: WangXueZhi/dev-flow-ai@main
+  with:
+    upload-artifacts: "true"
+```
+
+Disable it when a workflow needs artifacts only:
+
+```yaml
+- uses: WangXueZhi/dev-flow-ai@main
+  with:
+    job-summary: "false"
+```
 
 ## AI Provider
 
@@ -134,3 +154,4 @@ When `patch-set` is provided, the action runs `dev-flow execute --validate --pat
 - `upload-artifacts`: upload DevFlow artifacts after delivery. Default: `"false"`.
 - `artifact-name`: artifact name when `upload-artifacts` is enabled. Default: `devflow-artifacts`.
 - `artifacts-path`: artifact path relative to `working-directory`. Default: `.devflow/artifacts`.
+- `job-summary`: write delivery readiness, evidence counts, artifact paths, top risks, and open questions to the GitHub job summary. Default: `"true"`.

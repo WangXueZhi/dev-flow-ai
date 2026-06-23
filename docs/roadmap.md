@@ -33,7 +33,7 @@
 - Frontend delivery blueprint sections in implementation plans for routes, components, state, data fetching, styling, tests, and accessibility.
 - Planner guardrails that prevent patch-set JSON from replacing implementation-plan artifacts and append missing frontend blueprint sections to provider plans.
 - Safe deliver orchestration command with explicit source-changing apply.
-- Composite GitHub Action for safe CI delivery runs.
+- Composite GitHub Action for safe CI delivery runs, artifact uploads, and manifest-backed job summaries.
 - React/Vite dashboard example.
 
 ## Milestone 1: Better Planning

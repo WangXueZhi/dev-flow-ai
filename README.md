@@ -404,7 +404,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
-- Composite GitHub Action for running safe delivery in CI.
+- Composite GitHub Action for running safe delivery in CI, uploading artifacts, and writing a delivery summary from the manifest.
 - Clean extension points for future coding agents.
 
 ## Future Direction

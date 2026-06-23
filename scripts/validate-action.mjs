@@ -19,6 +19,9 @@ const requiredSnippets = [
   "package_spec=\"dev-flow-ai@$package_spec\"",
   "dev-flow execute --validate --patch-set \"$PATCH_SET\"",
   "npx --yes --package \"$package_spec\" dev-flow \"${args[@]}\"",
+  "if: ${{ inputs.job-summary == 'true' }}",
+  "MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
+  "### DevFlow Delivery",
   "uses: actions/upload-artifact@v4",
   "if: ${{ inputs.upload-artifacts == 'true' }}"
 ];
@@ -42,7 +45,8 @@ const requiredInputs = [
   "source-context",
   "upload-artifacts",
   "artifact-name",
-  "artifacts-path"
+  "artifacts-path",
+  "job-summary"
 ];
 
 for (const snippet of requiredSnippets) {
