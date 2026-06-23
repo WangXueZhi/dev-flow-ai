@@ -306,6 +306,8 @@ The manifest is JSON. It records artifact paths and statuses, delivery readiness
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
 ```
 
+The public schema is available at `schemas/delivery-manifest.schema.json`, with details in `docs/delivery-manifest-schema.md`.
+
 Use `--visual-report none` when generating a report that should not include an existing visual artifact from an earlier run:
 
 ```bash
@@ -400,6 +402,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.
 - Clean extension points for future coding agents.

@@ -199,6 +199,8 @@ The final report is written to `.devflow/artifacts/delivery-report.md`. It inclu
 
 DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, readiness, verification status, source-change status, screenshot paths, touched files, backups, open questions, and delivery risks without parsing Markdown.
 
+Validate the manifest with `schemas/delivery-manifest.schema.json` when building stricter CI or editor integrations.
+
 ## 9. Add DevFlow To CI
 
 Use the composite GitHub Action:
