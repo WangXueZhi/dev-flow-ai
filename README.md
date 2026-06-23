@@ -128,6 +128,7 @@ dev-flow plan
 dev-flow tasks
 dev-flow execute --dry-run
 dev-flow execute --apply
+dev-flow execute --validate
 dev-flow deliver
 dev-flow verify
 dev-flow visual
@@ -219,6 +220,7 @@ When an AI provider is configured through `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`
 Source-changing execution is available through validated patch sets:
 
 ```bash
+dev-flow execute --validate --patch-set path/to/patch-set.json
 dev-flow execute --apply --patch-set path/to/patch-set.json
 dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --task T03-code-implementation --unit U18
@@ -231,6 +233,8 @@ When an AI provider is configured, `dev-flow execute --apply --task <id>` can as
 AI-generated patch sets are saved to `.devflow/artifacts/patch-sets/<task>.json` by default. Use `--save-patch-set <path>` to choose a different location.
 
 Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json`.
+
+Use `execute --validate --patch-set <path>` to check a reviewed or AI-generated patch set without changing source files, creating backups, or writing the execution log.
 
 Patch-set validation keeps AI-generated changes reviewable: a patch set can include at most 50 operations, each write or replacement is capped at 500,000 bytes, and each replace search string is capped at 100,000 bytes. Delete operations still require safe relative paths and are included in apply backups.
 
@@ -369,6 +373,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including component, data, style, test, config, and verification candidates.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Validated patch-set application with write, replace, delete, execution logs, and rollback.
+- Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.

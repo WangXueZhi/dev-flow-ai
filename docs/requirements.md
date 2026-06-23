@@ -40,6 +40,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] AI dry-run and AI patch-set prompts can omit sampled repository source snippets with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`.
 - [ ] `dev-flow execute --dry-run --unit <id>` scopes patch proposals to one implementation unit.
 - [ ] `dev-flow execute --dry-run` uses the AI provider for patch proposals when a provider key or fixture is configured.
+- [ ] `dev-flow execute --validate --patch-set <path>` validates patch sets without changing source files.
 - [ ] `dev-flow execute --apply --patch-set <path>` validates and applies patch set write, replace, and delete operations.
 - [ ] Patch-set validation rejects oversized operation counts, write payloads, search strings, and replacement payloads.
 - [ ] Applied patch sets are recorded in `.devflow/artifacts/execution-log.json`.

@@ -12,6 +12,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow tasks`: writes task plan JSON and Markdown.
 - `dev-flow execute --dry-run`: writes patch proposal documents and prints proposal count.
 - `dev-flow execute --dry-run --unit <id>`: scopes a patch proposal to one implementation unit.
+- `dev-flow execute --validate`: validates a patch set without changing source files.
 - `dev-flow execute --apply`: applies a validated patch set and prints execution log path.
 - `dev-flow execute --rollback`: restores files from a backup manifest and prints rollback report path.
 - `dev-flow verify`: writes a verification report and prints status.

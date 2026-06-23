@@ -185,6 +185,54 @@ test("runExecute restores the backup when apply fails after partial writes", asy
   ]);
 });
 
+test("runExecute validates patch sets without changing source files", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-validate-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const logs: string[] = [];
+
+  t.after(() => {
+    console.log = originalLog;
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = (message?: unknown) => {
+    logs.push(String(message));
+  };
+  process.chdir(workspace);
+  mkdirSync(join(workspace, "src"), { recursive: true });
+  writeFileSync(join(workspace, "patch.json"), `${JSON.stringify(
+    {
+      version: 1,
+      taskId: "T03-code-implementation",
+      summary: "Validate only.",
+      operations: [
+        {
+          type: "write",
+          path: "src/generated.txt",
+          content: "generated\n"
+        },
+        {
+          type: "delete",
+          path: "src/old.txt",
+          missingOk: true
+        }
+      ]
+    },
+    null,
+    2
+  )}\n`, "utf8");
+
+  await runExecute({ validate: "true", "patch-set": "patch.json" });
+
+  assert.equal(existsSync(join(workspace, "src", "generated.txt")), false);
+  assert.match(logs.join("\n"), /Patch set is valid/);
+  assert.match(logs.join("\n"), /Operations: 2/);
+  assert.match(logs.join("\n"), /Writes: 1/);
+  assert.match(logs.join("\n"), /Deletes: 1/);
+});
+
 function writeProject(workspace: string): void {
   mkdirSync(join(workspace, ".devflow", "artifacts"), { recursive: true });
   mkdirSync(join(workspace, "src"), { recursive: true });

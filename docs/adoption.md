@@ -128,6 +128,7 @@ Source-changing delivery is opt-in.
 Use a reviewed patch set:
 
 ```bash
+dev-flow execute --validate --patch-set path/to/patch-set.json
 dev-flow execute --apply --patch-set path/to/patch-set.json
 ```
 

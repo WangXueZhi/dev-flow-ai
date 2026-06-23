@@ -26,9 +26,10 @@ export async function runExecute(flags: FlagMap): Promise<void> {
   const isDryRun = flags["dry-run"] === "true";
   const isApply = flags.apply === "true";
   const isRollback = flags.rollback === "true";
+  const isValidate = flags.validate === "true";
 
-  if ([isDryRun, isApply, isRollback].filter(Boolean).length !== 1) {
-    throw new CliError("Choose exactly one execution mode: --dry-run, --apply, or --rollback.");
+  if ([isDryRun, isApply, isRollback, isValidate].filter(Boolean).length !== 1) {
+    throw new CliError("Choose exactly one execution mode: --dry-run, --apply, --rollback, or --validate.");
   }
 
   if (isDryRun) {
@@ -38,6 +39,11 @@ export async function runExecute(flags: FlagMap): Promise<void> {
 
   if (isRollback) {
     await runRollback(flags);
+    return;
+  }
+
+  if (isValidate) {
+    await runValidate(flags);
     return;
   }
 
@@ -145,6 +151,22 @@ async function runRollback(flags: FlagMap): Promise<void> {
   console.log(`Files processed: ${report.files.length}`);
 }
 
+async function runValidate(flags: FlagMap): Promise<void> {
+  if (!flags["patch-set"]) {
+    throw new CliError("execute --validate requires --patch-set <path>.");
+  }
+
+  const patchSet = await readPatchSet(flags["patch-set"]);
+  const counts = countPatchOperations(patchSet);
+
+  console.log("Patch set is valid.");
+  console.log(`Task: ${patchSet.taskId}`);
+  console.log(`Operations: ${patchSet.operations.length}`);
+  console.log(`Writes: ${counts.write}`);
+  console.log(`Replacements: ${counts.replace}`);
+  console.log(`Deletes: ${counts.delete}`);
+}
+
 async function generateAiPatchSet(flags: FlagMap): Promise<PatchSet> {
   const provider = createAiProviderFromEnv();
 
@@ -222,4 +244,18 @@ function safeTimestamp(): string {
 
 function formatErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function countPatchOperations(patchSet: PatchSet): Record<PatchSet["operations"][number]["type"], number> {
+  return patchSet.operations.reduce(
+    (counts, operation) => {
+      counts[operation.type] += 1;
+      return counts;
+    },
+    {
+      write: 0,
+      replace: 0,
+      delete: 0
+    }
+  );
 }

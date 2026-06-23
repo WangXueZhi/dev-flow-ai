@@ -69,6 +69,7 @@ Usage:
   dev-flow tasks [--out <path>] [--markdown-out <path>]
   dev-flow execute --dry-run [--task <id>] [--unit <id>] [--out <dir>] [--no-source-context]
   dev-flow execute --apply [--task <id>] [--unit <id>] [--patch-set <path>] [--save-patch-set <path>] [--no-source-context]
+  dev-flow execute --validate --patch-set <path>
   dev-flow execute --rollback --backup <manifest-path> [--out <path>]
   dev-flow deliver [--requirements <path>] [--ui <path>] [--api <path>] [--task <id>] [--unit <id>] [--apply --yes] [--patch-set <path>] [--preview-url <url>] [--visual-text <a,b>] [--no-source-context]
   dev-flow verify [--command <shell-command>] [--out <path>]
