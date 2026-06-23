@@ -89,3 +89,79 @@ test("createImplementationTargetProfile includes Nuxt route, data, style, and te
   assert.ok(profile.testCandidates.includes("cypress/e2e/"));
   assert.ok(profile.notes.some((note) => /For Nuxt apps/.test(note)));
 });
+
+test("createImplementationTargetProfile includes Svelte, Astro, and Angular target candidates", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js", "TypeScript"],
+      frameworks: ["Svelte", "Astro", "Angular"],
+      buildTools: ["Angular CLI"],
+      styling: ["Sass"],
+      testing: ["Jest", "Playwright"],
+      scripts: {
+        test: "jest"
+      },
+      sourceDirectories: ["src"],
+      configFiles: ["svelte.config.js", "astro.config.mjs", "angular.json", "playwright.config.ts"],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [
+      {
+        method: "GET",
+        path: "/api/dashboard",
+        sourceLine: 7,
+        summary: "GET /api/dashboard"
+      }
+    ],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    frontendTargets: {
+      routes: [],
+      components: [],
+      dataNeeds: [],
+      uiStates: []
+    },
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: ["npm run test"]
+  };
+
+  const profile = createImplementationTargetProfile(task, brief);
+
+  assert.ok(profile.componentCandidates.includes("src/routes/+page.svelte"));
+  assert.ok(profile.componentCandidates.includes("src/pages/index.astro"));
+  assert.ok(profile.componentCandidates.includes("src/app/app.component.ts"));
+  assert.ok(profile.componentCandidates.includes("src/app/app.routes.ts"));
+  assert.ok(profile.dataCandidates.includes("src/routes/**/+server.ts"));
+  assert.ok(profile.dataCandidates.includes("src/routes/**/+page.server.ts"));
+  assert.ok(profile.dataCandidates.includes("src/pages/api/"));
+  assert.ok(profile.dataCandidates.includes("src/app/**/*.service.ts"));
+  assert.ok(profile.styleCandidates.includes("src/routes/+layout.svelte"));
+  assert.ok(profile.styleCandidates.includes("src/styles/"));
+  assert.ok(profile.styleCandidates.includes("src/app/**/*.scss"));
+  assert.ok(profile.testCandidates.includes("src/routes/**/*.test.ts"));
+  assert.ok(profile.testCandidates.includes("src/app/**/*.spec.ts"));
+  assert.ok(profile.testCandidates.includes("e2e/"));
+  assert.ok(profile.notes.some((note) => /Svelte route and lib conventions/.test(note)));
+  assert.ok(profile.notes.some((note) => /Astro pages/.test(note)));
+  assert.ok(profile.notes.some((note) => /Angular feature/.test(note)));
+});

@@ -92,15 +92,15 @@ function buildComponentCandidates(
   }
 
   if (hasFramework(brief, "Svelte")) {
-    candidates.push(`${root}/routes/`, `${root}/lib/`);
+    candidates.push("src/routes/", "src/routes/+page.svelte", "src/routes/+layout.svelte", "src/lib/", `${root}/routes/`, `${root}/lib/`);
   }
 
   if (hasFramework(brief, "Angular")) {
-    candidates.push(`${root}/app/`, `${root}/main.ts`);
+    candidates.push(`${root}/app/`, `${root}/main.ts`, `${root}/app/app.component.ts`, `${root}/app/app.routes.ts`, `${root}/app/**/*.component.ts`);
   }
 
   if (hasFramework(brief, "Astro")) {
-    candidates.push(`${root}/pages/`, `${root}/components/`, `${root}/layouts/`);
+    candidates.push("src/pages/", "src/pages/index.astro", "src/components/", "src/layouts/", `${root}/pages/`, `${root}/components/`, `${root}/layouts/`);
   }
 
   if (candidates.length === 0) {
@@ -132,7 +132,15 @@ function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension:
   }
 
   if (hasFramework(brief, "Svelte")) {
-    candidates.push(`${root}/lib/server/`, `${root}/routes/**/+server.${moduleExtension}`);
+    candidates.push("src/lib/server/", "src/routes/**/+server.ts", "src/routes/**/+page.server.ts", `${root}/lib/server/`, `${root}/routes/**/+server.${moduleExtension}`);
+  }
+
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/app/services/`, `${root}/app/**/*.service.${moduleExtension}`, `${root}/app/**/*.resolver.${moduleExtension}`);
+  }
+
+  if (hasFramework(brief, "Astro")) {
+    candidates.push("src/pages/api/", "src/lib/", "src/content/", `${root}/pages/api/`, `${root}/lib/`);
   }
 
   return unique(candidates);
@@ -150,11 +158,15 @@ function buildStyleCandidates(brief: ProjectBrief, root: string): string[] {
   }
 
   if (hasFramework(brief, "Svelte")) {
-    candidates.push(`${root}/app.css`, `${root}/routes/+layout.svelte`);
+    candidates.push("src/app.css", "src/routes/+layout.svelte", `${root}/app.css`, `${root}/routes/+layout.svelte`);
   }
 
   if (hasFramework(brief, "Astro")) {
-    candidates.push(`${root}/styles/`, `${root}/layouts/`);
+    candidates.push("src/styles/", "src/layouts/", `${root}/styles/`, `${root}/layouts/`);
+  }
+
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/styles.css`, `${root}/styles.scss`, `${root}/app/**/*.scss`);
   }
 
   if (brief.stack.styling.includes("Tailwind CSS")) {
@@ -187,6 +199,18 @@ function buildTestCandidates(
 
   if (brief.stack.testing.includes("Testing Library")) {
     candidates.push(`${root}/test-utils.${moduleExtension}`, `${root}/setupTests.${moduleExtension}`);
+  }
+
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push("src/routes/**/*.test.ts", "src/lib/**/*.test.ts");
+  }
+
+  if (hasFramework(brief, "Angular")) {
+    candidates.push(`${root}/app/**/*.spec.${moduleExtension}`);
+  }
+
+  if (hasFramework(brief, "Astro")) {
+    candidates.push("src/**/*.test.ts", "src/**/*.spec.ts");
   }
 
   if (brief.stack.testing.includes("Playwright") || hasConfigFile(brief, /^playwright\.config\./)) {

@@ -23,6 +23,7 @@
 - Dry-run proposal UI checklist and delivery risk surfacing.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
 - Nuxt-aware route, layout, composable, server API, Playwright, and Cypress target profile candidates.
+- Svelte/SvelteKit, Astro, and Angular-aware route, data/API, service, style, and spec target profile candidates.
 - Normalized frontend target summaries in AI execution target profiles.
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Validated patch-set application.
@@ -48,7 +49,7 @@
 
 ## Milestone 1: Better Planning
 
-- Deeper stack-specific routing, data-fetching, testing, and styling conventions for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro projects.
+- Further stack-specific routing, data-fetching, testing, and styling conventions for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro projects.
 - Richer route/component/data/state target extraction beyond the initial normalized frontend targets.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
 - Prompt fixtures and golden output tests.
