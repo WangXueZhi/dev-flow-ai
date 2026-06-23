@@ -85,3 +85,5 @@ Required repository setup:
 ## Current Release Boundary
 
 The MVP preview is suitable for local workflow trials, examples, and contributor development. Live model quality still depends on the configured OpenAI-compatible provider and should be validated against a real frontend repository before a production rollout.
+
+Draft release notes for the first public release live in `docs/releases/v0.1.0.md`.
