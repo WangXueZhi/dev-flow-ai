@@ -20,9 +20,10 @@ flowchart LR
   H --> I["Verification"]
   G --> I
   I --> J["Delivery Report"]
+  I --> N["Delivery Manifest"]
 ```
 
-The current MVP implements the context loader, repository stack detector, structured project brief writer, planner, plan writer, task planner, stack-specific target profiler, bounded source-context sampler, dry-run executor, patch-set applicator, verification report writer, and delivery report writer. Source-changing execution is constrained to validated patch sets and explicit delivery confirmation.
+The current MVP implements the context loader, repository stack detector, structured project brief writer, planner, plan writer, task planner, stack-specific target profiler, bounded source-context sampler, dry-run executor, patch-set applicator, verification report writer, delivery report writer, and machine-readable delivery manifest writer. Source-changing execution is constrained to validated patch sets and explicit delivery confirmation.
 
 ## Modules
 
@@ -45,7 +46,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Rollback: restores files from `.devflow/artifacts/backups/<id>/manifest.json`, writes `.devflow/artifacts/rollback-report.json`, and is invoked automatically when source-changing apply fails after backup creation.
 - Verification: runs recommended project commands and writes `.devflow/artifacts/verification-report.json`.
 - Visual Verification: captures screenshots, blank-screen analysis, layout-overflow checks, and text checks for preview URLs into `.devflow/artifacts/visual/visual-report.json`. Delivery runs can infer default text checks from design asset text snippets and UI state labels when no explicit visual text is provided.
-- Report: summarizes source documents, acceptance criteria, stack, artifacts, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence with embedded screenshots when available, risk assessment, delivery readiness, open questions, and next actions.
+- Report: writes `.devflow/artifacts/delivery-report.md` for reviewers and `.devflow/artifacts/delivery-manifest.json` for tools. These summarize source documents, acceptance criteria, stack, artifact paths and statuses, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence with embedded screenshots when available, risk assessment, delivery readiness, open questions, and next actions.
 - Doctor: checks runtime and project readiness.
 - GitHub Action: wraps safe `dev-flow deliver` for CI usage and requires explicit double confirmation for source-changing delivery.
 

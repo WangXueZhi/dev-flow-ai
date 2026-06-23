@@ -28,6 +28,7 @@
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.
 - Embedded screenshots in delivery reports when visual artifacts are available.
+- Machine-readable delivery manifest for artifact status, readiness, verification, visual, source-change, screenshot, touched-file, backup, open-question, and delivery-risk summaries.
 - Safe deliver orchestration command with explicit source-changing apply.
 - Composite GitHub Action for safe CI delivery runs.
 - React/Vite dashboard example.

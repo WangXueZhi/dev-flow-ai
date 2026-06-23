@@ -57,4 +57,12 @@ test("runReport can suppress stale visual reports", async (t) => {
   const report = readFileSync(".devflow/artifacts/delivery-report.md", "utf8");
   assert.match(report, /Visual verification has not been run yet/);
   assert.doesNotMatch(report, /Stale Preview/);
+
+  const manifest = JSON.parse(readFileSync(".devflow/artifacts/delivery-manifest.json", "utf8")) as {
+    status: { visual: string };
+    artifacts: Array<{ id: string; status: string }>;
+  };
+  assert.equal(manifest.status.visual, "not-run");
+  assert.equal(manifest.artifacts.find((artifact) => artifact.id === "visual-report")?.status, "not-applicable");
+  assert.doesNotMatch(JSON.stringify(manifest), /Stale Preview/);
 });

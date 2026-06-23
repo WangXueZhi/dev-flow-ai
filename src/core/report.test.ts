@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { formatDeliveryReport } from "./report.js";
+import { createDeliveryManifest, formatDeliveryReport } from "./report.js";
 import type { ProjectBrief } from "./brief.js";
 import type { VerificationReport } from "./verification.js";
 
@@ -295,4 +295,132 @@ test("formatDeliveryReport surfaces acceptance evidence gaps when delivery artif
   assert.match(report, /Manual QA: Exercise the user path for "The deployment table includes service, owner, environment, status, build, and next action\." in the implemented UI/);
   assert.match(report, /AC3: The app builds with `npm run build`/);
   assert.match(report, /Manual QA: Review verification output for "The app builds with `npm run build`\." and rerun the matching command before handoff/);
+});
+
+test("createDeliveryManifest summarizes artifact status and delivery evidence", () => {
+  const manifest = createDeliveryManifest({
+    brief,
+    artifactsDir: ".devflow/artifacts",
+    generatedAt: "2026-01-01T00:00:02.000Z",
+    deliveryReportPath: ".devflow/artifacts/delivery-report.md",
+    deliveryManifestPath: ".devflow/artifacts/delivery-manifest.json",
+    implementationPlanPath: ".devflow/artifacts/implementation-plan.md",
+    projectBriefPath: ".devflow/artifacts/project-brief.json",
+    taskPlanPath: ".devflow/artifacts/tasks.json",
+    taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
+    patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    executionLogPath: ".devflow/artifacts/execution-log.json",
+    executionLog: {
+      version: 1,
+      entries: [
+        {
+          taskId: "T03-code-implementation",
+          summary: "Apply dashboard source changes.",
+          appliedAt: "2026-01-01T00:00:00.500Z",
+          status: "applied",
+          backupManifestPath: ".devflow/artifacts/backups/backup/manifest.json",
+          operations: [
+            {
+              type: "replace",
+              path: "src/App.tsx",
+              status: "written",
+              bytesWritten: 2048,
+              replacements: 1,
+              linesBefore: 80,
+              linesAfter: 86,
+              lineDelta: 6
+            },
+            {
+              type: "delete",
+              path: "src/ObsoletePanel.tsx",
+              status: "deleted",
+              bytesWritten: 0,
+              linesBefore: 24,
+              linesAfter: 0,
+              lineDelta: -24
+            }
+          ]
+        }
+      ]
+    },
+    rollbackReportPath: ".devflow/artifacts/rollback-report.json",
+    verificationReportPath: ".devflow/artifacts/verification-report.json",
+    verification,
+    visualReportPath: ".devflow/artifacts/visual/visual-report.json",
+    visualReport: {
+      startedAt: "2026-01-01T00:00:00.000Z",
+      finishedAt: "2026-01-01T00:00:01.000Z",
+      url: "http://127.0.0.1:5173",
+      status: "passed",
+      screenshots: [
+        {
+          viewport: { name: "desktop", width: 1440, height: 1000 },
+          path: ".devflow/artifacts/visual/desktop.png",
+          title: "OpsBoard",
+          bodyCharacters: 100,
+          analysis: {
+            width: 1440,
+            height: 1000,
+            sampledPixels: 720000,
+            distinctPixels: 180000,
+            distinctPixelRatio: 0.25,
+            blank: false
+          }
+        }
+      ],
+      layoutIssues: [],
+      requiredText: [{ text: "OpsBoard", found: true }]
+    },
+    artifacts: [
+      {
+        id: "project-brief",
+        label: "Project brief",
+        kind: "json",
+        path: ".devflow/artifacts/project-brief.json",
+        status: "present",
+        required: true,
+        role: "Structured context."
+      },
+      {
+        id: "visual-screenshot-desktop",
+        label: "desktop screenshot",
+        kind: "image",
+        path: ".devflow/artifacts/visual/desktop.png",
+        status: "present",
+        required: false,
+        role: "Visual evidence."
+      }
+    ]
+  });
+
+  assert.equal(manifest.version, 1);
+  assert.equal(manifest.generatedAt, "2026-01-01T00:00:02.000Z");
+  assert.equal(manifest.status.readiness, "needs attention");
+  assert.equal(manifest.status.verification, "passed");
+  assert.equal(manifest.status.visual, "passed");
+  assert.equal(manifest.status.sourceChanges, "applied");
+  assert.equal(manifest.sourceDocuments?.requirementsPath, "docs/requirements.md");
+  assert.equal(manifest.artifacts.length, 2);
+  assert.equal(manifest.counts.acceptanceCriteria, 2);
+  assert.equal(manifest.counts.highDeliveryRisks, 1);
+  assert.equal(manifest.counts.appliedEntries, 1);
+  assert.equal(manifest.counts.appliedOperations, 2);
+  assert.equal(manifest.counts.touchedFiles, 2);
+  assert.equal(manifest.counts.visualScreenshots, 1);
+  assert.equal(manifest.evidence.acceptanceCriteria[0]?.id, "AC1");
+  assert.equal(manifest.evidence.acceptanceCriteria[0]?.status, "needs attention");
+  assert.match(manifest.evidence.acceptanceCriteria[0]?.evidence.join("\n") ?? "", /Verification passed/);
+  assert.deepEqual(manifest.evidence.appliedChanges.operations, {
+    total: 2,
+    written: 1,
+    deleted: 1,
+    unchanged: 0
+  });
+  assert.deepEqual(manifest.evidence.appliedChanges.touchedFiles, ["src/App.tsx", "src/ObsoletePanel.tsx"]);
+  assert.equal(manifest.evidence.appliedChanges.lineDelta, -18);
+  assert.deepEqual(manifest.evidence.appliedChanges.backupManifestPaths, [".devflow/artifacts/backups/backup/manifest.json"]);
+  assert.equal(manifest.evidence.visualScreenshots[0]?.blank, false);
+  assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
+  assert.equal(manifest.evidence.deliveryRisks.length, 2);
+  assert.deepEqual(manifest.evidence.openQuestions, ["Confirm empty state copy."]);
 });

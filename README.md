@@ -24,7 +24,7 @@ DevFlow treats these inputs as first-class context. Instead of jumping straight 
 5. Run verification.
 6. Generate a delivery report.
 
-This repository currently contains the first MVP slice: a CLI that initializes a DevFlow workspace, creates a structured project brief, detects repository stack signals, generates an implementation plan, produces scoped task/proposal artifacts, runs verification, captures optional visual checks, and writes a delivery report from local documents.
+This repository currently contains the first MVP slice: a CLI that initializes a DevFlow workspace, creates a structured project brief, detects repository stack signals, generates an implementation plan, produces scoped task/proposal artifacts, runs verification, captures optional visual checks, and writes human-readable plus machine-readable delivery reports from local documents.
 
 ## Quick Start
 
@@ -82,6 +82,8 @@ node dist/cli.js verify --out .devflow/artifacts/verification-report.json
 node dist/cli.js report --out .devflow/artifacts/delivery-report.md
 node dist/cli.js deliver --requirements docs/requirements.md --ui docs/ui.md --api docs/api.md
 ```
+
+`dev-flow report` also writes `.devflow/artifacts/delivery-manifest.json` by default so CI jobs, editors, and downstream tools can index the delivery artifacts without scraping Markdown.
 
 ## Optional AI Provider
 
@@ -290,9 +292,15 @@ dev-flow verify --command "npm run check"
 
 ### `dev-flow report`
 
-Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md`.
+Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus `.devflow/artifacts/delivery-manifest.json`.
 
 The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+
+The manifest is JSON. It records artifact paths and statuses, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+
+```bash
+dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
+```
 
 Use `--visual-report none` when generating a report that should not include an existing visual artifact from an earlier run:
 
@@ -386,7 +394,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
-- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.
 - Clean extension points for future coding agents.

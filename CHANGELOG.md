@@ -13,6 +13,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
+- Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
 - Added `--no-source-context`, `DEVFLOW_SOURCE_CONTEXT=none`, and a GitHub Action `source-context` input to omit sampled repository source snippets from AI prompts.
 - Added source-context diagnostics to `dev-flow doctor` and `dev-flow doctor --json`.
 - Added `dev-flow execute --validate --patch-set <path>` for non-mutating patch-set validation.

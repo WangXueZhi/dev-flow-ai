@@ -64,6 +64,8 @@ Set `upload-artifacts: "true"` to upload `.devflow/artifacts` from the selected 
 
 Use `artifacts-path` when your project writes artifacts somewhere other than `.devflow/artifacts`.
 
+Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, screenshots, touched files, backups, open questions, and delivery risks.
+
 ## AI Provider
 
 Pass provider configuration through environment variables or GitHub secrets. The action does not require secrets for fallback planning and dry-run proposals.

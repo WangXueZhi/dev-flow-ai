@@ -50,6 +50,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow verify` writes `.devflow/artifacts/verification-report.json`.
 - [ ] `dev-flow visual --url <preview-url>` writes screenshots, blank-screen analysis, layout issue checks, and `.devflow/artifacts/visual/visual-report.json`.
 - [ ] `dev-flow report` writes `.devflow/artifacts/delivery-report.md` with source context, user stories, requirement constraints, acceptance criteria, stack, API contracts, API data models, API error cases, API auth requirements, applied changes, touched files, operation counts, line-count deltas, verification, visual checks, delivery readiness, and next actions.
+- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact statuses, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
 - [ ] Delivery reports do not reuse older visual verification artifacts when the current `dev-flow deliver` run does not include `--preview-url`.
 - [ ] `dev-flow deliver` runs plan, tasks, dry-run execution, verification, optional visual checks, and report generation.
 - [ ] `dev-flow deliver --unit <id>` scopes the delivery dry-run proposal to one implementation unit.

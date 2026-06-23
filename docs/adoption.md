@@ -193,6 +193,8 @@ dev-flow deliver --apply --yes --patch-set path/to/reviewed-patch-set.json
 
 The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks with embedded screenshots when available, applied changes, risk assessment, open questions, and delivery readiness.
 
+DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, readiness, verification status, source-change status, screenshot paths, touched files, backups, open questions, and delivery risks without parsing Markdown.
+
 ## 9. Add DevFlow To CI
 
 Use the composite GitHub Action:
