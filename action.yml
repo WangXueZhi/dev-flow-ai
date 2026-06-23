@@ -145,6 +145,10 @@ runs:
           *) package_spec="dev-flow-ai@$package_spec" ;;
         esac
 
+        if [[ -n "$PATCH_SET" ]]; then
+          npx --yes --package "$package_spec" dev-flow execute --validate --patch-set "$PATCH_SET"
+        fi
+
         npx --yes --package "$package_spec" dev-flow "${args[@]}"
 
     - name: Upload DevFlow artifacts

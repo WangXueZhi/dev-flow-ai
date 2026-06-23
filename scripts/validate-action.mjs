@@ -17,6 +17,7 @@ const requiredSnippets = [
   "case \"$package_spec\" in",
   "dev-flow-ai|dev-flow-ai@*|*:*|*/*|*.tgz) ;;",
   "package_spec=\"dev-flow-ai@$package_spec\"",
+  "dev-flow execute --validate --patch-set \"$PATCH_SET\"",
   "npx --yes --package \"$package_spec\" dev-flow \"${args[@]}\"",
   "uses: actions/upload-artifact@v4",
   "if: ${{ inputs.upload-artifacts == 'true' }}"

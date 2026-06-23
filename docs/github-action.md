@@ -106,6 +106,8 @@ Source-changing delivery must be explicit:
 
 Without `confirm-apply: "true"`, the action exits before running `dev-flow deliver --apply`.
 
+When `patch-set` is provided, the action runs `dev-flow execute --validate --patch-set <path>` before delivery so reviewed patch sets are checked before any source-changing apply.
+
 ## Inputs
 
 - `version`: npm version, dist-tag, or package spec of `dev-flow-ai` to run. Default: `github:WangXueZhi/dev-flow-ai#main` until the first npm release is published.
