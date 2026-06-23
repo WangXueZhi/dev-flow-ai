@@ -27,6 +27,7 @@
 - Delivery report.
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.
+- Embedded screenshots in delivery reports when visual artifacts are available.
 - Safe deliver orchestration command with explicit source-changing apply.
 - Composite GitHub Action for safe CI delivery runs.
 - React/Vite dashboard example.
@@ -59,7 +60,6 @@
 
 - Enrich changed-file summaries with reviewer notes and deeper diff stats beyond line-count deltas.
 - Include richer verification results.
-- Include screenshots when available.
 - Expand delivery readiness with deeper criterion-specific evidence matching.
 
 ## Milestone 5: Ecosystem

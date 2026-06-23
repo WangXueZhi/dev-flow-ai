@@ -244,6 +244,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Frameworks: React/);
   assert.match(report, /Status: passed/);
   assert.match(report, /desktop 1440x1000/);
+  assert.match(report, /!\[desktop screenshot\]\(\.devflow\/artifacts\/visual\/desktop\.png\)/);
   assert.match(report, /blank: no, distinct pixels: 25\.00%/);
   assert.match(report, /Layout issues: none/);
   assert.match(report, /Risk Assessment/);

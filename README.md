@@ -292,7 +292,7 @@ dev-flow verify --command "npm run check"
 
 Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md`.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
 Use `--visual-report none` when generating a report that should not include an existing visual artifact from an earlier run:
 
@@ -386,7 +386,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
-- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.
 - Clean extension points for future coding agents.

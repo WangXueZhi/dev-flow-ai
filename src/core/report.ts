@@ -589,7 +589,10 @@ function formatVisual(report: VisualReport): string {
         ? `, blank: ${screenshot.analysis.blank ? "yes" : "no"}, distinct pixels: ${formatRatio(screenshot.analysis.distinctPixelRatio)}`
         : "";
 
-      return `- ${screenshot.viewport.name} ${screenshot.viewport.width}x${screenshot.viewport.height}: \`${screenshot.path}\`${analysis}`;
+      return [
+        `- ${screenshot.viewport.name} ${screenshot.viewport.width}x${screenshot.viewport.height}: \`${screenshot.path}\`${analysis}`,
+        `  - Screenshot: ![${screenshot.viewport.name} screenshot](${screenshot.path})`
+      ].join("\n");
     }
   );
   const textChecks = report.requiredText.map((check) => `- Text "${check.text}": ${check.found ? "found" : "missing"}`);
