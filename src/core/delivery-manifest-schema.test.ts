@@ -30,7 +30,12 @@ const schema = JSON.parse(
     acceptanceEvidence: unknown;
     appliedChanges: unknown;
     deliveryRisk: unknown;
-    verificationCommand: unknown;
+    verificationCommand: {
+      properties: {
+        outputExcerpt: { $ref: string };
+      };
+    };
+    verificationOutputExcerpt: unknown;
     visualRequiredText: unknown;
     visualScreenshot: unknown;
   };
@@ -70,6 +75,8 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.appliedChanges);
   assert.ok(schema.$defs.deliveryRisk);
   assert.ok(schema.$defs.verificationCommand);
+  assert.equal(schema.$defs.verificationCommand.properties.outputExcerpt.$ref, "#/$defs/verificationOutputExcerpt");
+  assert.ok(schema.$defs.verificationOutputExcerpt);
   assert.ok(schema.$defs.visualRequiredText);
   assert.ok(schema.$defs.visualScreenshot);
 });

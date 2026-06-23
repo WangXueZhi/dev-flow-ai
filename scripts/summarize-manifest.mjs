@@ -8,6 +8,9 @@ export function formatDevFlowSummary(manifest) {
   const counts = manifest.counts || {};
   const status = manifest.status || {};
   const artifacts = Array.isArray(manifest.artifacts) ? manifest.artifacts : [];
+  const verificationCommands = Array.isArray(manifest.evidence?.verificationCommands)
+    ? manifest.evidence.verificationCommands
+    : [];
   const risks = Array.isArray(manifest.evidence?.deliveryRisks) ? manifest.evidence.deliveryRisks : [];
   const openQuestions = Array.isArray(manifest.evidence?.openQuestions) ? manifest.evidence.openQuestions : [];
   const artifact = (id) => artifacts.find((item) => item.id === id);
@@ -33,6 +36,23 @@ export function formatDevFlowSummary(manifest) {
     artifactLine("verification-report"),
     artifactLine("visual-report")
   ].filter(Boolean);
+  const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
+
+  if (verificationFailures.length > 0) {
+    lines.push("", "Verification failures:");
+    for (const command of verificationFailures) {
+      lines.push(`- \`${command.command}\`: exit ${command.exitCode ?? "unknown"}`);
+      const excerpt = command.outputExcerpt?.stderr ?? command.outputExcerpt?.stdout;
+
+      if (excerpt) {
+        lines.push(`  - ${formatOneLineExcerpt(excerpt)}`);
+      }
+
+      if (command.outputExcerpt?.truncatedStderr || command.outputExcerpt?.truncatedStdout) {
+        lines.push("  - Output excerpt was truncated.");
+      }
+    }
+  }
 
   if (risks.length > 0) {
     lines.push("", "Top delivery risks:");
@@ -50,6 +70,11 @@ export function formatDevFlowSummary(manifest) {
   }
 
   return lines.join("\n");
+}
+
+function formatOneLineExcerpt(value) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  return compact.length > 160 ? `${compact.slice(0, 157)}...` : compact;
 }
 
 export function formatMissingManifestSummary(manifestPath) {

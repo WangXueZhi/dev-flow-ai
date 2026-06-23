@@ -50,6 +50,17 @@ const manifest = {
     }
   ],
   evidence: {
+    verificationCommands: [
+      {
+        command: "npm run check",
+        exitCode: 1,
+        durationMs: 1000,
+        outputExcerpt: {
+          stderr: "Build failed\nMissing export",
+          truncatedStderr: true
+        }
+      }
+    ],
     deliveryRisks: [
       {
         level: "high",
@@ -70,6 +81,10 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Verification: \*\*passed\*\*/);
   assert.match(summary, /Delivery risks: 2 \(1 high\)/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
+  assert.match(summary, /Verification failures/);
+  assert.match(summary, /`npm run check`: exit 1/);
+  assert.match(summary, /Build failed Missing export/);
+  assert.match(summary, /Output excerpt was truncated/);
   assert.match(summary, /\[high\] requirements:12: Acceptance criterion needs review/);
   assert.match(summary, /Confirm empty state copy/);
 });

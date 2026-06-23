@@ -299,9 +299,9 @@ dev-flow verify --command "npm run check"
 
 Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus `.devflow/artifacts/delivery-manifest.json`.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
-The manifest is JSON. It records artifact paths and statuses, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+The manifest is JSON. It records artifact paths and statuses, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
 ```bash
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
@@ -327,7 +327,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, artifact, risk, and open-question status without opening the Markdown report.
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, artifact, verification-failure, risk, and open-question status without opening the Markdown report.
 
 Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code while still printing the status summary or JSON manifest.
 
@@ -418,7 +418,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
-- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.

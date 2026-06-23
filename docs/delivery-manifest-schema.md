@@ -25,7 +25,7 @@ The manifest schema describes:
 - Artifact entries with path, kind, required flag, status, role, and optional count.
 - Delivery counts for acceptance criteria, open questions, delivery risks, changed files, verification commands, visual evidence, and applied operations.
 - Acceptance evidence with status, evidence, known gaps, assumptions, and manual QA prompts.
-- Verification command summaries without raw stdout or stderr.
+- Verification command summaries with optional bounded stdout/stderr excerpts for failed commands.
 - Visual screenshots and required text checks.
 - Applied-change summaries with touched files, operation counts, line delta, and backup manifests.
 - Delivery risks and open questions.
@@ -54,3 +54,5 @@ Top-level delivery status fields use stable enums:
 The Markdown delivery report is optimized for reviewers.
 
 The JSON manifest is optimized for tools. Prefer the manifest when automation needs to locate artifacts, gate delivery readiness, summarize evidence, or route follow-up work to another agent.
+
+Verification command entries may include `outputExcerpt` when a command fails. Excerpts are bounded summaries intended for CI logs, dashboards, and follow-up agents; use the full verification report when complete command output is required.

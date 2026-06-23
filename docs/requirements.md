@@ -50,11 +50,12 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Failed patch-set application restores the apply backup automatically and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow execute --rollback --backup <manifest>` restores files and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow verify` writes `.devflow/artifacts/verification-report.json`.
+- [ ] Failed verification commands include bounded stdout/stderr excerpts for reports, manifests, status summaries, and GitHub Action job summaries.
 - [ ] `dev-flow visual --url <preview-url>` writes screenshots, blank-screen analysis, layout issue checks, and `.devflow/artifacts/visual/visual-report.json`.
 - [ ] `dev-flow report` writes `.devflow/artifacts/delivery-report.md` with source context, user stories, requirement constraints, acceptance criteria, stack, API contracts, API data models, API error cases, API auth requirements, applied changes, touched files, operation counts, line-count deltas, verification, visual checks, delivery readiness, and next actions.
-- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact statuses, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
+- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact statuses, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, verification-failure, open-question, and delivery-risk summaries.
 - [ ] The published package includes `schemas/delivery-manifest.schema.json` so external tools can validate delivery manifests.
-- [ ] `dev-flow status` reads a delivery manifest and prints readiness, verification, visual, source-change, artifact, risk, and open-question summaries.
+- [ ] `dev-flow status` reads a delivery manifest and prints readiness, verification, visual, source-change, artifact, verification-failure, risk, and open-question summaries.
 - [ ] `dev-flow status --json` prints the raw delivery manifest JSON.
 - [ ] `dev-flow status --fail-on-attention` exits non-zero when delivery readiness is not `ready for review`.
 - [ ] `dev-flow status --fail-on-failed-verification` exits non-zero when manifest verification status is `failed`.

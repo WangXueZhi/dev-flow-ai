@@ -155,6 +155,37 @@ test("runStatus can fail CI gates when verification failed", async (t) => {
   });
 });
 
+test("runStatus prints verification failure excerpts", async (t) => {
+  const failedManifest: DeliveryManifest = {
+    ...manifest,
+    status: {
+      ...manifest.status,
+      verification: "failed"
+    },
+    evidence: {
+      ...manifest.evidence,
+      verificationCommands: [
+        {
+          command: "npm run check",
+          exitCode: 1,
+          durationMs: 1000,
+          outputExcerpt: {
+            stderr: "Build failed\nMissing export",
+            truncatedStderr: true
+          }
+        }
+      ]
+    }
+  };
+  const workspace = createWorkspace(t, failedManifest);
+  const output = await captureStatusOutput(workspace, {});
+
+  assert.match(output, /Verification failures/);
+  assert.match(output, /`npm run check`: exit 1/);
+  assert.match(output, /Build failed Missing export/);
+  assert.match(output, /Output excerpt was truncated/);
+});
+
 test("runStatus reports a missing manifest", async (t) => {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-status-missing-"));
   const originalCwd = process.cwd();

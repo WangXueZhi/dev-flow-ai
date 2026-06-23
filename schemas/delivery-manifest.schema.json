@@ -260,6 +260,27 @@
         },
         "durationMs": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "outputExcerpt": {
+          "$ref": "#/$defs/verificationOutputExcerpt"
+        }
+      }
+    },
+    "verificationOutputExcerpt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stdout": {
+          "type": "string"
+        },
+        "stderr": {
+          "type": "string"
+        },
+        "truncatedStdout": {
+          "type": "boolean"
+        },
+        "truncatedStderr": {
+          "type": "boolean"
         }
       }
     },

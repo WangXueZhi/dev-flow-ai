@@ -21,7 +21,7 @@
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Validated patch-set application.
-- Verification report.
+- Verification report with bounded failure excerpts.
 - Visual screenshot report with basic blank-screen and layout-overflow detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.
 - Delivery report.

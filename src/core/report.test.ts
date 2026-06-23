@@ -297,6 +297,47 @@ test("formatDeliveryReport surfaces acceptance evidence gaps when delivery artif
   assert.match(report, /Manual QA: Review verification output for "The app builds with `npm run build`\." and rerun the matching command before handoff/);
 });
 
+test("formatDeliveryReport includes verification failure output excerpts", () => {
+  const failedVerification: VerificationReport = {
+    startedAt: "2026-01-01T00:00:00.000Z",
+    finishedAt: "2026-01-01T00:00:01.000Z",
+    status: "failed",
+    results: [
+      {
+        command: "npm run check",
+        exitCode: 1,
+        durationMs: 1000,
+        stdout: "",
+        stderr: "Build failed\nMissing export",
+        outputExcerpt: {
+          stderr: "Build failed\nMissing export",
+          truncatedStderr: true
+        }
+      }
+    ]
+  };
+  const report = formatDeliveryReport({
+    brief: undefined,
+    implementationPlanPath: ".devflow/artifacts/implementation-plan.md",
+    projectBriefPath: ".devflow/artifacts/project-brief.json",
+    taskPlanPath: ".devflow/artifacts/tasks.json",
+    taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
+    patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    executionLogPath: ".devflow/artifacts/execution-log.json",
+    executionLog: undefined,
+    rollbackReportPath: ".devflow/artifacts/rollback-report.json",
+    verificationReportPath: ".devflow/artifacts/verification-report.json",
+    verification: failedVerification,
+    visualReportPath: ".devflow/artifacts/visual/visual-report.json",
+    visualReport: undefined
+  });
+
+  assert.match(report, /Failure output for `npm run check`/);
+  assert.match(report, /Build failed/);
+  assert.match(report, /Missing export/);
+  assert.match(report, /Output excerpt was truncated/);
+});
+
 test("createDeliveryManifest summarizes artifact status and delivery evidence", () => {
   const manifest = createDeliveryManifest({
     brief,
@@ -423,4 +464,46 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
   assert.equal(manifest.evidence.deliveryRisks.length, 2);
   assert.deepEqual(manifest.evidence.openQuestions, ["Confirm empty state copy."]);
+});
+
+test("createDeliveryManifest includes verification failure output excerpts", () => {
+  const failedVerification: VerificationReport = {
+    startedAt: "2026-01-01T00:00:00.000Z",
+    finishedAt: "2026-01-01T00:00:01.000Z",
+    status: "failed",
+    results: [
+      {
+        command: "npm run check",
+        exitCode: 1,
+        durationMs: 1000,
+        stdout: "",
+        stderr: "Missing export",
+        outputExcerpt: {
+          stderr: "Missing export"
+        }
+      }
+    ]
+  };
+  const manifest = createDeliveryManifest({
+    brief: undefined,
+    artifactsDir: ".devflow/artifacts",
+    generatedAt: "2026-01-01T00:00:02.000Z",
+    deliveryReportPath: ".devflow/artifacts/delivery-report.md",
+    deliveryManifestPath: ".devflow/artifacts/delivery-manifest.json",
+    implementationPlanPath: ".devflow/artifacts/implementation-plan.md",
+    projectBriefPath: ".devflow/artifacts/project-brief.json",
+    taskPlanPath: ".devflow/artifacts/tasks.json",
+    taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
+    patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    executionLogPath: ".devflow/artifacts/execution-log.json",
+    executionLog: undefined,
+    rollbackReportPath: ".devflow/artifacts/rollback-report.json",
+    verificationReportPath: ".devflow/artifacts/verification-report.json",
+    verification: failedVerification,
+    visualReportPath: ".devflow/artifacts/visual/visual-report.json",
+    visualReport: undefined,
+    artifacts: []
+  });
+
+  assert.equal(manifest.evidence.verificationCommands[0]?.outputExcerpt?.stderr, "Missing export");
 });

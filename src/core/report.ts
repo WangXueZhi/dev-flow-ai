@@ -85,6 +85,12 @@ export interface DeliveryManifest {
       command: string;
       exitCode: number | null;
       durationMs: number;
+      outputExcerpt?: {
+        stdout?: string;
+        stderr?: string;
+        truncatedStdout?: boolean;
+        truncatedStderr?: boolean;
+      };
     }>;
     visualScreenshots: Array<{
       viewport: string;
@@ -279,7 +285,8 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       verificationCommands: input.verification?.results.map((result) => ({
         command: result.command,
         exitCode: result.exitCode,
-        durationMs: result.durationMs
+        durationMs: result.durationMs,
+        outputExcerpt: result.outputExcerpt
       })) ?? [],
       visualScreenshots: input.visualReport?.screenshots.map((screenshot) => ({
         viewport: screenshot.viewport.name,
@@ -686,8 +693,37 @@ function formatVerification(report: VerificationReport): string {
   const commands = report.results.map(
     (result) => `- \`${result.command}\`: exit ${result.exitCode ?? "unknown"} in ${result.durationMs}ms`
   );
+  const failureExcerpts = report.results.flatMap(formatVerificationFailureExcerpt);
 
-  return [...summary, ...commands].join("\n");
+  return [...summary, ...commands, ...failureExcerpts].join("\n");
+}
+
+function formatVerificationFailureExcerpt(result: VerificationReport["results"][number]): string[] {
+  if (!result.outputExcerpt) {
+    return [];
+  }
+
+  const lines = [`- Failure output for \`${result.command}\`:`];
+
+  if (result.outputExcerpt.stderr) {
+    lines.push("  - stderr excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stderr, "    "));
+  }
+
+  if (result.outputExcerpt.stdout) {
+    lines.push("  - stdout excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stdout, "    "));
+  }
+
+  if (result.outputExcerpt.truncatedStderr || result.outputExcerpt.truncatedStdout) {
+    lines.push("  - Output excerpt was truncated.");
+  }
+
+  return lines;
+}
+
+function formatIndentedCodeBlock(value: string, indent: string): string {
+  const body = value.split(/\r?\n/).map((line) => `${indent}${line}`).join("\n");
+
+  return `${indent}\`\`\`text\n${body}\n${indent}\`\`\``;
 }
 
 function formatExecutionLog(log: ExecutionLog): string {

@@ -13,7 +13,18 @@ export interface VerificationResult {
   durationMs: number;
   stdout: string;
   stderr: string;
+  outputExcerpt?: VerificationOutputExcerpt;
 }
+
+export interface VerificationOutputExcerpt {
+  stdout?: string;
+  stderr?: string;
+  truncatedStdout?: boolean;
+  truncatedStderr?: boolean;
+}
+
+const excerptMaxLines = 12;
+const excerptMaxCharacters = 600;
 
 export async function runVerificationCommands(commands: string[], cwd = "."): Promise<VerificationReport> {
   const startedAt = new Date().toISOString();
@@ -60,13 +71,63 @@ function runCommand(command: string, cwd: string): Promise<VerificationResult> {
       stderr += chunk.toString("utf8");
     });
     child.on("close", (exitCode) => {
-      resolve({
+      const result: VerificationResult = {
         command,
         exitCode,
         durationMs: Date.now() - started,
         stdout,
         stderr
-      });
+      };
+      const outputExcerpt = createFailureOutputExcerpt(exitCode, stdout, stderr);
+
+      if (outputExcerpt) {
+        result.outputExcerpt = outputExcerpt;
+      }
+
+      resolve(result);
     });
   });
+}
+
+function createFailureOutputExcerpt(
+  exitCode: number | null,
+  stdout: string,
+  stderr: string
+): VerificationOutputExcerpt | undefined {
+  if (exitCode === 0) {
+    return undefined;
+  }
+
+  const stdoutExcerpt = excerptOutput(stdout);
+  const stderrExcerpt = excerptOutput(stderr);
+
+  if (!stdoutExcerpt && !stderrExcerpt) {
+    return undefined;
+  }
+
+  return {
+    stdout: stdoutExcerpt?.text,
+    stderr: stderrExcerpt?.text,
+    truncatedStdout: stdoutExcerpt?.truncated || undefined,
+    truncatedStderr: stderrExcerpt?.truncated || undefined
+  };
+}
+
+function excerptOutput(output: string): { text: string; truncated: boolean } | undefined {
+  const trimmed = output.trim();
+
+  if (!trimmed) {
+    return undefined;
+  }
+
+  const lines = trimmed.split(/\r?\n/);
+  const lineLimited = lines.slice(-excerptMaxLines).join("\n");
+  const characterLimited = lineLimited.length > excerptMaxCharacters
+    ? lineLimited.slice(lineLimited.length - excerptMaxCharacters)
+    : lineLimited;
+
+  return {
+    text: characterLimited,
+    truncated: lines.length > excerptMaxLines || lineLimited.length > excerptMaxCharacters
+  };
 }

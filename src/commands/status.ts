@@ -69,6 +69,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),
+    ...formatVerificationFailures(manifest),
     ...formatTopRisks(manifest),
     ...formatOpenQuestions(manifest)
   ];
@@ -87,6 +88,40 @@ function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
   }
 
   return artifacts.map((artifact) => `- ${artifact.label}: ${artifact.path} (${artifact.status})`);
+}
+
+function formatVerificationFailures(manifest: DeliveryManifest): string[] {
+  const failures = manifest.evidence.verificationCommands
+    .filter((command) => command.exitCode !== 0)
+    .slice(0, 3);
+
+  if (failures.length === 0) {
+    return [];
+  }
+
+  return [
+    "",
+    "Verification failures:",
+    ...failures.flatMap((command) => {
+      const lines = [`- \`${command.command}\`: exit ${command.exitCode ?? "unknown"}`];
+      const excerpt = command.outputExcerpt?.stderr ?? command.outputExcerpt?.stdout;
+
+      if (excerpt) {
+        lines.push(`  - ${formatOneLineExcerpt(excerpt)}`);
+      }
+
+      if (command.outputExcerpt?.truncatedStderr || command.outputExcerpt?.truncatedStdout) {
+        lines.push("  - Output excerpt was truncated.");
+      }
+
+      return lines;
+    })
+  ];
+}
+
+function formatOneLineExcerpt(value: string): string {
+  const compact = value.replace(/\s+/g, " ").trim();
+  return compact.length > 160 ? `${compact.slice(0, 157)}...` : compact;
 }
 
 function formatTopRisks(manifest: DeliveryManifest): string[] {
