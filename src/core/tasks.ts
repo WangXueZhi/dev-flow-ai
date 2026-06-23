@@ -1,4 +1,4 @@
-import type { ProjectBrief } from "./brief.js";
+import type { FrontendTargetItem, FrontendTargetSource, ProjectBrief } from "./brief.js";
 
 export interface TaskPlan {
   version: 1;
@@ -14,7 +14,20 @@ export interface TaskPlan {
 
 export interface ImplementationUnit {
   id: string;
-  kind: "requirement" | "constraint" | "ui" | "ui-state" | "design-asset" | "api-endpoint" | "api-model" | "api-error" | "api-auth";
+  kind:
+    | "requirement"
+    | "constraint"
+    | "frontend-route"
+    | "frontend-component"
+    | "frontend-data"
+    | "frontend-state"
+    | "ui"
+    | "ui-state"
+    | "design-asset"
+    | "api-endpoint"
+    | "api-model"
+    | "api-error"
+    | "api-auth";
   title: string;
   source: string;
   details: string[];
@@ -243,6 +256,62 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
     });
   }
 
+  for (const target of brief.frontendTargets?.routes ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "frontend-route",
+      title: target.summary,
+      source: formatFrontendTargetSource(brief, target),
+      details: [
+        `Target source: ${target.source}`,
+        ...formatFrontendTargetEvidence(target.evidence),
+        "Implement or update this route/view, including navigation, layout, data handoff, state coverage, and verification evidence."
+      ]
+    });
+  }
+
+  for (const target of brief.frontendTargets?.components ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "frontend-component",
+      title: target.summary,
+      source: formatFrontendTargetSource(brief, target),
+      details: [
+        `Target source: ${target.source}`,
+        ...formatFrontendTargetEvidence(target.evidence),
+        "Implement or update this component boundary, including props/data shape, responsive behavior, visual fidelity, and focused tests where useful."
+      ]
+    });
+  }
+
+  for (const target of brief.frontendTargets?.dataNeeds ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "frontend-data",
+      title: target.summary,
+      source: formatFrontendTargetSource(brief, target),
+      details: [
+        `Target source: ${target.source}`,
+        ...formatFrontendTargetEvidence(target.evidence),
+        "Map this frontend data need to a service/client boundary and wire loading, empty, error, success, and auth-aware UI states."
+      ]
+    });
+  }
+
+  for (const target of brief.frontendTargets?.uiStates ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "frontend-state",
+      title: target.summary,
+      source: formatFrontendTargetSource(brief, target),
+      details: [
+        `Target source: ${target.source}`,
+        ...formatFrontendTargetEvidence(target.evidence),
+        "Map this frontend state target to visible behavior, accessibility, responsive handling, and verification evidence."
+      ]
+    });
+  }
+
   for (const signal of brief.signals.ui.slice(0, 8)) {
     units.push({
       id: nextId(),
@@ -331,6 +400,28 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
   }
 
   return units;
+}
+
+function formatFrontendTargetSource(brief: ProjectBrief, target: FrontendTargetItem): string {
+  const path = frontendTargetDocumentPath(brief, target.source);
+
+  return target.sourceLine === undefined ? path : `${path}:${target.sourceLine}`;
+}
+
+function frontendTargetDocumentPath(brief: ProjectBrief, source: FrontendTargetSource): string {
+  if (source === "api") {
+    return brief.sourceDocuments.apiPath;
+  }
+
+  if (source === "requirements") {
+    return brief.sourceDocuments.requirementsPath;
+  }
+
+  return brief.sourceDocuments.uiPath;
+}
+
+function formatFrontendTargetEvidence(evidence: string[]): string[] {
+  return evidence.slice(0, 4).map((item) => `Evidence: ${item}`);
 }
 
 function truncateTitle(value: string): string {

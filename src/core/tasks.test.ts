@@ -151,6 +151,10 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.equal(taskPlan.version, 1);
   assert.equal(taskPlan.frontendTargets?.routes[0]?.summary, "Orders queue page");
   assert.ok(taskPlan.implementationUnits.length >= 5);
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "frontend-route" && unit.title === "Orders queue page"));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "frontend-component" && unit.title === "Orders table component"));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "frontend-data" && unit.title === "Integrate GET /orders"));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "frontend-state" && unit.title.includes("Empty state")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-endpoint" && unit.title === "GET /orders"));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-model" && unit.title === "order"));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-error" && unit.title.includes("unavailable")));
@@ -176,6 +180,11 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /Orders table component/);
   assert.match(markdown, /Integrate GET \/orders/);
   assert.match(markdown, /Implementation Units/);
+  assert.match(markdown, /\[frontend-route\] Orders queue page/);
+  assert.match(markdown, /Evidence: UI screen note/);
+  assert.match(markdown, /\[frontend-component\] Orders table component/);
+  assert.match(markdown, /\[frontend-data\] Integrate GET \/orders/);
+  assert.match(markdown, /\[frontend-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /GET \/orders/);
   assert.match(markdown, /Fields: id, status/);
   assert.match(markdown, /Orders endpoint unavailable/);

@@ -207,7 +207,7 @@ Reads the project brief and implementation plan, then writes:
 
 The task plan splits delivery into discovery, planning, implementation, verification, and delivery phases.
 
-It also includes normalized frontend targets plus implementation units derived from user stories, acceptance criteria, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
+It also includes normalized frontend targets plus implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
 
 ### `dev-flow execute`
 
@@ -411,7 +411,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Deterministic fallback planner for offline use.
 - Planner guardrails that keep patch-set JSON out of implementation-plan artifacts and add missing frontend blueprint sections to provider plans.
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
-- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, and API docs, and structured implementation units.
+- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, and API docs, and structured implementation units for explicit route/view, component, frontend data, and frontend state targets.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.

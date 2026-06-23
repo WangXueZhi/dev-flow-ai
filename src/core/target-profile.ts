@@ -439,6 +439,22 @@ function buildTargetNotes(
     notes.push("Map API contracts into a data client or service layer before wiring loading, empty, error, and success UI states.");
   }
 
+  if (unit?.kind === "frontend-route") {
+    notes.push("Scope this unit to the route or view shell first, then connect component, data, state, styling, and tests around that route boundary.");
+  }
+
+  if (unit?.kind === "frontend-component") {
+    notes.push("Scope this unit to the component boundary, including inputs, rendered states, responsive behavior, and nearby tests.");
+  }
+
+  if (unit?.kind === "frontend-data") {
+    notes.push("Scope this unit to frontend data integration, keeping API/service code separate from presentation and covering loading, empty, error, success, and auth-aware states.");
+  }
+
+  if (unit?.kind === "frontend-state") {
+    notes.push("Scope this unit to the documented UI state, including visible feedback, accessibility semantics, responsive behavior, and verification evidence.");
+  }
+
   if (unit?.kind === "api-error") {
     notes.push("Represent the documented API failure with visible UI state, retry or stale-data behavior, and delivery-report evidence.");
   }
@@ -473,7 +489,7 @@ function hasConfigFile(brief: ProjectBrief, pattern: RegExp): boolean {
 }
 
 function isApiUnit(unit: ImplementationUnit | undefined): boolean {
-  return unit?.kind === "api-endpoint" || unit?.kind === "api-model" || unit?.kind === "api-error" || unit?.kind === "api-auth";
+  return unit?.kind === "frontend-data" || unit?.kind === "api-endpoint" || unit?.kind === "api-model" || unit?.kind === "api-error" || unit?.kind === "api-auth";
 }
 
 function unique(values: string[]): string[] {

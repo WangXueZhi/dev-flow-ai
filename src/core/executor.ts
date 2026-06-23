@@ -228,7 +228,36 @@ function suggestFiles(
     ]);
   }
 
-  if (unit?.kind === "api-endpoint" || unit?.kind === "api-model" || unit?.kind === "api-error" || unit?.kind === "api-auth") {
+  if (unit?.kind === "frontend-route") {
+    return unique([
+      ...targetProfile.componentCandidates,
+      ...targetProfile.dataCandidates.slice(0, 4),
+      ...targetProfile.styleCandidates,
+      ...targetProfile.testCandidates,
+      ...targetProfile.configCandidates
+    ]);
+  }
+
+  if (unit?.kind === "frontend-component") {
+    return unique([
+      ...targetProfile.componentCandidates,
+      ...targetProfile.styleCandidates,
+      ...targetProfile.testCandidates,
+      ...targetProfile.configCandidates
+    ]);
+  }
+
+  if (unit?.kind === "frontend-state") {
+    return unique([
+      ...targetProfile.componentCandidates,
+      ...targetProfile.dataCandidates.slice(0, 4),
+      ...targetProfile.styleCandidates,
+      ...targetProfile.testCandidates,
+      ...targetProfile.configCandidates
+    ]);
+  }
+
+  if (unit?.kind === "frontend-data" || unit?.kind === "api-endpoint" || unit?.kind === "api-model" || unit?.kind === "api-error" || unit?.kind === "api-auth") {
     return unique([
       ...targetProfile.dataCandidates,
       ...targetProfile.componentCandidates.slice(0, 4),
@@ -285,7 +314,7 @@ function buildSteps(task: ImplementationTask, unit?: ImplementationUnit): string
 }
 
 function buildUiChecklist(brief: ProjectBrief, unit?: ImplementationUnit): string[] {
-  if (unit?.kind === "ui-state") {
+  if (unit?.kind === "ui-state" || unit?.kind === "frontend-state") {
     return [
       `${unit.id} [${unit.kind}] ${unit.title} (${unit.source})`,
       ...unit.details

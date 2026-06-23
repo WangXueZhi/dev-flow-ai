@@ -60,7 +60,7 @@
 
 ## Milestone 2: Assisted Implementation
 
-- Improve task files generated from the implementation plan.
+- Further improve task files generated from the implementation plan with richer dependency ordering and review metadata.
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Enrich task changelogs with reviewer notes and verification links.

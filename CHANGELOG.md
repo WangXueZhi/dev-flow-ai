@@ -38,6 +38,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - Added UI state checklist extraction for screens, components, states, interactions, responsive behavior, and accessibility notes.
 - Added normalized frontend targets for routes/views, components, data needs, and UI states to project briefs and task plans.
+- Added implementation units for normalized frontend route/view, component, data, and state targets so `--unit` execution can focus on concrete frontend delivery slices.
 - Added explicit frontend route path and component name extraction from requirements, UI notes, user stories, and acceptance criteria.
 - Added acceptance-criterion-derived route, component, and UI-state frontend targets.
 - Added normalized frontend target summaries to AI execution target profiles.

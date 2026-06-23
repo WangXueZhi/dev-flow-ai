@@ -115,6 +115,18 @@ const unit: ImplementationUnit = {
   details: ["Map this endpoint to data fetching states.", "GET /api/release/summary"]
 };
 
+const frontendDataUnit: ImplementationUnit = {
+  id: "U19",
+  kind: "frontend-data",
+  title: "Integrate GET /api/release/summary",
+  source: "docs/api.md:7",
+  details: [
+    "Target source: api",
+    "Evidence: GET /api/release/summary",
+    "Map this frontend data need to a service/client boundary and wire loading, empty, error, success, and auth-aware UI states."
+  ]
+};
+
 test("createDryRunProposal creates reviewable proposal without source changes", () => {
   const proposal = createDryRunProposal(task, brief);
   const markdown = formatDryRunProposal(proposal);
@@ -149,6 +161,18 @@ test("createDryRunProposal can target an implementation unit", () => {
   assert.match(markdown, /Target Unit/);
   assert.match(markdown, /Data candidates/);
   assert.match(markdown, /GET \/api\/release\/summary/);
+});
+
+test("createDryRunProposal can target a frontend data implementation unit", () => {
+  const proposal = createDryRunProposal(task, brief, frontendDataUnit);
+  const markdown = formatDryRunProposal(proposal);
+
+  assert.equal(proposal.targetUnit?.kind, "frontend-data");
+  assert.ok(proposal.suggestedFiles.includes("src/lib/api.ts"));
+  assert.ok(proposal.suggestedFiles.includes("src/App.tsx"));
+  assert.match(markdown, /frontend-data/);
+  assert.match(markdown, /Scope this unit to frontend data integration/);
+  assert.match(markdown, /loading, empty, error, success, and auth-aware states/);
 });
 
 test("buildDryRunPrompt includes task and project brief context", () => {
