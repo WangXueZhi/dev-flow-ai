@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+  <title id="title">OpsBoard dashboard wireframe</title>
+  <desc id="desc">Wireframe showing a left navigation rail, top command bar, KPI strip, deployment table, and supporting operational panels.</desc>
+  <rect width="960" height="640" fill="#f6f7f9"/>
+  <rect x="24" y="24" width="128" height="592" rx="10" fill="#172033"/>
+  <rect x="176" y="24" width="760" height="64" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="176" y="112" width="176" height="92" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="368" y="112" width="176" height="92" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="560" y="112" width="176" height="92" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="752" y="112" width="184" height="92" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="176" y="228" width="484" height="260" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="684" y="228" width="252" height="120" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="684" y="368" width="252" height="120" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <rect x="176" y="512" width="760" height="104" rx="10" fill="#ffffff" stroke="#d8dde6"/>
+  <g fill="#253047" font-family="Arial, sans-serif" font-size="18" font-weight="700">
+    <text x="48" y="64" fill="#ffffff">OpsBoard</text>
+    <text x="200" y="64">Command bar</text>
+    <text x="200" y="264">Deployment pipeline</text>
+    <text x="708" y="264">Incidents</text>
+    <text x="708" y="404">API contracts</text>
+    <text x="200" y="548">Service health matrix</text>
+  </g>
+  <g fill="#6b7280" font-family="Arial, sans-serif" font-size="13">
+    <text x="48" y="116" fill="#cbd5e1">Production</text>
+    <text x="48" y="150" fill="#cbd5e1">Checkout</text>
+    <text x="48" y="184" fill="#cbd5e1">Identity</text>
+    <text x="200" y="146">Release health</text>
+    <text x="392" y="146">Deploy confidence</text>
+    <text x="584" y="146">API latency</text>
+    <text x="776" y="146">Incident pressure</text>
+  </g>
+  <g stroke="#d8dde6" stroke-width="2">
+    <line x1="200" y1="306" x2="636" y2="306"/>
+    <line x1="200" y1="350" x2="636" y2="350"/>
+    <line x1="200" y1="394" x2="636" y2="394"/>
+    <line x1="708" y1="300" x2="912" y2="300"/>
+    <line x1="708" y1="440" x2="912" y2="440"/>
+    <line x1="200" y1="584" x2="912" y2="584"/>
+  </g>
+</svg>

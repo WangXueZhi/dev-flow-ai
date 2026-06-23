@@ -1,0 +1,54 @@
+name: Feature Request
+description: Suggest a capability for DevFlow.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What frontend delivery workflow should DevFlow improve?
+      placeholder: "When I have requirements, UI notes, and API docs, I need..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed capability
+      description: Describe the command, artifact, provider behavior, or integration you want.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Context ingestion
+        - Planning
+        - Task generation
+        - Execution and patch sets
+        - Verification
+        - Visual checks
+        - AI providers
+        - GitHub Action
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example inputs
+      description: Sanitized requirements, UI notes, API docs, or artifacts that would help design the feature.
+      render: markdown
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: This should work without mandatory paid AI credentials.
+          required: false
+        - label: This affects source-changing execution safety.
+          required: false
+        - label: This should be reflected in generated delivery reports.
+          required: false

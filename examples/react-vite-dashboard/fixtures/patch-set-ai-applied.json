@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "taskId": "T03-code-implementation",
+  "summary": "Replay an AI-generated patch set that marks the example as AI applied.",
+  "operations": [
+    {
+      "type": "replace",
+      "path": "src/App.jsx",
+      "search": "Production window 23:00 UTC / visual ready",
+      "replace": "Production window 23:00 UTC / AI applied"
+    }
+  ]
+}

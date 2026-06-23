@@ -1,0 +1,51 @@
+name: Bug Report
+description: Report a DevFlow CLI, workflow, or artifact issue.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please remove secrets, provider keys, and private source code from logs before posting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DevFlow version or commit
+      placeholder: "0.1.0 or commit SHA"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Paste the DevFlow command that failed.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Project context
+      description: Frontend stack, package manager, and whether requirements/UI/API docs are minimal examples or real project docs.
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Relevant artifacts or output
+      description: Include sanitized logs, `.devflow/artifacts` snippets, or screenshots when useful.
+      render: text
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed API keys, secrets, and private source code from this report.
+          required: true

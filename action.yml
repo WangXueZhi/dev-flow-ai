@@ -1,0 +1,122 @@
+name: DevFlow Delivery
+description: Run DevFlow in a frontend repository to turn requirements, UI notes, and API docs into delivery artifacts.
+
+inputs:
+  version:
+    description: npm version or dist-tag of the dev-flow-ai package to run.
+    required: false
+    default: latest
+  working-directory:
+    description: Repository subdirectory where DevFlow should run.
+    required: false
+    default: .
+  requirements:
+    description: Path to the requirements document.
+    required: false
+    default: docs/requirements.md
+  ui:
+    description: Path to the UI notes or design handoff document.
+    required: false
+    default: docs/ui.md
+  api:
+    description: Path to the API documentation.
+    required: false
+    default: docs/api.md
+  task:
+    description: Optional DevFlow task id to target.
+    required: false
+    default: ""
+  unit:
+    description: Optional implementation unit id to target.
+    required: false
+    default: ""
+  preview-url:
+    description: Optional preview URL for visual checks.
+    required: false
+    default: ""
+  visual-text:
+    description: Optional comma-separated text checks for the preview URL.
+    required: false
+    default: ""
+  viewport:
+    description: Optional viewport specs, for example desktop:1440x1000,tablet:900x1100.
+    required: false
+    default: ""
+  verify-command:
+    description: Optional verification command override.
+    required: false
+    default: ""
+  install-chromium:
+    description: Install Playwright Chromium before running visual checks.
+    required: false
+    default: "false"
+  apply:
+    description: Run source-changing delivery. Requires confirm-apply=true.
+    required: false
+    default: "false"
+  confirm-apply:
+    description: Explicit confirmation that source-changing delivery may modify files.
+    required: false
+    default: "false"
+  patch-set:
+    description: Optional reviewed patch-set JSON path for source-changing delivery.
+    required: false
+    default: ""
+  save-patch-set:
+    description: Optional path for saving AI-generated patch sets.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Install Playwright Chromium
+      if: ${{ inputs.install-chromium == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: npx --yes playwright install chromium
+
+    - name: Run DevFlow delivery
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        DEVFLOW_VERSION: ${{ inputs.version }}
+        REQUIREMENTS_PATH: ${{ inputs.requirements }}
+        UI_PATH: ${{ inputs.ui }}
+        API_PATH: ${{ inputs.api }}
+        TASK_ID: ${{ inputs.task }}
+        UNIT_ID: ${{ inputs.unit }}
+        PREVIEW_URL: ${{ inputs.preview-url }}
+        VISUAL_TEXT: ${{ inputs.visual-text }}
+        VIEWPORT: ${{ inputs.viewport }}
+        VERIFY_COMMAND: ${{ inputs.verify-command }}
+        APPLY: ${{ inputs.apply }}
+        CONFIRM_APPLY: ${{ inputs.confirm-apply }}
+        PATCH_SET: ${{ inputs.patch-set }}
+        SAVE_PATCH_SET: ${{ inputs.save-patch-set }}
+      run: |
+        set -euo pipefail
+
+        if [[ "$APPLY" == "true" && "$CONFIRM_APPLY" != "true" ]]; then
+          echo "DevFlow source-changing delivery requires confirm-apply=true." >&2
+          exit 1
+        fi
+
+        args=(deliver)
+        [[ -n "$REQUIREMENTS_PATH" ]] && args+=(--requirements "$REQUIREMENTS_PATH")
+        [[ -n "$UI_PATH" ]] && args+=(--ui "$UI_PATH")
+        [[ -n "$API_PATH" ]] && args+=(--api "$API_PATH")
+        [[ -n "$TASK_ID" ]] && args+=(--task "$TASK_ID")
+        [[ -n "$UNIT_ID" ]] && args+=(--unit "$UNIT_ID")
+        [[ -n "$PREVIEW_URL" ]] && args+=(--preview-url "$PREVIEW_URL")
+        [[ -n "$VISUAL_TEXT" ]] && args+=(--visual-text "$VISUAL_TEXT")
+        [[ -n "$VIEWPORT" ]] && args+=(--viewport "$VIEWPORT")
+        [[ -n "$VERIFY_COMMAND" ]] && args+=(--command "$VERIFY_COMMAND")
+        [[ -n "$PATCH_SET" ]] && args+=(--patch-set "$PATCH_SET")
+        [[ -n "$SAVE_PATCH_SET" ]] && args+=(--save-patch-set "$SAVE_PATCH_SET")
+
+        if [[ "$APPLY" == "true" ]]; then
+          args+=(--apply --yes)
+        fi
+
+        npx --yes --package "dev-flow-ai@$DEVFLOW_VERSION" dev-flow "${args[@]}"

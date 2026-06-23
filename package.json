@@ -1,0 +1,59 @@
+{
+  "name": "dev-flow-ai",
+  "version": "0.1.0",
+  "description": "AI workflow CLI for turning frontend requirements, UI notes, and API docs into implementation plans and delivery artifacts.",
+  "type": "module",
+  "bin": {
+    "dev-flow": "./dist/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.d.ts",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.js.map",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "scripts/live-provider-smoke.mjs"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "npm run build && npm test && npm run check:action",
+    "check:action": "node scripts/validate-action.mjs",
+    "dev": "tsx src/cli.ts",
+    "pack:dry-run": "npm pack --dry-run",
+    "pack:smoke": "node scripts/smoke-pack.mjs",
+    "smoke:live": "node scripts/live-provider-smoke.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run check",
+    "test": "node --test \"dist/**/*.test.js\""
+  },
+  "keywords": [
+    "ai",
+    "frontend",
+    "agent",
+    "workflow",
+    "codegen",
+    "delivery"
+  ],
+  "author": "DevFlow contributors",
+  "license": "MIT",
+  "packageManager": "npm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pngjs": "^6.0.5",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
+  },
+  "dependencies": {
+    "playwright": "^1.61.0",
+    "pngjs": "^7.0.0",
+    "yaml": "^2.9.0"
+  }
+}

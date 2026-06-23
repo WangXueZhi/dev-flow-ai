@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Check CLI
+        run: npm run check
+
+      - name: Verify npm package
+        run: npm run pack:dry-run
+
+      - name: Smoke test installed package
+        run: npm run pack:smoke
+
+      - name: Optional live provider smoke
+        run: npm run smoke:live
+
+      - name: Install example dependencies
+        working-directory: examples/react-vite-dashboard
+        run: npm ci
+
+      - name: Audit example
+        working-directory: examples/react-vite-dashboard
+        run: npm audit --audit-level=low
+
+      - name: Build example
+        working-directory: examples/react-vite-dashboard
+        run: npm run build
+
+      - name: Run fixture-backed source-changing delivery on example
+        working-directory: examples/react-vite-dashboard
+        env:
+          DEVFLOW_AI_FIXTURE_PATH: fixtures/patch-set-ai-applied.json
+        run: |
+          node ../../dist/cli.js deliver \
+            --apply \
+            --yes \
+            --unit U18 \
+            --requirements docs/requirements.md \
+            --ui docs/ui.md \
+            --api docs/api.md
+
+      - name: Run DevFlow delivery on example
+        working-directory: examples/react-vite-dashboard
+        run: |
+          npm run dev -- --host 127.0.0.1 > /tmp/devflow-example-vite.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:5173/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          node ../../dist/cli.js deliver \
+            --requirements docs/requirements.md \
+            --ui docs/ui.md \
+            --api docs/api.md \
+            --preview-url http://127.0.0.1:5173 \
+            --visual-text OpsBoard,Checkout
+
+      - name: Upload DevFlow artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: devflow-artifacts
+          path: |
+            .devflow/artifacts
+            examples/react-vite-dashboard/.devflow/artifacts
