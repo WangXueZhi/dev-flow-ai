@@ -164,6 +164,8 @@ paths: {}
 export async function runInit(_flags: FlagMap): Promise<void> {
   const hasConfig = await fileExists(configPath);
   const config = hasConfig ? await loadConfig() : defaultConfig();
+  const createdDocs: string[] = [];
+  const existingDocs: string[] = [];
 
   await mkdir(config.artifactsDir, { recursive: true });
   if (!hasConfig) {
@@ -172,14 +174,17 @@ export async function runInit(_flags: FlagMap): Promise<void> {
 
   for (const [path, content] of Object.entries(createStarterDocs(config))) {
     if (await fileExists(path)) {
+      existingDocs.push(path);
       continue;
     }
 
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, content, "utf8");
+    createdDocs.push(path);
   }
 
   console.log("DevFlow project initialized.");
   console.log(`Config: ${configPath}${hasConfig ? " (existing)" : ""}`);
   console.log(`Artifacts: ${config.artifactsDir}`);
+  console.log(`Starter docs: ${createdDocs.length} created, ${existingDocs.length} existing`);
 }

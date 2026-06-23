@@ -134,6 +134,8 @@ Creates the local project context:
 - `docs/ui.md` with design asset links, screens, components, states, interactions, responsive behavior, accessibility, and visual tokens
 - `docs/api.md` with auth, endpoints, JSON data models, error cases, loading/cache notes, and an OpenAPI JSON/YAML placeholder
 
+Existing handoff documents are preserved. `init` creates missing starter files and reports how many starter docs were created or already existed.
+
 ### `dev-flow plan`
 
 Reads the configured input documents, writes `.devflow/artifacts/project-brief.json`, and writes an implementation plan.

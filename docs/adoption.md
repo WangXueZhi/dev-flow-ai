@@ -47,6 +47,8 @@ This creates:
 - `docs/ui.md`
 - `docs/api.md`
 
+Existing handoff documents are preserved. DevFlow creates only missing starter files and reports how many were created or already existed.
+
 Fill those documents with the project handoff:
 
 - Requirements: goals, users, scope, constraints, acceptance criteria, verification notes.
