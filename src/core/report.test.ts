@@ -181,6 +181,12 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /dense and operational/);
   assert.match(report, /Acceptance Criteria/);
   assert.match(report, /Dashboard renders release health/);
+  assert.match(report, /Acceptance Evidence/);
+  assert.match(report, /AC1: Dashboard renders release health/);
+  assert.match(report, /Evidence: Source-changing execution recorded 1 entry touching `src\/App\.tsx`, `src\/ObsoletePanel\.tsx`/);
+  assert.match(report, /Evidence: Verification passed: `npm run check` exit 0/);
+  assert.match(report, /Evidence: Visual verification passed: 1 screenshot\(s\), 1\/1 required text checks found/);
+  assert.match(report, /Review: Resolve open questions before marking this criterion complete/);
   assert.match(report, /Design Assets/);
   assert.match(report, /assets\/dashboard\.svg/);
   assert.match(report, /Dimensions: 960x640/);

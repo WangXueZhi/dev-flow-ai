@@ -58,6 +58,10 @@ ${brief ? formatRequirementList(brief.constraints, "No explicit requirement cons
 
 ${brief ? formatAcceptanceCriteria(brief) : "- Project brief was not available."}
 
+## Acceptance Evidence
+
+${brief ? formatAcceptanceEvidence(input) : "- Project brief was not available."}
+
 ## Design Assets
 
 ${brief ? formatDesignAssets(brief) : "- Project brief was not available."}
@@ -119,6 +123,70 @@ function formatAcceptanceCriteria(brief: ProjectBrief): string {
   }
 
   return brief.acceptanceCriteria.map((criterion) => `- ${criterion}`).join("\n");
+}
+
+function formatAcceptanceEvidence(input: DeliveryReportInput): string {
+  const brief = input.brief;
+  if (!brief) {
+    return "- Project brief was not available.";
+  }
+
+  if (brief.acceptanceCriteria.length === 0) {
+    return "- No explicit acceptance criteria were found in the requirements document.";
+  }
+
+  const evidence = collectDeliveryEvidence(input);
+
+  return brief.acceptanceCriteria.map((criterion, index) => {
+    const lines = [`- AC${index + 1}: ${criterion}`];
+
+    if (evidence.length === 0) {
+      lines.push("  - Evidence: Needs manual review; no verification, visual, or applied-change evidence was found.");
+    } else {
+      lines.push(...evidence.map((item) => `  - Evidence: ${item}`));
+    }
+
+    if (brief.openQuestions.length > 0) {
+      lines.push("  - Review: Resolve open questions before marking this criterion complete.");
+    }
+
+    return lines.join("\n");
+  }).join("\n");
+}
+
+function collectDeliveryEvidence(input: DeliveryReportInput): string[] {
+  const evidence: string[] = [];
+
+  if (input.executionLog?.entries.length) {
+    const operations = input.executionLog.entries.flatMap((entry) => entry.operations);
+    const touchedFiles = unique(operations.filter((operation) => operation.status !== "unchanged").map((operation) => operation.path));
+    evidence.push(
+      touchedFiles.length
+        ? `Source-changing execution recorded ${input.executionLog.entries.length} entr${input.executionLog.entries.length === 1 ? "y" : "ies"} touching ${formatTouchedFiles(touchedFiles)}.`
+        : `Source-changing execution recorded ${input.executionLog.entries.length} entr${input.executionLog.entries.length === 1 ? "y" : "ies"}.`
+    );
+  }
+
+  if (input.verification) {
+    const commands = input.verification.results.slice(0, 3).map((result) => `\`${result.command}\` exit ${result.exitCode ?? "unknown"}`);
+    const omitted = input.verification.results.length - commands.length;
+    const commandSummary = commands.length
+      ? `${commands.join(", ")}${omitted > 0 ? `, and ${omitted} more` : ""}`
+      : "no commands recorded";
+
+    evidence.push(`Verification ${input.verification.status}: ${commandSummary}.`);
+  }
+
+  if (input.visualReport) {
+    const foundText = input.visualReport.requiredText.filter((check) => check.found).length;
+    const textSummary = input.visualReport.requiredText.length
+      ? `${foundText}/${input.visualReport.requiredText.length} required text checks found`
+      : "no required text checks";
+
+    evidence.push(`Visual verification ${input.visualReport.status}: ${input.visualReport.screenshots.length} screenshot(s), ${textSummary}.`);
+  }
+
+  return evidence;
 }
 
 function formatRequirementList(items: string[], emptyMessage: string): string {

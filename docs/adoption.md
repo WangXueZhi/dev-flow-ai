@@ -175,7 +175,7 @@ For source-changing delivery, keep confirmation explicit:
 dev-flow deliver --apply --yes --patch-set path/to/reviewed-patch-set.json
 ```
 
-The final report is written to `.devflow/artifacts/delivery-report.md`.
+The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks, applied changes, open questions, and delivery readiness.
 
 ## 9. Add DevFlow To CI
 
