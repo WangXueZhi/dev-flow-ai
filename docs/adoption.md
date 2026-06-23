@@ -23,6 +23,12 @@ npm run build
 node dist/cli.js help
 ```
 
+Maintainers can verify the GitHub install path without touching global packages:
+
+```bash
+npm run github:smoke
+```
+
 To see the full MVP loop before trying DevFlow in your own repository:
 
 ```bash

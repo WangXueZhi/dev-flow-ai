@@ -12,6 +12,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added optional artifact uploads to the composite GitHub Action.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
+- Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.

@@ -34,6 +34,7 @@ const requiredFiles = [
   "examples/react-vite-dashboard/src/App.jsx",
   "package.json",
   "scripts/example-delivery-smoke.mjs",
+  "scripts/smoke-github-install.mjs",
   "scripts/live-provider-smoke.mjs"
 ];
 

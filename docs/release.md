@@ -12,6 +12,7 @@ npx playwright install chromium
 npm run check
 npm run pack:dry-run
 npm run pack:smoke
+npm run github:smoke
 npm run example:smoke
 npm run smoke:live
 ```
@@ -59,6 +60,7 @@ node ../../dist/cli.js deliver \
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, and `scripts/live-provider-smoke.mjs`.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.
+- Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release.
 - Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release.
 - Confirm no secrets or local `.env` files are included in the package.
 - Tag the release after CI passes.

@@ -36,6 +36,12 @@ dev-flow help
 dev-flow --version
 ```
 
+Maintainers can verify the pre-release GitHub install path without touching global packages:
+
+```bash
+npm run github:smoke
+```
+
 For local development from a clone:
 
 ```bash
@@ -318,6 +324,7 @@ GitHub Actions runs the same core checks contributors should run before opening 
 npm run check
 npm run pack:dry-run
 npm run pack:smoke
+npm run github:smoke
 npm run example:smoke
 npm run smoke:live
 cd examples/react-vite-dashboard
