@@ -55,6 +55,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added an optional live provider smoke test script for release validation without making paid AI credentials mandatory for contributors.
 - Added task plan generation.
 - Added dry-run patch proposals with stack-specific target profiles for likely component, data, style, test, config, and verification targets.
+- Expanded target profiles with Nuxt-aware route, layout, composable, server API, style, Playwright, and Cypress candidates.
 - Added bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Added validated patch-set application with operation and payload limits, execution logs, backups, rollback, and automatic backup restoration when apply fails after partial writes.
 - Added guarded patch-set delete operations with backup and rollback coverage for obsolete source files.

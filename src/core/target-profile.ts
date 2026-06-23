@@ -41,7 +41,7 @@ export function createImplementationTargetProfile(
     ]),
     frontendTargets: buildFrontendTargetSummary(brief),
     componentCandidates: buildComponentCandidates(brief, primaryRoot, jsxExtension, moduleExtension),
-    dataCandidates: hasApiWork ? buildDataCandidates(primaryRoot, moduleExtension) : [],
+    dataCandidates: hasApiWork ? buildDataCandidates(brief, primaryRoot, moduleExtension) : [],
     styleCandidates: buildStyleCandidates(brief, primaryRoot),
     testCandidates: buildTestCandidates(brief, primaryRoot, jsxExtension, moduleExtension),
     configCandidates: unique(["package.json", ...brief.stack.configFiles]),
@@ -87,6 +87,10 @@ function buildComponentCandidates(
     candidates.push(`${root}/App.vue`, `${root}/main.${moduleExtension}`, `${root}/components/`);
   }
 
+  if (hasFramework(brief, "Nuxt")) {
+    candidates.push("app.vue", "pages/", "layouts/", "components/", "composables/", `${root}/pages/`, `${root}/components/`);
+  }
+
   if (hasFramework(brief, "Svelte")) {
     candidates.push(`${root}/routes/`, `${root}/lib/`);
   }
@@ -106,14 +110,32 @@ function buildComponentCandidates(
   return unique(candidates);
 }
 
-function buildDataCandidates(root: string, moduleExtension: string): string[] {
-  return unique([
+function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
+  const candidates = [
     `${root}/api/`,
     `${root}/lib/api.${moduleExtension}`,
     `${root}/services/`,
     `${root}/data.${moduleExtension}`,
     `${root}/data/`
-  ]);
+  ];
+
+  if (hasFramework(brief, "Next.js")) {
+    candidates.push("app/api/", "pages/api/", `${root}/app/api/`);
+  }
+
+  if (hasFramework(brief, "Nuxt")) {
+    candidates.push("server/api/", "server/utils/", `composables/useApi.${moduleExtension}`, "composables/", "stores/");
+  }
+
+  if (hasFramework(brief, "Vue")) {
+    candidates.push(`${root}/composables/`, `${root}/stores/`);
+  }
+
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push(`${root}/lib/server/`, `${root}/routes/**/+server.${moduleExtension}`);
+  }
+
+  return unique(candidates);
 }
 
 function buildStyleCandidates(brief: ProjectBrief, root: string): string[] {
@@ -121,6 +143,18 @@ function buildStyleCandidates(brief: ProjectBrief, root: string): string[] {
 
   if (hasFramework(brief, "Next.js")) {
     candidates.push("app/globals.css", `${root}/app/globals.css`);
+  }
+
+  if (hasFramework(brief, "Nuxt")) {
+    candidates.push("assets/css/", "app.vue", "nuxt.config.ts");
+  }
+
+  if (hasFramework(brief, "Svelte")) {
+    candidates.push(`${root}/app.css`, `${root}/routes/+layout.svelte`);
+  }
+
+  if (hasFramework(brief, "Astro")) {
+    candidates.push(`${root}/styles/`, `${root}/layouts/`);
   }
 
   if (brief.stack.styling.includes("Tailwind CSS")) {
@@ -155,8 +189,12 @@ function buildTestCandidates(
     candidates.push(`${root}/test-utils.${moduleExtension}`, `${root}/setupTests.${moduleExtension}`);
   }
 
-  if (brief.stack.testing.includes("Playwright") || brief.stack.configFiles.includes("playwright.config.ts")) {
+  if (brief.stack.testing.includes("Playwright") || hasConfigFile(brief, /^playwright\.config\./)) {
     candidates.push("e2e/", "tests/e2e/");
+  }
+
+  if (brief.stack.testing.includes("Cypress") || hasConfigFile(brief, /^cypress\.config\./)) {
+    candidates.push("cypress/e2e/", "cypress/component/");
   }
 
   if (candidates.length === 0) {
@@ -176,6 +214,30 @@ function buildTargetNotes(
 
   if (hasFramework(brief, "React")) {
     notes.push("Use React component boundaries and keep data loading separate from presentational UI where possible.");
+  }
+
+  if (hasFramework(brief, "Next.js")) {
+    notes.push("For Next.js apps, prefer app/pages routes and keep server/client boundaries explicit.");
+  }
+
+  if (hasFramework(brief, "Nuxt")) {
+    notes.push("For Nuxt apps, map routes through pages, shared UI through components/layouts, and API data through composables or server/api handlers.");
+  }
+
+  if (hasFramework(brief, "Vue")) {
+    notes.push("Use Vue single-file component boundaries and keep composables or stores separate from presentational UI.");
+  }
+
+  if (hasFramework(brief, "Svelte")) {
+    notes.push("Use Svelte route and lib conventions, and keep server-only logic out of client components.");
+  }
+
+  if (hasFramework(brief, "Angular")) {
+    notes.push("Use Angular feature/module boundaries and keep services separate from components.");
+  }
+
+  if (hasFramework(brief, "Astro")) {
+    notes.push("Use Astro pages, layouts, and components, and isolate interactive islands where framework components are needed.");
   }
 
   if (brief.stack.buildTools.includes("Vite")) {
@@ -213,6 +275,10 @@ function buildTargetNotes(
 
 function hasFramework(brief: ProjectBrief, framework: string): boolean {
   return brief.stack.frameworks.includes(framework);
+}
+
+function hasConfigFile(brief: ProjectBrief, pattern: RegExp): boolean {
+  return brief.stack.configFiles.some((configFile) => pattern.test(configFile));
 }
 
 function isApiUnit(unit: ImplementationUnit | undefined): boolean {

@@ -1,0 +1,91 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import type { ProjectBrief } from "./brief.js";
+import { createImplementationTargetProfile } from "./target-profile.js";
+import type { ImplementationTask } from "./tasks.js";
+
+const task: ImplementationTask = {
+  id: "T03-code-implementation",
+  phase: "Implementation",
+  title: "Implement release dashboard",
+  objective: "Build the release dashboard route and API-backed states.",
+  mode: "ai-assisted",
+  risk: "high",
+  dependsOn: [],
+  inputs: [".devflow/artifacts/project-brief.json"],
+  expectedOutputs: ["Updated source files"],
+  acceptanceCriteria: ["Release dashboard shows loading, error, and success states."],
+  verification: []
+};
+
+test("createImplementationTargetProfile includes Nuxt route, data, style, and test candidates", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "pnpm",
+      runtimes: ["Node.js", "TypeScript"],
+      frameworks: ["Vue", "Nuxt"],
+      buildTools: [],
+      styling: ["Tailwind CSS"],
+      testing: ["Vitest"],
+      scripts: {
+        test: "vitest run"
+      },
+      sourceDirectories: ["pages", "components", "composables"],
+      configFiles: ["nuxt.config.ts", "vitest.config.mjs", "playwright.config.js", "cypress.config.ts"],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [
+      {
+        method: "GET",
+        path: "/api/release/readiness",
+        sourceLine: 3,
+        summary: "GET /api/release/readiness"
+      }
+    ],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    frontendTargets: {
+      routes: [],
+      components: [],
+      dataNeeds: [],
+      uiStates: []
+    },
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: ["pnpm test"]
+  };
+
+  const profile = createImplementationTargetProfile(task, brief);
+
+  assert.ok(profile.componentCandidates.includes("app.vue"));
+  assert.ok(profile.componentCandidates.includes("pages/"));
+  assert.ok(profile.componentCandidates.includes("layouts/"));
+  assert.ok(profile.componentCandidates.includes("components/"));
+  assert.ok(profile.componentCandidates.includes("composables/"));
+  assert.ok(profile.dataCandidates.includes("server/api/"));
+  assert.ok(profile.dataCandidates.includes("composables/useApi.ts"));
+  assert.ok(profile.styleCandidates.includes("assets/css/"));
+  assert.ok(profile.styleCandidates.includes("nuxt.config.ts"));
+  assert.ok(profile.testCandidates.includes("pages/**/*.test.ts"));
+  assert.ok(profile.testCandidates.includes("e2e/"));
+  assert.ok(profile.testCandidates.includes("cypress/e2e/"));
+  assert.ok(profile.notes.some((note) => /For Nuxt apps/.test(note)));
+});
