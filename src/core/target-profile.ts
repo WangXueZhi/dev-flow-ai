@@ -73,7 +73,10 @@ function buildComponentCandidates(
   jsxExtension: string,
   moduleExtension: string
 ): string[] {
-  const candidates: string[] = [];
+  const candidates: string[] = [
+    ...buildExplicitRouteCandidates(brief, root, jsxExtension, moduleExtension),
+    ...buildExplicitComponentCandidates(brief, root, jsxExtension)
+  ];
 
   if (hasFramework(brief, "Next.js")) {
     candidates.push("app/", "app/page.tsx", "app/layout.tsx", "pages/", "pages/index.tsx", `${root}/components/`);
@@ -108,6 +111,128 @@ function buildComponentCandidates(
   }
 
   return unique(candidates);
+}
+
+function buildExplicitRouteCandidates(
+  brief: ProjectBrief,
+  root: string,
+  jsxExtension: string,
+  moduleExtension: string
+): string[] {
+  return explicitRoutePaths(brief).flatMap((routePath) => {
+    const subpath = routeSubpath(routePath);
+    if (!subpath) {
+      return [];
+    }
+
+    const componentName = pascalCaseFromPath(subpath);
+    const kebabName = kebabCase(componentName);
+    const candidates: string[] = [];
+
+    if (hasFramework(brief, "Next.js")) {
+      candidates.push(`app/${subpath}/page.${jsxExtension}`, `pages/${subpath}.${jsxExtension}`, `${root}/app/${subpath}/page.${jsxExtension}`, `${root}/pages/${subpath}.${jsxExtension}`);
+    }
+
+    if (hasFramework(brief, "Nuxt")) {
+      candidates.push(`pages/${subpath}.vue`, `${root}/pages/${subpath}.vue`);
+    }
+
+    if (hasFramework(brief, "Vue")) {
+      candidates.push(`${root}/views/${componentName}.vue`, `${root}/router/`);
+    }
+
+    if (hasFramework(brief, "Svelte")) {
+      candidates.push(`src/routes/${subpath}/+page.svelte`, `${root}/routes/${subpath}/+page.svelte`);
+    }
+
+    if (hasFramework(brief, "Astro")) {
+      candidates.push(`src/pages/${subpath}.astro`, `${root}/pages/${subpath}.astro`);
+    }
+
+    if (hasFramework(brief, "Angular")) {
+      candidates.push(`${root}/app/${kebabName}/`, `${root}/app/${kebabName}/${kebabName}.component.${moduleExtension}`, `${root}/app/app.routes.${moduleExtension}`);
+    }
+
+    if (hasFramework(brief, "React") || candidates.length === 0) {
+      candidates.push(`${root}/pages/${componentName}.${jsxExtension}`, `${root}/routes/${componentName}.${jsxExtension}`, `${root}/features/${kebabName}/`);
+    }
+
+    return candidates;
+  });
+}
+
+function buildExplicitComponentCandidates(brief: ProjectBrief, root: string, jsxExtension: string): string[] {
+  return explicitComponentNames(brief).flatMap((name) => {
+    const kebabName = kebabCase(name);
+    const candidates: string[] = [];
+
+    if (hasFramework(brief, "Vue") || hasFramework(brief, "Nuxt")) {
+      candidates.push(`${root}/components/${name}.vue`, `components/${name}.vue`);
+    }
+
+    if (hasFramework(brief, "Svelte")) {
+      candidates.push(`src/lib/${name}.svelte`, `${root}/lib/${name}.svelte`);
+    }
+
+    if (hasFramework(brief, "Astro")) {
+      candidates.push(`src/components/${name}.astro`, `${root}/components/${name}.astro`);
+    }
+
+    if (hasFramework(brief, "Angular")) {
+      candidates.push(`${root}/app/${kebabName}/${kebabName}.component.ts`);
+    }
+
+    if (hasFramework(brief, "React") || hasFramework(brief, "Next.js") || candidates.length === 0) {
+      candidates.push(`${root}/components/${name}.${jsxExtension}`, `${root}/features/${kebabName}/${name}.${jsxExtension}`);
+    }
+
+    return candidates;
+  });
+}
+
+function explicitRoutePaths(brief: ProjectBrief): string[] {
+  return (brief.frontendTargets?.routes ?? [])
+    .map((target) => /^Route path\s+(\S+)$/i.exec(target.summary)?.[1])
+    .filter((path): path is string => Boolean(path))
+    .slice(0, 4);
+}
+
+function explicitComponentNames(brief: ProjectBrief): string[] {
+  return (brief.frontendTargets?.components ?? [])
+    .map((target) => /^Component\s+([A-Z][A-Za-z0-9.]*)$/i.exec(target.summary)?.[1])
+    .filter((name): name is string => Boolean(name))
+    .slice(0, 6);
+}
+
+function routeSubpath(routePath: string): string | undefined {
+  const subpath = routePath
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .replace(/:([A-Za-z0-9_-]+)/g, "[$1]");
+
+  return subpath || undefined;
+}
+
+function pascalCaseFromPath(path: string): string {
+  const value = path
+    .replace(/\[([^\]]+)\]/g, "$1")
+    .split("/")
+    .filter(Boolean)
+    .map((part) => part.split(/[-_\s]+/).filter(Boolean).map(capitalize).join(""))
+    .join("");
+
+  return value || "Route";
+}
+
+function kebabCase(value: string): string {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .replace(/[._\s/]+/g, "-")
+    .toLowerCase();
+}
+
+function capitalize(value: string): string {
+  return value ? `${value[0]?.toUpperCase() ?? ""}${value.slice(1)}` : "";
 }
 
 function buildDataCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {

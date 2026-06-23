@@ -413,7 +413,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
 - Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, and API docs, and structured implementation units.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
-- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus component, data, style, test, config, and verification candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
+- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus explicit route/component-derived file candidates, component, data, style, test, config, and verification candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Validated patch-set application with write, replace, delete, execution logs, task changelogs, and rollback.
 - Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.

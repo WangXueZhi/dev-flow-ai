@@ -90,6 +90,78 @@ test("createImplementationTargetProfile includes Nuxt route, data, style, and te
   assert.ok(profile.notes.some((note) => /For Nuxt apps/.test(note)));
 });
 
+test("createImplementationTargetProfile derives candidates from explicit frontend targets", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js", "TypeScript"],
+      frameworks: ["React"],
+      buildTools: ["Vite"],
+      styling: [],
+      testing: ["Vitest"],
+      scripts: {
+        test: "vitest run"
+      },
+      sourceDirectories: ["src"],
+      configFiles: ["vite.config.ts"],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    frontendTargets: {
+      routes: [
+        {
+          source: "requirements",
+          summary: "Route path /settings/profile",
+          evidence: ["Acceptance criterion"]
+        }
+      ],
+      components: [
+        {
+          source: "ui",
+          summary: "Component RetryBanner",
+          evidence: ["UI signal"]
+        }
+      ],
+      dataNeeds: [],
+      uiStates: []
+    },
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: ["npm run test"]
+  };
+
+  const profile = createImplementationTargetProfile(task, brief);
+
+  assert.deepEqual(profile.componentCandidates.slice(0, 6), [
+    "src/pages/SettingsProfile.tsx",
+    "src/routes/SettingsProfile.tsx",
+    "src/features/settings-profile/",
+    "src/components/RetryBanner.tsx",
+    "src/features/retry-banner/RetryBanner.tsx",
+    "src/App.tsx"
+  ]);
+});
+
 test("createImplementationTargetProfile includes Svelte, Astro, and Angular target candidates", () => {
   const brief: ProjectBrief = {
     version: 1,
