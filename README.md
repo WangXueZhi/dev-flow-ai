@@ -186,6 +186,8 @@ For machine-readable diagnostics:
 dev-flow doctor --json
 ```
 
+Doctor output also reports whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
+
 ### `dev-flow tasks`
 
 Reads the project brief and implementation plan, then writes:

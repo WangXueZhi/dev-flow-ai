@@ -28,6 +28,7 @@ test("dev-flow doctor prints the package version", () => {
 
   assert.equal(result.status, 0);
   assert.match(result.stdout, new RegExp(`OK dev-flow ${packageJson.version.replaceAll(".", "\\.")}`));
+  assert.match(result.stdout, /AI source context: enabled/);
 });
 
 test("dev-flow doctor --json prints structured diagnostics", () => {
@@ -38,9 +39,33 @@ test("dev-flow doctor --json prints structured diagnostics", () => {
     version: string;
     checks: Array<{ label: string; ok: boolean }>;
     aiProvider: { mode: string };
+    sourceContext: { enabled: boolean; source: string };
   };
 
   assert.equal(report.version, `dev-flow ${packageJson.version}`);
   assert.ok(report.checks.some((check) => check.label === "Node.js >= 20"));
   assert.ok(report.aiProvider.mode);
+  assert.equal(report.sourceContext.enabled, true);
+  assert.ok(report.sourceContext.source);
+});
+
+test("dev-flow doctor reports disabled source context diagnostics", () => {
+  const result = spawnSync(process.execPath, [cliPath, "doctor", "--json"], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      DEVFLOW_SOURCE_CONTEXT: "none"
+    }
+  });
+
+  assert.equal(result.status, 0);
+  const report = JSON.parse(result.stdout) as {
+    sourceContext: { enabled: boolean; source: string; value?: string };
+    messages: string[];
+  };
+
+  assert.equal(report.sourceContext.enabled, false);
+  assert.equal(report.sourceContext.source, "env");
+  assert.equal(report.sourceContext.value, "none");
+  assert.ok(report.messages.some((message) => message.includes("DEVFLOW_SOURCE_CONTEXT=none")));
 });

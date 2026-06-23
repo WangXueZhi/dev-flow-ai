@@ -18,6 +18,7 @@ import { createPatchBackup, restorePatchBackup } from "../core/patch-backup.js";
 import { applyPatchSet, parsePatchSet, type PatchSet } from "../core/patch-set.js";
 import { createAiProviderFromEnv } from "../core/provider.js";
 import { collectSourceContext, sourceContextCandidatePaths } from "../core/source-context.js";
+import { shouldIncludeSourceContext } from "../core/source-context-policy.js";
 import { createImplementationTargetProfile } from "../core/target-profile.js";
 import type { ImplementationTask, ImplementationUnit, TaskPlan } from "../core/tasks.js";
 
@@ -221,14 +222,4 @@ function safeTimestamp(): string {
 
 function formatErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-function shouldIncludeSourceContext(flags: FlagMap): boolean {
-  if (flags["no-source-context"] === "true") {
-    return false;
-  }
-
-  const mode = process.env.DEVFLOW_SOURCE_CONTEXT?.trim().toLowerCase();
-
-  return !["0", "false", "none", "off", "disabled"].includes(mode ?? "");
 }
