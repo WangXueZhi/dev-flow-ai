@@ -9,15 +9,12 @@ Run the root checks:
 ```bash
 npm ci
 npx playwright install chromium
-npm run check
-npm run pack:dry-run
-npm run pack:smoke
-npm run github:smoke
-npm run example:smoke
-npm run smoke:live
+npm run release:preflight
 ```
 
-`npm run smoke:live` skips when no live provider key is configured. For a release gate that must verify the real provider path, run it with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`.
+`npm run release:preflight` runs the package checks, installed package smoke, GitHub install smoke, example delivery smoke, optional live provider smoke, and a local `.env`/`.tgz` residue check.
+
+`npm run smoke:live` skips when no live provider key is configured. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`.
 
 Run the React/Vite example smoke test:
 
@@ -60,6 +57,7 @@ node ../../dist/cli.js deliver \
 - Confirm `docs/github-action.md` and `action.yml` match the current safe delivery behavior.
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
+- Confirm `npm run release:preflight` passes.
 - Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, and `scripts/live-provider-smoke.mjs`.
 - Confirm `schemas/patch-set.schema.json` is included in the npm package.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.

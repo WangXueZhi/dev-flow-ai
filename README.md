@@ -344,6 +344,7 @@ npm run pack:smoke
 npm run github:smoke
 npm run example:smoke
 npm run smoke:live
+npm run release:preflight
 cd examples/react-vite-dashboard
 npm ci
 npm audit --audit-level=low
