@@ -357,6 +357,7 @@ Planned capabilities:
 ## Project Docs
 
 - [Product Vision](docs/product.md)
+- [Adoption Guide](docs/adoption.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Contributing](docs/contributing.md)
