@@ -212,7 +212,7 @@ dev-flow execute --dry-run --unit U18
 dev-flow execute --dry-run --no-source-context
 ```
 
-Dry-run execution writes reviewable patch proposal documents to `.devflow/artifacts/patch-proposals/` without changing source files.
+Dry-run execution writes reviewable patch proposal documents to `.devflow/artifacts/patch-proposals/` without changing source files. Proposals surface UI checklist coverage and delivery risks from the project brief so reviewers can see state, responsive, accessibility, and ambiguity constraints before source-changing execution.
 
 Use `--unit <id>` to focus execution on one implementation unit from `.devflow/artifacts/tasks.json`. When `--unit` is provided without `--task`, DevFlow scopes the proposal to `T03-code-implementation` by default.
 
@@ -375,7 +375,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Deterministic fallback planner for offline use.
 - Generated implementation plan with phases, risks, and verification checklist.
 - Generated task plan for implementation phases and structured implementation units.
-- AI-assisted dry-run patch proposals for review before source-changing execution.
+- AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including component, data, style, test, config, and verification candidates.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Validated patch-set application with write, replace, delete, execution logs, and rollback.

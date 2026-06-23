@@ -38,7 +38,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Task Planner: writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`, including structured implementation units derived from user stories, requirement constraints, requirements, UI, design assets, API endpoints, data models, error cases, and auth requirements.
 - Target Profile: derives stack-specific component, data, style, test, config, and verification candidates from the project brief and selected implementation unit.
 - Source Context: samples a bounded set of existing repository files, directories, and missing/glob candidates from the target profile so AI prompts can see local source conventions without reading the whole repository.
-- Executor: supports `execute --dry-run`, writing AI-assisted or deterministic patch proposal documents without changing source files. Dry-run and patch-set prompts include the target profile and, unless disabled with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`, sampled source context so AI execution is grounded in likely repository files and existing code.
+- Executor: supports `execute --dry-run`, writing AI-assisted or deterministic patch proposal documents without changing source files. Dry-run proposals surface UI checklist coverage and delivery risks, and dry-run and patch-set prompts include the target profile and, unless disabled with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`, sampled source context so AI execution is grounded in likely repository files and existing code.
 - Patch Applicator: supports `execute --validate` for non-mutating patch-set checks and `execute --apply` for source-changing execution. It validates strict JSON patch sets, enforces patch-set operation and payload limits, writes/replaces/deletes files only during apply, restores the apply backup automatically if a partial apply fails, and records `.devflow/artifacts/execution-log.json` with operation status, bytes written, replacements, and line-count deltas after successful applies.
 - Patch Set Schema: publishes `schemas/patch-set.schema.json` so external AI agents, editors, and CI jobs can align with DevFlow's patch-set contract before runtime validation.
 - Delivery Orchestrator: supports safe `deliver` dry-runs and explicit `deliver --apply --yes` source-changing delivery before verification and report generation.
@@ -101,7 +101,7 @@ The executor should never start by making large unreviewable changes. A safer sh
 
 1. Detect framework and package manager.
 2. Split plan into small tasks.
-3. Produce dry-run patch proposals with stack-specific target profiles and bounded source context.
+3. Produce dry-run patch proposals with stack-specific target profiles, UI checklist coverage, delivery risks, and bounded source context.
 4. Ask for approval before code-changing phases when running interactively.
 5. Apply validated patch sets one task at a time.
 6. Run focused verification after each task.

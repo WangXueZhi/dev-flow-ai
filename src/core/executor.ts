@@ -13,6 +13,8 @@ export interface DryRunProposal {
   suggestedFiles: string[];
   steps: string[];
   verification: string[];
+  uiChecklist: string[];
+  deliveryRisks: string[];
   guardrails: string[];
 }
 
@@ -34,6 +36,8 @@ The proposal must include:
 - Summary
 - Candidate files
 - Proposed code-change steps
+- UI checklist coverage
+- Delivery risks and mitigations
 - Testing or verification commands
 - Risks and guardrails
 - Any assumptions that must be approved before source-changing execution
@@ -101,6 +105,8 @@ Rules:
 - Do not target .git, node_modules, generated build output, or dependency folders.
 - Use "delete" only for source files made obsolete by this task; do not delete directories.
 - Keep the patch set small and scoped to the task.
+- Respect deliveryRisks and uiStateChecklist from the project brief.
+- Do not guess through high delivery risks; only implement behavior grounded in accepted task context.
 - Use at most ${patchSetLimits.maxOperations} operations.
 - Keep each write operation at or below ${patchSetLimits.maxWriteBytes} bytes.
 - Keep each replace search at or below ${patchSetLimits.maxSearchBytes} bytes and each replacement at or below ${patchSetLimits.maxReplaceBytes} bytes.
@@ -136,12 +142,9 @@ export function createDryRunProposal(task: ImplementationTask, brief: ProjectBri
     suggestedFiles: suggestFiles(task, brief, unit, targetProfile),
     steps: buildSteps(task, unit),
     verification: targetProfile.verificationCommands,
-    guardrails: [
-      "Review this proposal before allowing source-changing execution.",
-      "Keep changes scoped to the task objective and acceptance criteria.",
-      "Preserve existing repository conventions detected in the project brief.",
-      "Run verification and regenerate the delivery report after code changes."
-    ]
+    uiChecklist: buildUiChecklist(brief, unit),
+    deliveryRisks: buildDeliveryRiskSummaries(brief),
+    guardrails: buildGuardrails(brief)
   };
 
   if (unit) {
@@ -149,6 +152,22 @@ export function createDryRunProposal(task: ImplementationTask, brief: ProjectBri
   }
 
   return proposal;
+}
+
+function buildGuardrails(brief: ProjectBrief): string[] {
+  const highRiskCount = (brief.deliveryRisks ?? []).filter((risk) => risk.level === "high").length;
+  const guardrails = [
+    "Review this proposal before allowing source-changing execution.",
+    "Keep changes scoped to the task objective and acceptance criteria.",
+    "Preserve existing repository conventions detected in the project brief.",
+    "Run verification and regenerate the delivery report after code changes."
+  ];
+
+  if (highRiskCount > 0) {
+    guardrails.push(`Resolve or explicitly accept ${highRiskCount} high delivery risk(s) before applying source changes.`);
+  }
+
+  return guardrails;
 }
 
 export function formatDryRunProposal(proposal: DryRunProposal): string {
@@ -173,6 +192,14 @@ ${proposal.suggestedFiles.map((file) => `- \`${file}\``).join("\n")}
 ## Proposed Steps
 
 ${proposal.steps.map((step, index) => `${index + 1}. ${step}`).join("\n")}
+
+## UI Checklist
+
+${proposal.uiChecklist.length ? proposal.uiChecklist.map((item) => `- ${item}`).join("\n") : "- No UI checklist items were extracted for this proposal."}
+
+## Delivery Risks
+
+${proposal.deliveryRisks.length ? proposal.deliveryRisks.map((risk) => `- ${risk}`).join("\n") : "- No delivery risks were detected for this proposal."}
 
 ## Verification
 
@@ -255,6 +282,27 @@ function buildSteps(task: ImplementationTask, unit?: ImplementationUnit): string
     `Focus this proposal on implementation unit ${unit.id}: ${unit.title}.`,
     ...steps
   ];
+}
+
+function buildUiChecklist(brief: ProjectBrief, unit?: ImplementationUnit): string[] {
+  if (unit?.kind === "ui-state") {
+    return [
+      `${unit.id} [${unit.kind}] ${unit.title} (${unit.source})`,
+      ...unit.details
+    ];
+  }
+
+  return (brief.uiStateChecklist ?? [])
+    .slice(0, 8)
+    .map((item) => `[${item.kind}] ${item.summary} (${brief.sourceDocuments.uiPath}:${item.sourceLine})`);
+}
+
+function buildDeliveryRiskSummaries(brief: ProjectBrief): string[] {
+  return (brief.deliveryRisks ?? []).slice(0, 8).map((risk) => {
+    const source = risk.sourceLine === undefined ? risk.source : `${risk.source}:${risk.sourceLine}`;
+
+    return `[${risk.level}] ${source}: ${risk.summary} Recommendation: ${risk.recommendation}`;
+  });
 }
 
 function formatTargetProfile(profile: ImplementationTargetProfile): string {

@@ -17,6 +17,7 @@
 - Risk scoring for ambiguous requirements.
 - Task plan generation.
 - Dry-run patch proposal generation.
+- Dry-run proposal UI checklist and delivery risk surfacing.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Validated patch-set application.

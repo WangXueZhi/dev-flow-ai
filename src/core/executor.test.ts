@@ -32,7 +32,13 @@ const brief: ProjectBrief = {
     api: []
   },
   designAssets: [],
-  uiStateChecklist: [],
+  uiStateChecklist: [
+    {
+      kind: "state",
+      sourceLine: 12,
+      summary: "Loading state uses skeleton cards."
+    }
+  ],
   apiContracts: [],
   apiDataModels: [],
   apiErrorCases: [],
@@ -41,7 +47,15 @@ const brief: ProjectBrief = {
   userStories: [],
   constraints: [],
   acceptanceCriteria: [],
-  deliveryRisks: [],
+  deliveryRisks: [
+    {
+      level: "high",
+      source: "requirements",
+      sourceLine: 6,
+      summary: "Requirement contains an unresolved placeholder: TODO confirm checkout states.",
+      recommendation: "Resolve the placeholder before source-changing execution."
+    }
+  ],
   openQuestions: [],
   recommendedVerification: ["npm run check"]
 };
@@ -78,6 +92,11 @@ test("createDryRunProposal creates reviewable proposal without source changes", 
   assert.ok(proposal.targetProfile.testCandidates.includes("src/**/*.test.tsx"));
   assert.match(markdown, /No source files have been changed/);
   assert.match(markdown, /Stack Targeting/);
+  assert.match(markdown, /UI Checklist/);
+  assert.match(markdown, /Loading state uses skeleton cards/);
+  assert.match(markdown, /Delivery Risks/);
+  assert.match(markdown, /\[high\] requirements:6/);
+  assert.match(markdown, /Resolve or explicitly accept 1 high delivery risk/);
   assert.match(markdown, /npm run check/);
   assert.match(markdown, /Review this proposal/);
 });
@@ -99,6 +118,8 @@ test("buildDryRunPrompt includes task and project brief context", () => {
   const prompt = buildDryRunPrompt(task, brief);
 
   assert.match(prompt, /T03-code-implementation/);
+  assert.match(prompt, /UI checklist coverage/);
+  assert.match(prompt, /Delivery risks and mitigations/);
   assert.match(prompt, /Repository Target Profile/);
   assert.match(prompt, /Project Brief/);
   assert.match(prompt, /docs\/requirements\.md/);
@@ -145,6 +166,8 @@ test("buildPatchSetPrompt asks for strict JSON patch sets", () => {
 
   assert.match(prompt, /PatchSet schema example/);
   assert.match(prompt, /Return JSON only/);
+  assert.match(prompt, /Respect deliveryRisks and uiStateChecklist/);
+  assert.match(prompt, /Do not guess through high delivery risks/);
   assert.match(prompt, /Use at most 50 operations/);
   assert.match(prompt, /"type": "delete"/);
   assert.match(prompt, /write", "replace", or "delete"/);
