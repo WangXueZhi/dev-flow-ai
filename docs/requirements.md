@@ -24,7 +24,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 
 - [ ] `dev-flow init` creates `.devflow/config.json`, `.devflow/artifacts/`, and structured starter document files for requirements, UI notes, and API docs.
 - [ ] `dev-flow brief` writes `.devflow/artifacts/project-brief.json`.
-- [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, delivery risks, open questions, and verification commands.
+- [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, delivery risks, open questions, normalized frontend targets, and verification commands.
 - [ ] The project brief includes UI design assets referenced by Markdown image links, local file existence, lightweight SVG metadata including color swatches, and PNG/JPEG dimensions when available.
 - [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references.
 - [ ] The project brief includes API data model summaries extracted from fenced `json` examples.
@@ -35,7 +35,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Implementation plans include a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections.
 - [ ] Provider-generated implementation plans do not write patch-set JSON into `.devflow/artifacts/implementation-plan.md`; invalid plan-slot patch-set responses fall back to the local planner.
 - [ ] `dev-flow tasks` writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`.
-- [ ] Task plans include implementation units derived from user stories, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
+- [ ] Task plans include normalized frontend targets and implementation units derived from user stories, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
 - [ ] Dry-run patch proposals include a stack-specific target profile with candidate component, data, style, test, config, and verification targets.
 - [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates.

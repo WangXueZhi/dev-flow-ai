@@ -65,6 +65,9 @@ test("createImplementationPlan includes UI state checklist from the brief", asyn
 
   assert.match(plan, /UI State Checklist/);
   assert.match(plan, /\[state\] Line 3: Orders table includes loading and empty states/);
+  assert.match(plan, /Route or view for requirement: Users can filter orders by status/);
+  assert.match(plan, /Orders table includes loading and empty states\. \(ui line 3\)/);
+  assert.match(plan, /Integrate GET \/orders\?status=open \(api line 3\)/);
   assert.match(plan, /Implement documented UI state from line 3: Orders table includes loading and empty states/);
   assert.match(plan, /Integrate `GET \/orders\?status=open`/);
   assert.match(plan, /Cover acceptance criterion with automated test or documented manual QA/);

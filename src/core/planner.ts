@@ -327,6 +327,7 @@ function formatRoutesAndNavigation(
   requirementSignals: string[],
   uiSignals: string[]
 ): string {
+  const routeTargets = formatFrontendTargetItems(brief?.frontendTargets?.routes);
   const screenItems = uiChecklistItems(brief, "screen").map(
     (item) => `Define a route or view boundary for UI screen note at line ${item.sourceLine}: ${item.summary}`
   );
@@ -336,12 +337,13 @@ function formatRoutesAndNavigation(
   const fallbackItems = uiSignals.slice(0, 4).map((signal) => `Derive route or view ownership from UI signal: ${signal}`);
 
   return formatPlanBullets(
-    unique([...screenItems, ...storyItems, ...fallbackItems]).slice(0, 8),
+    unique([...routeTargets, ...screenItems, ...storyItems, ...fallbackItems]).slice(0, 8),
     "Identify route, page, or view boundaries from the UI notes and existing router conventions."
   );
 }
 
 function formatComponentsBlueprint(brief: ProjectBrief | undefined, uiSignals: string[]): string {
+  const componentTargets = formatFrontendTargetItems(brief?.frontendTargets?.components);
   const componentItems = uiChecklistItems(brief, "component").map(
     (item) => `Create or update component boundary from UI note line ${item.sourceLine}: ${item.summary}`
   );
@@ -356,6 +358,7 @@ function formatComponentsBlueprint(brief: ProjectBrief | undefined, uiSignals: s
     unique([
       "Keep page-level components responsible for layout and data orchestration.",
       "Keep reusable feature components focused on one interaction or display responsibility.",
+      ...componentTargets,
       ...componentItems,
       ...assetItems,
       ...fallbackItems
@@ -365,6 +368,7 @@ function formatComponentsBlueprint(brief: ProjectBrief | undefined, uiSignals: s
 }
 
 function formatStateAndInteractionBlueprint(brief: ProjectBrief | undefined, uiSignals: string[]): string {
+  const stateTargets = formatFrontendTargetItems(brief?.frontendTargets?.uiStates);
   const stateItems = uiChecklistItems(brief, "state").map(
     (item) => `Implement documented UI state from line ${item.sourceLine}: ${item.summary}`
   );
@@ -379,12 +383,13 @@ function formatStateAndInteractionBlueprint(brief: ProjectBrief | undefined, uiS
     : uiSignals.slice(0, 4).map((signal) => `Identify loading, empty, error, success, and interaction states for: ${signal}`);
 
   return formatPlanBullets(
-    unique([...stateItems, ...interactionItems, ...errorItems, ...fallbackItems]).slice(0, 10),
+    unique([...stateTargets, ...stateItems, ...interactionItems, ...errorItems, ...fallbackItems]).slice(0, 10),
     "Cover loading, empty, error, success, disabled, and user-triggered interaction states."
   );
 }
 
 function formatDataIntegrationBlueprint(brief: ProjectBrief | undefined, apiSignals: string[]): string {
+  const dataTargets = formatFrontendTargetItems(brief?.frontendTargets?.dataNeeds);
   const contractItems = (brief?.apiContracts ?? []).map(
     (contract) => `Integrate \`${contract.method} ${contract.path}\` from API line ${contract.sourceLine}: ${contract.summary}`
   );
@@ -402,6 +407,7 @@ function formatDataIntegrationBlueprint(brief: ProjectBrief | undefined, apiSign
 
   return formatPlanBullets(
     unique([
+      ...dataTargets,
       ...contractItems,
       ...modelItems,
       ...authItems,
@@ -482,6 +488,17 @@ function uiChecklistItems(
   kind: ProjectBrief["uiStateChecklist"][number]["kind"]
 ): ProjectBrief["uiStateChecklist"] {
   return (brief?.uiStateChecklist ?? []).filter((item) => item.kind === kind);
+}
+
+function formatFrontendTargetItems(
+  items: NonNullable<ProjectBrief["frontendTargets"]>[keyof NonNullable<ProjectBrief["frontendTargets"]>] | undefined
+): string[] {
+  return (items ?? []).map((item) => {
+    const location = item.sourceLine === undefined ? item.source : `${item.source} line ${item.sourceLine}`;
+    const evidence = item.evidence.length ? ` Evidence: ${item.evidence.join("; ")}.` : "";
+
+    return `${item.summary} (${location}).${evidence}`;
+  });
 }
 
 function formatPlanBullets(items: string[], emptyMessage: string): string {

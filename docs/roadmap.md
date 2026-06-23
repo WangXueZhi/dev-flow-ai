@@ -14,6 +14,7 @@
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
+- Normalized frontend targets for routes/views, components, data needs, and UI states.
 - Risk scoring for ambiguous requirements.
 - Task plan generation.
 - Dry-run patch proposal generation.
@@ -41,7 +42,7 @@
 ## Milestone 1: Better Planning
 
 - Deeper stack detection for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro conventions.
-- Better structured project brief and task output with normalized routes, components, data needs, and UI states.
+- Richer route/component/data/state target extraction beyond the initial normalized frontend targets.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
 - Prompt fixtures and golden output tests.
 

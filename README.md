@@ -177,6 +177,7 @@ The brief includes:
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
+- Normalized frontend targets for routes/views, components, data needs, and UI states.
 - API endpoint contracts extracted from HTTP method/path references.
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
@@ -206,7 +207,7 @@ Reads the project brief and implementation plan, then writes:
 
 The task plan splits delivery into discovery, planning, implementation, verification, and delivery phases.
 
-It also includes implementation units derived from user stories, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
+It also includes normalized frontend targets plus implementation units derived from user stories, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
 
 ### `dev-flow execute`
 
@@ -403,12 +404,13 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Stack detection for package manager, framework, build, styling, testing, scripts, and source layout.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
+- Normalized frontend target extraction for routes/views, components, data needs, and UI states.
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.
 - Planner guardrails that keep patch-set JSON out of implementation-plan artifacts and add missing frontend blueprint sections to provider plans.
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
-- Generated task plan for implementation phases and structured implementation units.
+- Generated task plan for implementation phases, normalized frontend targets, and structured implementation units.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including component, data, style, test, config, and verification candidates.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
@@ -430,7 +432,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 Planned capabilities:
 
 - Interpret design assets beyond lightweight Markdown/image metadata, including Figma exports, screenshots, and structured design notes with multimodal models.
-- Continue expanding stack-specific route/component/data-fetching tasks beyond the initial target profiles.
+- Continue expanding stack-specific route/component/data-fetching tasks beyond the normalized frontend targets and initial target profiles.
 - Add interactive approvals and safer review UX around source-changing patch sets.
 - Expand visual verification beyond screenshots, text checks, blank-screen detection, and basic layout-overflow checks.
 - Continue expanding final delivery reports with richer reviewer notes, screenshots, and known risks.

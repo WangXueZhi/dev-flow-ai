@@ -37,6 +37,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added UI checklist and delivery risk sections to dry-run patch proposals.
 - Added delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - Added UI state checklist extraction for screens, components, states, interactions, responsive behavior, and accessibility notes.
+- Added normalized frontend targets for routes/views, components, data needs, and UI states to project briefs and task plans.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added acceptance-criterion status, known gaps, assumptions, and manual QA prompts to generated delivery reports.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.

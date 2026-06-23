@@ -101,6 +101,12 @@ test("createProjectBrief extracts document signals and stack context", () => {
   ]);
   assert.deepEqual(brief.apiAuthRequirements, []);
   assert.deepEqual(brief.invalidApiDataModels, []);
+  assert.match(brief.frontendTargets?.routes.map((target) => target.summary).join("\n") ?? "", /Route or view for user story/);
+  assert.match(brief.frontendTargets?.components.map((target) => target.summary).join("\n") ?? "", /Filter table wireframe/);
+  assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GET \/filters/);
+  assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Use data model filter with fields id, label/);
+  assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /Desktop and mobile responsive table/);
+  assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /Represent API failure state/);
   assert.deepEqual(brief.userStories, ["As a user, I want saved filters so that I can return to focused views."]);
   assert.deepEqual(brief.constraints, ["Must support offline fallback data."]);
   assert.deepEqual(brief.acceptanceCriteria, ["Filters persist after refresh."]);

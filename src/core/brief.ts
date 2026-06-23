@@ -33,6 +33,22 @@ export interface UiStateChecklistItem {
   summary: string;
 }
 
+export type FrontendTargetSource = "api" | "design" | "requirements" | "ui";
+
+export interface FrontendTargetItem {
+  source: FrontendTargetSource;
+  sourceLine?: number;
+  summary: string;
+  evidence: string[];
+}
+
+export interface FrontendTargets {
+  routes: FrontendTargetItem[];
+  components: FrontendTargetItem[];
+  dataNeeds: FrontendTargetItem[];
+  uiStates: FrontendTargetItem[];
+}
+
 export type DeliveryRiskLevel = "low" | "medium" | "high";
 export type DeliveryRiskSource = "requirements" | "ui" | "api" | "repository";
 
@@ -93,6 +109,7 @@ export interface ProjectBrief {
   apiErrorCases: ApiErrorCase[];
   apiAuthRequirements: ApiAuthRequirement[];
   invalidApiDataModels: InvalidApiDataModel[];
+  frontendTargets?: FrontendTargets;
   userStories: string[];
   constraints: string[];
   acceptanceCriteria: string[];
@@ -109,26 +126,30 @@ interface MarkdownCodeBlock {
 export function createProjectBrief(context: ProjectContext, stack: StackProfile): ProjectBrief {
   const acceptanceCriteria = extractChecklistItems(context.requirements);
   const apiDataModelResult = extractApiDataModels(context.api);
+  const sourceDocuments = {
+    requirementsPath: context.requirementsPath,
+    uiPath: context.uiPath,
+    apiPath: context.apiPath
+  };
+  const signals = {
+    requirements: extractMarkdownSignals(context.requirements),
+    ui: extractMarkdownSignals(context.ui),
+    api: extractMarkdownSignals(context.api)
+  };
   const designAssets = extractDesignAssets(context.ui, context.uiPath);
   const uiStateChecklist = extractUiStateChecklist(context.ui);
   const apiContracts = extractApiContracts(context.api);
   const apiErrorCases = extractApiErrorCases(context.api);
   const apiAuthRequirements = extractApiAuthRequirements(context.api);
   const recommendedVerification = buildRecommendedVerification(stack);
+  const userStories = extractRequirementUserStories(context.requirements);
+  const constraints = extractRequirementConstraints(context.requirements);
 
   return {
     version: 1,
-    sourceDocuments: {
-      requirementsPath: context.requirementsPath,
-      uiPath: context.uiPath,
-      apiPath: context.apiPath
-    },
+    sourceDocuments,
     stack,
-    signals: {
-      requirements: extractMarkdownSignals(context.requirements),
-      ui: extractMarkdownSignals(context.ui),
-      api: extractMarkdownSignals(context.api)
-    },
+    signals,
     designAssets,
     uiStateChecklist,
     apiContracts,
@@ -136,8 +157,18 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
     apiErrorCases,
     apiAuthRequirements,
     invalidApiDataModels: apiDataModelResult.invalid,
-    userStories: extractRequirementUserStories(context.requirements),
-    constraints: extractRequirementConstraints(context.requirements),
+    frontendTargets: buildFrontendTargets({
+      signals,
+      designAssets,
+      uiStateChecklist,
+      apiContracts,
+      apiDataModels: apiDataModelResult.models,
+      apiErrorCases,
+      apiAuthRequirements,
+      userStories
+    }),
+    userStories,
+    constraints,
     acceptanceCriteria,
     deliveryRisks: assessDeliveryRisks(context, stack, {
       acceptanceCriteria,
@@ -170,6 +201,112 @@ export function extractRequirementConstraints(requirementsMarkdown: string): str
     /\b(constraints?|technical constraints?|product constraints?|accessibility requirements?|performance|browser requirements?)\b/i,
     12
   );
+}
+
+interface FrontendTargetsInput {
+  signals: ProjectBrief["signals"];
+  designAssets: DesignAsset[];
+  uiStateChecklist: UiStateChecklistItem[];
+  apiContracts: ApiContract[];
+  apiDataModels: ApiDataModel[];
+  apiErrorCases: ApiErrorCase[];
+  apiAuthRequirements: ApiAuthRequirement[];
+  userStories: string[];
+}
+
+function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
+  return {
+    routes: uniqueFrontendTargets([
+      ...input.uiStateChecklist
+        .filter((item) => item.kind === "screen")
+        .map((item) => frontendTarget("ui", item.summary, [`UI screen note at line ${item.sourceLine}`], item.sourceLine)),
+      ...input.signals.ui
+        .filter((signal) => /\b(screen|route|view|page|dashboard|modal|drawer)\b/i.test(signal))
+        .map((signal) => frontendTarget("ui", signal, ["UI signal"])),
+      ...input.userStories
+        .slice(0, 4)
+        .map((story) => frontendTarget("requirements", `Route or view for user story: ${story}`, ["User story"])),
+      ...input.signals.requirements
+        .slice(0, 4)
+        .map((signal) => frontendTarget("requirements", `Route or view for requirement: ${signal}`, ["Requirement signal"]))
+    ], 12),
+    components: uniqueFrontendTargets([
+      ...input.uiStateChecklist
+        .filter((item) => item.kind === "component")
+        .map((item) => frontendTarget("ui", item.summary, [`UI component note at line ${item.sourceLine}`], item.sourceLine)),
+      ...input.designAssets.map((asset) => {
+        const label = asset.altText || asset.reference;
+        const evidence = [
+          `Design asset: ${asset.reference}`,
+          asset.metadata?.textSnippets?.length ? `Text: ${asset.metadata.textSnippets.join("; ")}` : undefined
+        ].filter((item): item is string => Boolean(item));
+
+        return frontendTarget("design", `Component or layout from design asset: ${label}`, evidence);
+      })
+    ], 12),
+    dataNeeds: uniqueFrontendTargets([
+      ...input.apiContracts.map((contract) => frontendTarget(
+        "api",
+        `Integrate ${contract.method} ${contract.path}`,
+        [contract.summary],
+        contract.sourceLine
+      )),
+      ...input.apiDataModels.map((model) => frontendTarget(
+        "api",
+        `Use data model ${model.name}${model.fields.length ? ` with fields ${model.fields.join(", ")}` : ""}`,
+        [model.summary],
+        model.sourceLine
+      )),
+      ...input.apiAuthRequirements.map((auth) => frontendTarget("api", `Handle auth requirement: ${auth.summary}`, ["API auth"], auth.sourceLine))
+    ], 16),
+    uiStates: uniqueFrontendTargets([
+      ...input.uiStateChecklist
+        .filter((item) => item.kind !== "screen" && item.kind !== "component")
+        .map((item) => frontendTarget("ui", item.summary, [`UI ${item.kind} note at line ${item.sourceLine}`], item.sourceLine)),
+      ...input.apiErrorCases.map((errorCase) => frontendTarget(
+        "api",
+        `Represent API failure state: ${errorCase.summary}`,
+        ["API error case"],
+        errorCase.sourceLine
+      ))
+    ], 16)
+  };
+}
+
+function frontendTarget(
+  source: FrontendTargetSource,
+  summary: string,
+  evidence: string[],
+  sourceLine?: number
+): FrontendTargetItem {
+  return {
+    source,
+    sourceLine,
+    summary,
+    evidence
+  };
+}
+
+function uniqueFrontendTargets(items: FrontendTargetItem[], limit: number): FrontendTargetItem[] {
+  const results: FrontendTargetItem[] = [];
+  const seen = new Set<string>();
+
+  for (const item of items) {
+    const key = `${item.source}:${item.summary.toLowerCase()}`;
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    results.push(item);
+
+    if (results.length >= limit) {
+      break;
+    }
+  }
+
+  return results;
 }
 
 export function extractUiStateChecklist(uiMarkdown: string, limit = 24): UiStateChecklistItem[] {

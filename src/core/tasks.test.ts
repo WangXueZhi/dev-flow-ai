@@ -92,6 +92,40 @@ const brief: ProjectBrief = {
     }
   ],
   invalidApiDataModels: [],
+  frontendTargets: {
+    routes: [
+      {
+        source: "ui",
+        sourceLine: 6,
+        summary: "Orders queue page",
+        evidence: ["UI screen note"]
+      }
+    ],
+    components: [
+      {
+        source: "ui",
+        sourceLine: 10,
+        summary: "Orders table component",
+        evidence: ["UI component note"]
+      }
+    ],
+    dataNeeds: [
+      {
+        source: "api",
+        sourceLine: 4,
+        summary: "Integrate GET /orders",
+        evidence: ["GET /orders"]
+      }
+    ],
+    uiStates: [
+      {
+        source: "ui",
+        sourceLine: 12,
+        summary: "Empty state shows a helpful recovery message.",
+        evidence: ["UI state note"]
+      }
+    ]
+  },
   userStories: ["As an operator, I want to filter orders by status so that I can focus the queue."],
   constraints: ["Use existing table components."],
   acceptanceCriteria: ["Orders can be filtered by status."],
@@ -115,6 +149,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   });
 
   assert.equal(taskPlan.version, 1);
+  assert.equal(taskPlan.frontendTargets?.routes[0]?.summary, "Orders queue page");
   assert.ok(taskPlan.implementationUnits.length >= 5);
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-endpoint" && unit.title === "GET /orders"));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-model" && unit.title === "order"));
@@ -136,6 +171,10 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.equal(taskPlan.tasks[4]?.phase, "Delivery");
 
   const markdown = formatTaskPlanMarkdown(taskPlan);
+  assert.match(markdown, /Frontend Targets/);
+  assert.match(markdown, /Orders queue page/);
+  assert.match(markdown, /Orders table component/);
+  assert.match(markdown, /Integrate GET \/orders/);
   assert.match(markdown, /Implementation Units/);
   assert.match(markdown, /GET \/orders/);
   assert.match(markdown, /Fields: id, status/);
