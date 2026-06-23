@@ -177,7 +177,7 @@ The brief includes:
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
-- Normalized frontend targets for routes/views, components, data needs, and UI states, including targets derived from acceptance criteria.
+- Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
 - API endpoint contracts extracted from HTTP method/path references.
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
@@ -405,7 +405,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
 - Aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts, common aliases, or inferred TypeScript, test, and build tooling.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
-- Normalized frontend target extraction for routes/views, components, data needs, UI states, and acceptance criteria.
+- Normalized frontend target extraction for routes/views, explicit route paths, component names, data needs, UI states, and acceptance criteria.
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
 - OpenAI-compatible provider abstraction.
 - Deterministic fallback planner for offline use.

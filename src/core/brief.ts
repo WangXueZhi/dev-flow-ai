@@ -216,9 +216,19 @@ interface FrontendTargetsInput {
   acceptanceCriteria: string[];
 }
 
+interface FrontendTargetTextSource {
+  source: FrontendTargetSource;
+  summary: string;
+  evidence: string[];
+  sourceLine?: number;
+}
+
 function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
+  const textSources = buildFrontendTargetTextSources(input);
+
   return {
     routes: uniqueFrontendTargets([
+      ...extractExplicitRouteTargets(textSources),
       ...input.uiStateChecklist
         .filter((item) => item.kind === "screen")
         .map((item) => frontendTarget("ui", item.summary, [`UI screen note at line ${item.sourceLine}`], item.sourceLine)),
@@ -249,6 +259,7 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
 
         return frontendTarget("design", `Component or layout from design asset: ${label}`, evidence);
       }),
+      ...extractExplicitComponentTargets(textSources),
       ...input.acceptanceCriteria
         .filter(isComponentTargetSignal)
         .slice(0, 4)
@@ -291,6 +302,119 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         .slice(0, 6)
     ], 16)
   };
+}
+
+function buildFrontendTargetTextSources(input: FrontendTargetsInput): FrontendTargetTextSource[] {
+  return [
+    ...input.uiStateChecklist.map((item) => ({
+      source: "ui" as const,
+      summary: item.summary,
+      evidence: [`UI ${item.kind} note at line ${item.sourceLine}`],
+      sourceLine: item.sourceLine
+    })),
+    ...input.signals.ui.map((summary) => ({
+      source: "ui" as const,
+      summary,
+      evidence: ["UI signal"]
+    })),
+    ...input.signals.requirements.map((summary) => ({
+      source: "requirements" as const,
+      summary,
+      evidence: ["Requirement signal"]
+    })),
+    ...input.userStories.map((summary) => ({
+      source: "requirements" as const,
+      summary,
+      evidence: ["User story"]
+    })),
+    ...input.acceptanceCriteria.map((summary) => ({
+      source: "requirements" as const,
+      summary,
+      evidence: ["Acceptance criterion"]
+    }))
+  ];
+}
+
+function extractExplicitRouteTargets(sources: FrontendTargetTextSource[]): FrontendTargetItem[] {
+  return sources.flatMap((source) =>
+    extractRoutePaths(source.summary).map((path) =>
+      frontendTarget(source.source, `Route path ${path}`, [...source.evidence, source.summary], source.sourceLine)
+    )
+  );
+}
+
+function extractExplicitComponentTargets(sources: FrontendTargetTextSource[]): FrontendTargetItem[] {
+  return sources.flatMap((source) =>
+    extractComponentNames(source.summary).map((name) =>
+      frontendTarget(source.source, `Component ${name}`, [...source.evidence, source.summary], source.sourceLine)
+    )
+  );
+}
+
+function extractRoutePaths(summary: string): string[] {
+  const paths: string[] = [];
+  const seen = new Set<string>();
+  const pattern = /(?:^|[\s([`"'“”])((?:\/[A-Za-z0-9._~!$&'()*+,;=:@%\[\]-]+)+\/?)(?=$|[\s)\]`"',.!?;:])/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(summary)) !== null) {
+    const path = normalizeRoutePath(match[1]);
+
+    if (!path || seen.has(path)) {
+      continue;
+    }
+
+    seen.add(path);
+    paths.push(path);
+  }
+
+  return paths;
+}
+
+function normalizeRoutePath(path: string | undefined): string | undefined {
+  if (!path || path === "/" || /^\/api(?:\/|$)/i.test(path)) {
+    return undefined;
+  }
+
+  if (/\.(?:avif|css|gif|jpe?g|js|json|md|png|svg|tsx?|jsx?|webp)$/i.test(path)) {
+    return undefined;
+  }
+
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+}
+
+function extractComponentNames(summary: string): string[] {
+  const names: string[] = [];
+  const seen = new Set<string>();
+  const patterns = [
+    /<([A-Z][A-Za-z0-9]*(?:\.[A-Z][A-Za-z0-9]*)?)\b/g,
+    /\b(?:component|components|card|panel|table|form|modal|drawer|banner|toast|sidebar|navigation|widget)\s+[`"']?([A-Z][A-Za-z0-9]{2,})[`"']?/gi,
+    /[`"']?([A-Z][A-Za-z0-9]{2,})[`"']?\s+(?:component|card|panel|table|form|modal|drawer|banner|toast|sidebar|widget)\b/g
+  ];
+
+  for (const pattern of patterns) {
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(summary)) !== null) {
+      const name = normalizeComponentName(match[1]);
+
+      if (!name || seen.has(name)) {
+        continue;
+      }
+
+      seen.add(name);
+      names.push(name);
+    }
+  }
+
+  return names;
+}
+
+function normalizeComponentName(name: string | undefined): string | undefined {
+  if (!name || ["API", "HTML", "HTTP", "JSON", "URL"].includes(name)) {
+    return undefined;
+  }
+
+  return name;
 }
 
 function isRouteTargetSignal(summary: string): boolean {

@@ -15,6 +15,7 @@
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
 - Normalized frontend targets for routes/views, components, data needs, and UI states.
+- Explicit frontend route path and component name extraction from requirements, UI notes, user stories, and acceptance criteria.
 - Acceptance-criterion-derived frontend targets.
 - Risk scoring for ambiguous requirements.
 - Expanded stack detection from package manager metadata, nested source directories, and common frontend framework/tool config files.
@@ -51,7 +52,7 @@
 ## Milestone 1: Better Planning
 
 - Further stack-specific routing, data-fetching, testing, and styling conventions for React, Vue, Next.js, Vite, Nuxt, Svelte, Angular, and Astro projects.
-- Richer route/component/data/state target extraction beyond the initial normalized frontend targets.
+- Further route/component/data/state target extraction beyond the initial normalized frontend targets.
 - Richer API contract extraction for deeper schema semantics beyond endpoint, JSON model, OpenAPI JSON/YAML, error, and auth summaries.
 - Prompt fixtures and golden output tests.
 

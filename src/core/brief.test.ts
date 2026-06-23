@@ -118,6 +118,42 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
 });
 
+test("createProjectBrief derives explicit route paths and component names", () => {
+  const brief = createProjectBrief(
+    {
+      requirementsPath: "docs/requirements.md",
+      requirements: [
+        "# Requirements",
+        "",
+        "- [ ] Route `/settings/profile` renders profile settings.",
+        "- [ ] Do not create a frontend page for `/api/profile`.",
+        "- [ ] The <RetryBanner> component appears when profile loading fails."
+      ].join("\n"),
+      uiPath: "docs/ui.md",
+      ui: [
+        "# UI Notes",
+        "",
+        "## Screens",
+        "- Profile settings page at `/settings/profile`.",
+        "",
+        "## Components",
+        "- Component `ProfileSettingsPanel` owns save controls."
+      ].join("\n"),
+      apiPath: "docs/api.md",
+      api: "# API Docs\n\n- `GET /api/profile`"
+    },
+    stack
+  );
+
+  const routes = brief.frontendTargets?.routes.map((target) => target.summary) ?? [];
+  const components = brief.frontendTargets?.components.map((target) => target.summary) ?? [];
+
+  assert.ok(routes.includes("Route path /settings/profile"));
+  assert.ok(!routes.includes("Route path /api/profile"));
+  assert.ok(components.includes("Component RetryBanner"));
+  assert.ok(components.includes("Component ProfileSettingsPanel"));
+});
+
 test("createProjectBrief recommends multiple package verification scripts", () => {
   const brief = createProjectBrief(context, {
     ...stack,
