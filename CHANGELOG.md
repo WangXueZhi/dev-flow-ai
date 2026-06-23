@@ -13,6 +13,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added manifest-backed GitHub Actions job summaries for delivery readiness, verification, visual status, source changes, artifact paths, risks, and open questions.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
+- Added manifest-backed `dev-flow status` assertions to the example delivery smoke flow.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
 - Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
 - Added `dev-flow status` and `dev-flow status --json` for local delivery manifest summaries.

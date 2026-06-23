@@ -90,6 +90,8 @@ run(
   smokeExampleDir
 );
 
+await assertDeliveryStatus(smokeExampleDir);
+
 const appSource = await readFile(join(smokeExampleDir, "src", "App.jsx"), "utf8");
 if (!appSource.includes("AI applied")) {
   throw new Error("Example smoke did not apply the fixture-backed AI patch set.");
@@ -104,7 +106,7 @@ console.log(
   [
     "Example delivery smoke passed.",
     `Workspace: ${smokeExampleDir}`,
-    "Verified: build, non-destructive delivery, implementation blueprint, patch-set validation, fixture-backed apply, reviewed patch-set delivery, delivery report."
+    "Verified: build, non-destructive delivery, implementation blueprint, patch-set validation, fixture-backed apply, reviewed patch-set delivery, delivery report, status summary."
   ].join("\n")
 );
 
@@ -133,6 +135,44 @@ async function assertImplementationPlanBlueprint(workspaceDir) {
     if (!plan.includes(heading)) {
       throw new Error(`Example smoke implementation plan is missing heading: ${heading}`);
     }
+  }
+}
+
+async function assertDeliveryStatus(workspaceDir) {
+  const summary = run(process.execPath, [cliPath, "status"], workspaceDir).stdout;
+  const expectedSummary = [
+    "DevFlow delivery status",
+    "Readiness: ready for review",
+    "Verification: passed",
+    "Visual: not-run",
+    "Source changes: applied",
+    "Delivery report: .devflow/artifacts/delivery-report.md (present)",
+    "Delivery manifest: .devflow/artifacts/delivery-manifest.json (present)"
+  ];
+
+  for (const text of expectedSummary) {
+    if (!summary.includes(text)) {
+      throw new Error(`Example smoke status summary is missing: ${text}`);
+    }
+  }
+
+  const json = run(process.execPath, [cliPath, "status", "--json"], workspaceDir).stdout;
+  const manifest = JSON.parse(json);
+
+  if (manifest.status.readiness !== "ready for review") {
+    throw new Error(`Expected status readiness to be ready for review, got ${manifest.status.readiness}.`);
+  }
+
+  if (manifest.status.verification !== "passed") {
+    throw new Error(`Expected status verification to pass, got ${manifest.status.verification}.`);
+  }
+
+  if (manifest.status.sourceChanges !== "applied") {
+    throw new Error(`Expected status source changes to be applied, got ${manifest.status.sourceChanges}.`);
+  }
+
+  if (!manifest.artifacts?.some((artifact) => artifact.id === "delivery-manifest" && artifact.status === "present")) {
+    throw new Error("Example smoke status JSON is missing the present delivery-manifest artifact.");
   }
 }
 
