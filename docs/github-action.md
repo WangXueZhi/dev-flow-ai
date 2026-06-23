@@ -4,7 +4,7 @@ DevFlow includes a composite GitHub Action for running the safe delivery workflo
 
 The action defaults to non-destructive delivery. It runs `dev-flow deliver`, writes DevFlow artifacts, and only performs source-changing execution when both `apply: "true"` and `confirm-apply: "true"` are provided.
 
-By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts, key artifact paths, bounded verification failure excerpts, top risks, and open questions.
+By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts, key artifact paths, source-context sampling evidence, bounded verification failure excerpts, top risks, and open questions.
 
 ## Basic Workflow
 
@@ -72,7 +72,7 @@ Tools that inspect the uploaded manifest can validate it with `schemas/delivery-
 
 ## Job Summary
 
-The action writes a compact delivery summary to `$GITHUB_STEP_SUMMARY` by default:
+The action writes a compact delivery summary to `$GITHUB_STEP_SUMMARY` by default. When source-context sampling ran, the summary includes only path-level evidence such as run count, latest task or unit, sampled paths, and omitted candidate count:
 
 ```yaml
 - uses: WangXueZhi/dev-flow-ai@main

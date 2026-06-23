@@ -210,6 +210,8 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
+The status output includes source-context sampling evidence from the delivery manifest when available, using only path-level metadata so CI logs do not expose sampled source snippets.
+
 Use `--fail-on-attention` as a CI gate when delivery readiness must be `ready for review`. Use `--fail-on-failed-verification` when the job should fail only if the manifest records failed verification.
 
 ## 9. Add DevFlow To CI

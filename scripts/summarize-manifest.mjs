@@ -11,6 +11,9 @@ export function formatDevFlowSummary(manifest) {
   const verificationCommands = Array.isArray(manifest.evidence?.verificationCommands)
     ? manifest.evidence.verificationCommands
     : [];
+  const sourceContextEntries = Array.isArray(manifest.evidence?.sourceContext)
+    ? manifest.evidence.sourceContext
+    : [];
   const risks = Array.isArray(manifest.evidence?.deliveryRisks) ? manifest.evidence.deliveryRisks : [];
   const openQuestions = Array.isArray(manifest.evidence?.openQuestions) ? manifest.evidence.openQuestions : [];
   const artifact = (id) => artifacts.find((item) => item.id === id);
@@ -34,9 +37,12 @@ export function formatDevFlowSummary(manifest) {
     artifactLine("delivery-report"),
     artifactLine("delivery-manifest"),
     artifactLine("verification-report"),
-    artifactLine("visual-report")
+    artifactLine("visual-report"),
+    artifactLine("source-context-summary")
   ].filter(Boolean);
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
+
+  lines.push(...formatSourceContextSampling(sourceContextEntries));
 
   if (verificationFailures.length > 0) {
     lines.push("", "Verification failures:");
@@ -70,6 +76,37 @@ export function formatDevFlowSummary(manifest) {
   }
 
   return lines.join("\n");
+}
+
+function formatSourceContextSampling(entries) {
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const latest = entries.at(-1);
+  const unit = latest.unit ? `, unit \`${latest.unit.id}\` [${latest.unit.kind}] ${latest.unit.title}` : "";
+  const sampled = Array.isArray(latest.entries) ? latest.entries.slice(0, 3) : [];
+  const omitted = Array.isArray(latest.omitted) ? latest.omitted.length : 0;
+  const lines = [
+    "",
+    "Source context sampling:",
+    `- Runs recorded: ${entries.length}`,
+    `- Latest run: \`${latest.mode}\` \`${latest.taskId}\`${unit} at ${latest.generatedAt}`,
+    `- Sampled entries: ${Array.isArray(latest.entries) ? latest.entries.length : 0}`,
+    `- Omitted candidates: ${omitted}`
+  ];
+
+  for (const entry of sampled) {
+    const truncated = entry.truncated ? ", truncated" : "";
+    lines.push(`- \`${entry.path}\` (${entry.kind}${truncated})`);
+  }
+
+  if (Array.isArray(latest.entries) && latest.entries.length > sampled.length) {
+    const hidden = latest.entries.length - sampled.length;
+    lines.push(`- ${hidden} more entr${hidden === 1 ? "y" : "ies"} not shown`);
+  }
+
+  return lines;
 }
 
 function formatOneLineExcerpt(value) {

@@ -58,6 +58,15 @@ const manifest: DeliveryManifest = {
       status: "not-applicable",
       required: false,
       role: "Visual checks."
+    },
+    {
+      id: "source-context-summary",
+      label: "Source context summary",
+      kind: "json",
+      path: ".devflow/artifacts/source-context-summary.json",
+      status: "present",
+      required: false,
+      role: "Path-level source context sampling summary."
     }
   ],
   counts: {
@@ -90,6 +99,29 @@ const manifest: DeliveryManifest = {
       lineDelta: 10,
       backupManifestPaths: [".devflow/artifacts/backups/backup/manifest.json"]
     },
+    sourceContext: [
+      {
+        generatedAt: "2026-01-01T00:00:00.250Z",
+        mode: "dry-run",
+        taskId: "T03-code-implementation",
+        unit: {
+          id: "U07",
+          kind: "frontend-route",
+          title: "Route path /dashboard"
+        },
+        entries: [
+          { kind: "file", path: "src/App.jsx", sizeBytes: 2048, truncated: false },
+          { kind: "missing", path: "src/pages/Dashboard.jsx" }
+        ],
+        omitted: ["src/legacy.jsx (entry limit reached)"],
+        limits: {
+          maxEntries: 14,
+          maxFileBytes: 12_000,
+          maxTotalBytes: 48_000,
+          maxDirectoryEntries: 30
+        }
+      }
+    ],
     deliveryRisks: [
       {
         level: "high",
@@ -113,6 +145,12 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Visual: not-run/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
+  assert.match(output, /Source context summary: \.devflow\/artifacts\/source-context-summary\.json \(present\)/);
+  assert.match(output, /Source context sampling/);
+  assert.match(output, /Runs recorded: 1/);
+  assert.match(output, /Latest run: dry-run T03-code-implementation, unit U07 \[frontend-route\] Route path \/dashboard/);
+  assert.match(output, /Sampled: src\/App\.jsx \(file\)/);
+  assert.match(output, /Omitted candidates: 1/);
   assert.match(output, /\[high\] requirements:12: Acceptance criterion needs review/);
   assert.match(output, /Confirm empty state copy/);
 });

@@ -69,6 +69,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),
+    ...formatSourceContextSampling(manifest),
     ...formatVerificationFailures(manifest),
     ...formatTopRisks(manifest),
     ...formatOpenQuestions(manifest)
@@ -78,7 +79,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
 }
 
 function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
-  const ids = ["delivery-report", "delivery-manifest", "verification-report", "visual-report"];
+  const ids = ["delivery-report", "delivery-manifest", "verification-report", "visual-report", "source-context-summary"];
   const artifacts = ids
     .map((id) => manifest.artifacts.find((artifact) => artifact.id === id))
     .filter((artifact): artifact is DeliveryManifest["artifacts"][number] => Boolean(artifact));
@@ -88,6 +89,37 @@ function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
   }
 
   return artifacts.map((artifact) => `- ${artifact.label}: ${artifact.path} (${artifact.status})`);
+}
+
+function formatSourceContextSampling(manifest: DeliveryManifest): string[] {
+  const entries = manifest.evidence.sourceContext ?? [];
+
+  if (entries.length === 0) {
+    return [];
+  }
+
+  const latest = entries[entries.length - 1]!;
+  const unit = latest.unit ? `, unit ${latest.unit.id} [${latest.unit.kind}] ${latest.unit.title}` : "";
+  const sampled = latest.entries.slice(0, 3);
+  const sampledLines = sampled.map((entry) => {
+    const truncated = entry.truncated ? ", truncated" : "";
+
+    return `- Sampled: ${entry.path} (${entry.kind}${truncated})`;
+  });
+
+  if (latest.entries.length > sampled.length) {
+    sampledLines.push(`- Sampled: ${latest.entries.length - sampled.length} more entr${latest.entries.length - sampled.length === 1 ? "y" : "ies"} not shown`);
+  }
+
+  return [
+    "",
+    "Source context sampling:",
+    `- Runs recorded: ${entries.length}`,
+    `- Latest run: ${latest.mode} ${latest.taskId}${unit} at ${latest.generatedAt}`,
+    `- Sampled entries: ${latest.entries.length}`,
+    `- Omitted candidates: ${latest.omitted.length}`,
+    ...sampledLines
+  ];
 }
 
 function formatVerificationFailures(manifest: DeliveryManifest): string[] {

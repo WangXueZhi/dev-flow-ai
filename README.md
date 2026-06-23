@@ -332,7 +332,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, artifact, verification-failure, risk, and open-question status without opening the Markdown report.
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, source-context sampling, artifact, verification-failure, risk, and open-question status without opening the Markdown report.
 
 Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code while still printing the status summary or JSON manifest.
 

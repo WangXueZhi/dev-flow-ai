@@ -47,6 +47,12 @@ const manifest = {
       label: "Visual report",
       path: ".devflow/artifacts/visual/visual-report.json",
       status: "not-applicable"
+    },
+    {
+      id: "source-context-summary",
+      label: "Source context summary",
+      path: ".devflow/artifacts/source-context-summary.json",
+      status: "present"
     }
   ],
   evidence: {
@@ -69,6 +75,29 @@ const manifest = {
         summary: "Acceptance criterion needs review."
       }
     ],
+    sourceContext: [
+      {
+        generatedAt: "2026-01-01T00:00:00.250Z",
+        mode: "dry-run",
+        taskId: "T03-code-implementation",
+        unit: {
+          id: "U07",
+          kind: "frontend-route",
+          title: "Route path /dashboard"
+        },
+        entries: [
+          { kind: "file", path: "src/App.jsx", sizeBytes: 2048, truncated: false },
+          { kind: "missing", path: "src/pages/Dashboard.jsx" }
+        ],
+        omitted: ["src/legacy.jsx (entry limit reached)"],
+        limits: {
+          maxEntries: 14,
+          maxFileBytes: 12000,
+          maxTotalBytes: 48000,
+          maxDirectoryEntries: 30
+        }
+      }
+    ],
     openQuestions: ["Confirm empty state copy."]
   }
 };
@@ -81,6 +110,12 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Verification: \*\*passed\*\*/);
   assert.match(summary, /Delivery risks: 2 \(1 high\)/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
+  assert.match(summary, /Source context summary: `\.devflow\/artifacts\/source-context-summary\.json` \(present\)/);
+  assert.match(summary, /Source context sampling/);
+  assert.match(summary, /Runs recorded: 1/);
+  assert.match(summary, /Latest run: `dry-run` `T03-code-implementation`, unit `U07` \[frontend-route\] Route path \/dashboard/);
+  assert.match(summary, /`src\/App\.jsx` \(file\)/);
+  assert.match(summary, /Omitted candidates: 1/);
   assert.match(summary, /Verification failures/);
   assert.match(summary, /`npm run check`: exit 1/);
   assert.match(summary, /Build failed Missing export/);
