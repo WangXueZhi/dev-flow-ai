@@ -165,7 +165,8 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
       apiDataModels: apiDataModelResult.models,
       apiErrorCases,
       apiAuthRequirements,
-      userStories
+      userStories,
+      acceptanceCriteria
     }),
     userStories,
     constraints,
@@ -212,6 +213,7 @@ interface FrontendTargetsInput {
   apiErrorCases: ApiErrorCase[];
   apiAuthRequirements: ApiAuthRequirement[];
   userStories: string[];
+  acceptanceCriteria: string[];
 }
 
 function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
@@ -221,11 +223,15 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         .filter((item) => item.kind === "screen")
         .map((item) => frontendTarget("ui", item.summary, [`UI screen note at line ${item.sourceLine}`], item.sourceLine)),
       ...input.signals.ui
-        .filter((signal) => /\b(screen|route|view|page|dashboard|modal|drawer)\b/i.test(signal))
+        .filter(isRouteTargetSignal)
         .map((signal) => frontendTarget("ui", signal, ["UI signal"])),
       ...input.userStories
         .slice(0, 4)
         .map((story) => frontendTarget("requirements", `Route or view for user story: ${story}`, ["User story"])),
+      ...input.acceptanceCriteria
+        .filter(isRouteTargetSignal)
+        .slice(0, 4)
+        .map((criterion) => frontendTarget("requirements", `Route or view for acceptance criterion: ${criterion}`, ["Acceptance criterion"])),
       ...input.signals.requirements
         .slice(0, 4)
         .map((signal) => frontendTarget("requirements", `Route or view for requirement: ${signal}`, ["Requirement signal"]))
@@ -242,7 +248,11 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         ].filter((item): item is string => Boolean(item));
 
         return frontendTarget("design", `Component or layout from design asset: ${label}`, evidence);
-      })
+      }),
+      ...input.acceptanceCriteria
+        .filter(isComponentTargetSignal)
+        .slice(0, 4)
+        .map((criterion) => frontendTarget("requirements", `Component for acceptance criterion: ${criterion}`, ["Acceptance criterion"]))
     ], 12),
     dataNeeds: uniqueFrontendTargets([
       ...input.apiContracts.map((contract) => frontendTarget(
@@ -268,9 +278,30 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         `Represent API failure state: ${errorCase.summary}`,
         ["API error case"],
         errorCase.sourceLine
-      ))
+      )),
+      ...input.acceptanceCriteria
+        .map((criterion) => {
+          const kind = classifyUiChecklistKeyword(criterion);
+
+          return kind
+            ? frontendTarget("requirements", `UI ${kind} for acceptance criterion: ${criterion}`, ["Acceptance criterion"])
+            : undefined;
+        })
+        .filter((target): target is FrontendTargetItem => Boolean(target))
+        .slice(0, 6)
     ], 16)
   };
+}
+
+function isRouteTargetSignal(summary: string): boolean {
+  return /\b(screen|route|view|page|dashboard|modal|drawer)\b/i.test(summary);
+}
+
+function isComponentTargetSignal(summary: string): boolean {
+  const componentPattern =
+    /\b(component|card|panel|table|list|form|button|input|field|chart|graph|nav|navigation|menu|sidebar|header|footer|banner|toast|pill|badge)\b/i;
+
+  return componentPattern.test(summary);
 }
 
 function frontendTarget(

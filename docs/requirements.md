@@ -35,7 +35,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Implementation plans include a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections.
 - [ ] Provider-generated implementation plans do not write patch-set JSON into `.devflow/artifacts/implementation-plan.md`; invalid plan-slot patch-set responses fall back to the local planner.
 - [ ] `dev-flow tasks` writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`.
-- [ ] Task plans include normalized frontend targets and implementation units derived from user stories, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
+- [ ] Task plans include normalized frontend targets and implementation units derived from user stories, acceptance criteria, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
 - [ ] Dry-run patch proposals include a stack-specific target profile with normalized frontend targets and candidate component, data, style, test, config, and verification targets.
 - [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates.

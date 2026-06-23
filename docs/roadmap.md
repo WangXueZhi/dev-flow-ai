@@ -15,6 +15,7 @@
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
 - Normalized frontend targets for routes/views, components, data needs, and UI states.
+- Acceptance-criterion-derived frontend targets.
 - Risk scoring for ambiguous requirements.
 - Task plan generation.
 - Dry-run patch proposal generation.

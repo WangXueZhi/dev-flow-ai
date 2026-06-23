@@ -22,6 +22,7 @@ const context: ProjectContext = {
     "# Requirements",
     "",
     "- As a user, I want saved filters so that I can return to focused views.",
+    "- [ ] Saved filters dashboard is visible.",
     "- [ ] Filters persist after refresh.",
     "",
     "## Constraints",
@@ -102,14 +103,16 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.apiAuthRequirements, []);
   assert.deepEqual(brief.invalidApiDataModels, []);
   assert.match(brief.frontendTargets?.routes.map((target) => target.summary).join("\n") ?? "", /Route or view for user story/);
+  assert.match(brief.frontendTargets?.routes.map((target) => target.summary).join("\n") ?? "", /Route or view for acceptance criterion: Saved filters dashboard is visible/);
   assert.match(brief.frontendTargets?.components.map((target) => target.summary).join("\n") ?? "", /Filter table wireframe/);
   assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GET \/filters/);
   assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Use data model filter with fields id, label/);
   assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /Desktop and mobile responsive table/);
   assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /Represent API failure state/);
+  assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /UI interaction for acceptance criterion: Filters persist after refresh/);
   assert.deepEqual(brief.userStories, ["As a user, I want saved filters so that I can return to focused views."]);
   assert.deepEqual(brief.constraints, ["Must support offline fallback data."]);
-  assert.deepEqual(brief.acceptanceCriteria, ["Filters persist after refresh."]);
+  assert.deepEqual(brief.acceptanceCriteria, ["Saved filters dashboard is visible.", "Filters persist after refresh."]);
   assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /Referenced UI design asset was not found/);
   assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /authentication or authorization/);
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
