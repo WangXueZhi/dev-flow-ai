@@ -20,6 +20,14 @@ export interface DeliveryReportInput {
   visualReport: VisualReport | undefined;
 }
 
+interface AcceptanceCriterionAssessment {
+  status: "ready for review" | "needs evidence" | "needs attention";
+  evidence: string[];
+  knownGaps: string[];
+  assumptions: string[];
+  manualQa: string[];
+}
+
 export function formatDeliveryReport(input: DeliveryReportInput): string {
   const verification = input.verification;
   const brief = input.brief;
@@ -138,20 +146,121 @@ function formatAcceptanceEvidence(input: DeliveryReportInput): string {
   const evidence = collectDeliveryEvidence(input);
 
   return brief.acceptanceCriteria.map((criterion, index) => {
-    const lines = [`- AC${index + 1}: ${criterion}`];
+    const assessment = assessAcceptanceCriterion(input, criterion, evidence);
+    const lines = [`- AC${index + 1}: ${criterion}`, `  - Status: ${assessment.status}`];
 
-    if (evidence.length === 0) {
-      lines.push("  - Evidence: Needs manual review; no verification, visual, or applied-change evidence was found.");
-    } else {
-      lines.push(...evidence.map((item) => `  - Evidence: ${item}`));
-    }
-
-    if (brief.openQuestions.length > 0) {
-      lines.push("  - Review: Resolve open questions before marking this criterion complete.");
-    }
+    lines.push(...formatAssessmentLines("Evidence", assessment.evidence));
+    lines.push(...formatAssessmentLines("Known gap", assessment.knownGaps));
+    lines.push(...formatAssessmentLines("Assumption", assessment.assumptions));
+    lines.push(...formatAssessmentLines("Manual QA", assessment.manualQa));
 
     return lines.join("\n");
   }).join("\n");
+}
+
+function assessAcceptanceCriterion(
+  input: DeliveryReportInput,
+  criterion: string,
+  evidence: string[]
+): AcceptanceCriterionAssessment {
+  const knownGaps: string[] = [];
+  const assumptions: string[] = [];
+  const manualQa = manualQaForCriterion(criterion);
+
+  if (!input.executionLog?.entries.length) {
+    knownGaps.push("No source-changing execution log is available for this delivery.");
+  }
+
+  if (!input.verification) {
+    knownGaps.push("Verification has not been run.");
+  } else if (input.verification.status !== "passed") {
+    knownGaps.push(`Verification status is ${input.verification.status}.`);
+  }
+
+  if (!input.visualReport) {
+    knownGaps.push("Visual verification has not been run for a preview URL.");
+  } else {
+    if (input.visualReport.status !== "passed") {
+      knownGaps.push(`Visual verification status is ${input.visualReport.status}.`);
+    }
+
+    const missingText = input.visualReport.requiredText.filter((check) => !check.found).map((check) => `"${check.text}"`);
+    if (missingText.length > 0) {
+      knownGaps.push(`Visual required text missing: ${missingText.join(", ")}.`);
+    }
+
+    if (input.visualReport.requiredText.length === 0) {
+      assumptions.push("Screenshots were captured without required text checks tied to this criterion.");
+    }
+  }
+
+  if (input.brief?.openQuestions.length) {
+    knownGaps.push(`${input.brief.openQuestions.length} open question(s) remain.`);
+  }
+
+  if (evidence.length === 0) {
+    knownGaps.push("No verification, visual, or applied-change evidence was found.");
+  } else {
+    assumptions.push("Delivery-level evidence applies to this criterion; reviewers should confirm the specific behavior is covered.");
+  }
+
+  return {
+    status: acceptanceStatus(knownGaps, evidence),
+    evidence,
+    knownGaps,
+    assumptions,
+    manualQa
+  };
+}
+
+function acceptanceStatus(knownGaps: string[], evidence: string[]): AcceptanceCriterionAssessment["status"] {
+  const hasFailedEvidence = knownGaps.some(
+    (gap) =>
+      gap.startsWith("Verification status is") ||
+      gap.startsWith("Visual verification status is") ||
+      gap.startsWith("Visual required text missing") ||
+      gap.includes("open question")
+  );
+
+  if (hasFailedEvidence) {
+    return "needs attention";
+  }
+
+  return evidence.length && knownGaps.length === 0 ? "ready for review" : "needs evidence";
+}
+
+function formatAssessmentLines(label: string, items: string[]): string[] {
+  return items.length ? items.map((item) => `  - ${label}: ${item}`) : [];
+}
+
+function manualQaForCriterion(criterion: string): string[] {
+  const normalized = criterion.toLowerCase();
+  const quotedCriterion = `"${truncateInline(criterion, 96)}"`;
+  const lines: string[] = [];
+
+  if (isVerificationCriterion(criterion, normalized)) {
+    lines.push(`Review verification output for ${quotedCriterion} and rerun the matching command before handoff.`);
+  } else {
+    lines.push(`Exercise the user path for ${quotedCriterion} in the implemented UI.`);
+  }
+
+  if (/\b(responsive|desktop|tablet|mobile|width|viewport|overlap|layout|text)\b/.test(normalized)) {
+    lines.push("Confirm the relevant responsive viewport, layout, and text-fit behavior.");
+  } else if (/\b(loading|empty|error|success|state|states)\b/.test(normalized)) {
+    lines.push("Confirm loading, empty, error, and success states where they apply.");
+  } else {
+    lines.push("Capture reviewer notes or screenshots for behavior not covered by automated checks.");
+  }
+
+  return lines;
+}
+
+function isVerificationCriterion(criterion: string, normalized: string): boolean {
+  return (
+    /`[^`]*(?:npm|pnpm|yarn|bun|node|vite|vitest|jest|playwright|tsc|eslint)[^`]*`/.test(criterion) ||
+    /\b(?:npm run|pnpm|yarn|bun)\b/.test(normalized) ||
+    /\b(?:lint|typecheck|verification|verify|test command|build command|production build|app builds|project builds|build succeeds)\b/.test(normalized)
+  );
 }
 
 function collectDeliveryEvidence(input: DeliveryReportInput): string[] {
@@ -405,6 +514,10 @@ function formatTouchedFiles(paths: string[]): string {
   const omitted = paths.length - 8;
 
   return omitted > 0 ? `${shown}, and ${omitted} more` : shown;
+}
+
+function truncateInline(value: string, maxLength: number): string {
+  return value.length > maxLength ? `${value.slice(0, maxLength - 3)}...` : value;
 }
 
 function formatLineStats(operation: AppliedPatchOperation): string | undefined {

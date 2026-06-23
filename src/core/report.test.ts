@@ -186,7 +186,10 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Evidence: Source-changing execution recorded 1 entry touching `src\/App\.tsx`, `src\/ObsoletePanel\.tsx`/);
   assert.match(report, /Evidence: Verification passed: `npm run check` exit 0/);
   assert.match(report, /Evidence: Visual verification passed: 1 screenshot\(s\), 1\/1 required text checks found/);
-  assert.match(report, /Review: Resolve open questions before marking this criterion complete/);
+  assert.match(report, /Status: needs attention/);
+  assert.match(report, /Known gap: 1 open question\(s\) remain/);
+  assert.match(report, /Assumption: Delivery-level evidence applies to this criterion/);
+  assert.match(report, /Manual QA: Exercise the user path for "Dashboard renders release health\." in the implemented UI/);
   assert.match(report, /Design Assets/);
   assert.match(report, /assets\/dashboard\.svg/);
   assert.match(report, /Dimensions: 960x640/);
@@ -218,4 +221,42 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Evidence: 2 acceptance criteria recorded/);
   assert.match(report, /Attention: 1 open question\(s\) remain/);
   assert.match(report, /Confirm empty state copy/);
+});
+
+test("formatDeliveryReport surfaces acceptance evidence gaps when delivery artifacts are missing", () => {
+  const report = formatDeliveryReport({
+    brief: {
+      ...brief,
+      acceptanceCriteria: [
+        "Checkout handles API errors.",
+        "The deployment table includes service, owner, environment, status, build, and next action.",
+        "The app builds with `npm run build`."
+      ],
+      openQuestions: []
+    },
+    implementationPlanPath: ".devflow/artifacts/implementation-plan.md",
+    projectBriefPath: ".devflow/artifacts/project-brief.json",
+    taskPlanPath: ".devflow/artifacts/tasks.json",
+    taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
+    patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    executionLogPath: ".devflow/artifacts/execution-log.json",
+    executionLog: undefined,
+    rollbackReportPath: ".devflow/artifacts/rollback-report.json",
+    verificationReportPath: ".devflow/artifacts/verification-report.json",
+    verification: undefined,
+    visualReportPath: ".devflow/artifacts/visual/visual-report.json",
+    visualReport: undefined
+  });
+
+  assert.match(report, /AC1: Checkout handles API errors/);
+  assert.match(report, /Status: needs evidence/);
+  assert.match(report, /Known gap: No source-changing execution log is available for this delivery/);
+  assert.match(report, /Known gap: Verification has not been run/);
+  assert.match(report, /Known gap: Visual verification has not been run for a preview URL/);
+  assert.match(report, /Known gap: No verification, visual, or applied-change evidence was found/);
+  assert.match(report, /Manual QA: Exercise the user path for "Checkout handles API errors\." in the implemented UI/);
+  assert.match(report, /AC2: The deployment table includes service, owner, environment, status, build, and next action/);
+  assert.match(report, /Manual QA: Exercise the user path for "The deployment table includes service, owner, environment, status, build, and next action\." in the implemented UI/);
+  assert.match(report, /AC3: The app builds with `npm run build`/);
+  assert.match(report, /Manual QA: Review verification output for "The app builds with `npm run build`\." and rerun the matching command before handoff/);
 });

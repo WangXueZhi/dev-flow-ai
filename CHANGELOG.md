@@ -23,6 +23,7 @@ All notable changes to DevFlow will be documented in this file.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
+- Added acceptance-criterion status, known gaps, assumptions, and manual QA prompts to generated delivery reports.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
