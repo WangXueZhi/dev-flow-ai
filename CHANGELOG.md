@@ -21,6 +21,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the GitHub Action to validate provided patch sets before delivery.
 - Added `npm run release:preflight` for consolidated release checks and residue scanning.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
+- Added inferred `deliver` visual text checks from design asset snippets and UI state labels.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added UI checklist and delivery risk sections to dry-run patch proposals.
 - Added delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.

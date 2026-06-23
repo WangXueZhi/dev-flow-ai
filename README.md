@@ -251,7 +251,7 @@ Runs the safe delivery flow:
 dev-flow deliver --requirements docs/requirements.md --ui docs/ui.md --api docs/api.md
 ```
 
-With a running preview server, include visual checks:
+With a running preview server, include visual checks. When `--visual-text` is omitted, `deliver` infers short required text checks from design asset text snippets and UI state labels in the project brief:
 
 ```bash
 dev-flow deliver --preview-url http://127.0.0.1:5173 --visual-text OpsBoard,Checkout
@@ -307,6 +307,8 @@ Captures screenshots, blank-screen checks, layout-overflow checks, and optional 
 ```bash
 dev-flow visual --url http://127.0.0.1:5173 --text OpsBoard,Checkout
 ```
+
+`dev-flow visual` only uses explicit `--text` values. `dev-flow deliver --preview-url <url>` can infer default text checks from the project brief when no explicit `--visual-text` or `--text` value is provided.
 
 By default, DevFlow captures desktop and tablet screenshots in `.devflow/artifacts/visual/` and writes `.devflow/artifacts/visual/visual-report.json` with pixel-level blank-screen analysis and basic layout issue detection.
 
@@ -383,7 +385,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
-- Visual report with screenshots, blank-screen checks, layout-overflow checks, and optional text checks for preview URLs.
+- Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
 - Delivery report generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI.

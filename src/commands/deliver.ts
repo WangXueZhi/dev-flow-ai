@@ -1,5 +1,10 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import type { FlagMap } from "../core/args.js";
+import type { ProjectBrief } from "../core/brief.js";
+import { loadConfig } from "../core/config.js";
 import { createDeliveryExecutionPlan } from "../core/delivery.js";
+import { inferRequiredTextFromBrief } from "../core/visual.js";
 import { runExecute } from "./execute.js";
 import { runPlan } from "./plan.js";
 import { runReport } from "./report.js";
@@ -35,9 +40,10 @@ export async function runDeliver(flags: FlagMap): Promise<void> {
   });
 
   if (flags["preview-url"]) {
+    const visualText = flags["visual-text"] ?? flags.text ?? await inferVisualTextFromProjectBrief();
     await runVisual({
       url: flags["preview-url"],
-      text: flags["visual-text"] ?? flags.text,
+      text: visualText,
       viewport: flags.viewport
     });
   }
@@ -47,4 +53,22 @@ export async function runDeliver(flags: FlagMap): Promise<void> {
   });
 
   console.log("DevFlow delivery complete.");
+}
+
+async function inferVisualTextFromProjectBrief(): Promise<string | undefined> {
+  try {
+    const config = await loadConfig();
+    const projectBriefPath = join(config.artifactsDir, "project-brief.json");
+    const brief = JSON.parse(await readFile(projectBriefPath, "utf8")) as ProjectBrief;
+    const requiredText = inferRequiredTextFromBrief(brief);
+
+    if (requiredText.length === 0) {
+      return undefined;
+    }
+
+    console.log(`Inferred visual text checks from project brief: ${requiredText.join(", ")}`);
+    return requiredText.join(",");
+  } catch {
+    return undefined;
+  }
 }

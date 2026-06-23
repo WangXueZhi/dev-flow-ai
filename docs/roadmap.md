@@ -23,6 +23,7 @@
 - Validated patch-set application.
 - Verification report.
 - Visual screenshot report with basic blank-screen and layout-overflow detection.
+- Inferred delivery visual text checks from design asset snippets and UI state labels.
 - Delivery report.
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.

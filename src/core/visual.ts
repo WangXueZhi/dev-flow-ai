@@ -2,6 +2,7 @@ import { access, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { chromium, type Page } from "playwright";
 import { PNG } from "pngjs";
+import type { ProjectBrief } from "./brief.js";
 
 export interface VisualViewport {
   name: string;
@@ -68,6 +69,36 @@ export const defaultViewports: VisualViewport[] = [
 ];
 
 export const chromiumInstallCommand = "npx playwright install chromium";
+
+export function inferRequiredTextFromBrief(brief: ProjectBrief, limit = 8): string[] {
+  const candidates: string[] = [];
+  const requirementText = [
+    ...brief.acceptanceCriteria,
+    ...brief.signals.requirements,
+    ...brief.userStories
+  ].join("\n").toLowerCase();
+
+  for (const asset of brief.designAssets) {
+    for (const snippet of asset.metadata?.textSnippets ?? []) {
+      if (requirementText.includes(snippet.toLowerCase())) {
+        candidates.push(snippet);
+      }
+    }
+  }
+
+  for (const item of brief.uiStateChecklist ?? []) {
+    if (item.kind !== "state") {
+      continue;
+    }
+
+    const label = /^([^:]{2,48}):\s+/.exec(item.summary)?.[1];
+    if (label) {
+      candidates.push(label);
+    }
+  }
+
+  return uniqueRequiredTextCandidates(candidates, limit);
+}
 
 export async function runVisualCheck(input: VisualCheckInput): Promise<VisualReport> {
   const startedAt = new Date().toISOString();
@@ -330,4 +361,51 @@ export function parseRequiredText(value: string | undefined): string[] {
     .split(",")
     .map((text) => text.trim())
     .filter(Boolean);
+}
+
+function uniqueRequiredTextCandidates(candidates: string[], limit: number): string[] {
+  const output: string[] = [];
+  const seen = new Set<string>();
+
+  for (const candidate of candidates) {
+    const normalized = normalizeRequiredTextCandidate(candidate);
+
+    if (!normalized) {
+      continue;
+    }
+
+    const key = normalized.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    output.push(normalized);
+
+    if (output.length >= limit) {
+      break;
+    }
+  }
+
+  return output;
+}
+
+function normalizeRequiredTextCandidate(value: string): string | undefined {
+  const normalized = value
+    .replace(/`/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/[.。:：]+$/g, "");
+
+  if (
+    normalized.length < 2 ||
+    normalized.length > 64 ||
+    /^https?:\/\//i.test(normalized) ||
+    /^[\W_]+$/.test(normalized)
+  ) {
+    return undefined;
+  }
+
+  return normalized;
 }

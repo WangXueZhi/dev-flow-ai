@@ -44,7 +44,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Delivery Orchestrator: supports safe `deliver` dry-runs and explicit `deliver --apply --yes` source-changing delivery before verification and report generation.
 - Rollback: restores files from `.devflow/artifacts/backups/<id>/manifest.json`, writes `.devflow/artifacts/rollback-report.json`, and is invoked automatically when source-changing apply fails after backup creation.
 - Verification: runs recommended project commands and writes `.devflow/artifacts/verification-report.json`.
-- Visual Verification: captures screenshots, blank-screen analysis, layout-overflow checks, and text checks for preview URLs into `.devflow/artifacts/visual/visual-report.json`.
+- Visual Verification: captures screenshots, blank-screen analysis, layout-overflow checks, and text checks for preview URLs into `.devflow/artifacts/visual/visual-report.json`. Delivery runs can infer default text checks from design asset text snippets and UI state labels when no explicit visual text is provided.
 - Report: summarizes source documents, acceptance criteria, stack, artifacts, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence, risk assessment, delivery readiness, open questions, and next actions.
 - Doctor: checks runtime and project readiness.
 - GitHub Action: wraps safe `dev-flow deliver` for CI usage and requires explicit double confirmation for source-changing delivery.

@@ -6,9 +6,11 @@ import {
   chromiumInstallCommand,
   defaultViewports,
   formatChromiumInstallHint,
+  inferRequiredTextFromBrief,
   parseRequiredText,
   parseViewportSpec
 } from "./visual.js";
+import type { ProjectBrief } from "./brief.js";
 
 test("parseViewportSpec returns defaults when absent", () => {
   assert.deepEqual(parseViewportSpec(undefined), defaultViewports);
@@ -23,6 +25,81 @@ test("parseViewportSpec parses named dimensions", () => {
 
 test("parseRequiredText trims comma-separated checks", () => {
   assert.deepEqual(parseRequiredText("OpsBoard, Checkout ,"), ["OpsBoard", "Checkout"]);
+});
+
+test("inferRequiredTextFromBrief derives visual text from design snippets and UI states", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js"],
+      frameworks: ["React"],
+      buildTools: ["Vite"],
+      styling: [],
+      testing: [],
+      scripts: {},
+      sourceDirectories: ["src"],
+      configFiles: [],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [
+      {
+        source: "ui-markdown-image",
+        kind: "local",
+        altText: "Dashboard wireframe",
+        reference: "assets/dashboard.svg",
+        resolvedPath: "docs/assets/dashboard.svg",
+        exists: true,
+        metadata: {
+          textSnippets: ["Release health", "Deploy confidence", "Release health", "https://example.com"]
+        }
+      }
+    ],
+    uiStateChecklist: [
+      {
+        kind: "state",
+        sourceLine: 12,
+        summary: "Blocked: action required label."
+      },
+      {
+        kind: "responsive",
+        sourceLine: 16,
+        summary: "Desktop: two-column work surface."
+      },
+      {
+        kind: "component",
+        sourceLine: 20,
+        summary: "Incident queue: severity and owner list."
+      }
+    ],
+    apiContracts: [],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: ["Release health and deploy confidence are visible in the first viewport."],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: []
+  };
+
+  assert.deepEqual(inferRequiredTextFromBrief(brief), [
+    "Release health",
+    "Deploy confidence",
+    "Blocked"
+  ]);
 });
 
 test("analyzeScreenshotPng marks uniform screenshots as blank", () => {
