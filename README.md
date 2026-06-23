@@ -135,6 +135,7 @@ dev-flow deliver
 dev-flow verify
 dev-flow visual
 dev-flow report
+dev-flow status
 dev-flow doctor
 dev-flow version
 ```
@@ -314,6 +315,18 @@ Use `--visual-report none` when generating a report that should not include an e
 dev-flow report --visual-report none
 ```
 
+### `dev-flow status`
+
+Reads `.devflow/artifacts/delivery-manifest.json` and prints a compact delivery status summary:
+
+```bash
+dev-flow status
+dev-flow status --json
+dev-flow status --manifest .devflow/artifacts/review/delivery-manifest.json
+```
+
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, artifact, risk, and open-question status without opening the Markdown report.
+
 ### `dev-flow visual`
 
 Captures screenshots, blank-screen checks, layout-overflow checks, and optional text checks for a running preview URL:
@@ -402,6 +415,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
 - Composite GitHub Action for running safe delivery in CI, uploading artifacts, and writing a delivery summary from the manifest.

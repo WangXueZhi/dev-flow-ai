@@ -23,6 +23,14 @@ test("dev-flow --version prints the package version", () => {
   assert.equal(result.stdout.trim(), `dev-flow ${packageJson.version}`);
 });
 
+test("dev-flow help lists the status command", () => {
+  const result = spawnSync(process.execPath, [cliPath, "help"], { encoding: "utf8" });
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /dev-flow status \[--manifest <path>\] \[--json\]/);
+  assert.match(result.stdout, /status\s+Print delivery readiness and manifest status/);
+});
+
 test("dev-flow doctor prints the package version", () => {
   const result = spawnSync(process.execPath, [cliPath, "doctor"], { encoding: "utf8" });
 

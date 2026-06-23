@@ -201,6 +201,13 @@ DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON a
 
 Validate the manifest with `schemas/delivery-manifest.schema.json` when building stricter CI or editor integrations.
 
+For a quick local summary, run:
+
+```bash
+dev-flow status
+dev-flow status --json
+```
+
 ## 9. Add DevFlow To CI
 
 Use the composite GitHub Action:

@@ -27,7 +27,7 @@ The current MVP implements the context loader, repository stack detector, struct
 
 ## Modules
 
-- CLI: command routing and terminal output.
+- CLI: command routing and terminal output, including local delivery status summaries from the manifest.
 - Config: local `.devflow/config.json` loading and defaults.
 - Context: reads requirements, UI notes, and API docs.
 - Design Assets: extracts UI Markdown image references into the project brief, including local path existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
@@ -48,6 +48,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Verification: runs recommended project commands and writes `.devflow/artifacts/verification-report.json`.
 - Visual Verification: captures screenshots, blank-screen analysis, layout-overflow checks, and text checks for preview URLs into `.devflow/artifacts/visual/visual-report.json`. Delivery runs can infer default text checks from design asset text snippets and UI state labels when no explicit visual text is provided.
 - Report: writes `.devflow/artifacts/delivery-report.md` for reviewers and `.devflow/artifacts/delivery-manifest.json` for tools. These summarize source documents, acceptance criteria, stack, artifact paths and statuses, touched files, applied patch sets, backup manifests, line-count deltas, verification, visual evidence with embedded screenshots when available, risk assessment, delivery readiness, open questions, and next actions.
+- Status: reads `.devflow/artifacts/delivery-manifest.json` and prints either a compact delivery summary or raw manifest JSON.
 - Doctor: checks runtime and project readiness.
 - GitHub Action: wraps safe `dev-flow deliver` for CI usage and requires explicit double confirmation for source-changing delivery.
 

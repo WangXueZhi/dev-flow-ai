@@ -6,6 +6,7 @@ import { runExecute } from "./commands/execute.js";
 import { runInit } from "./commands/init.js";
 import { runPlan } from "./commands/plan.js";
 import { runReport } from "./commands/report.js";
+import { runStatus } from "./commands/status.js";
 import { runTasks } from "./commands/tasks.js";
 import { runVerify } from "./commands/verify.js";
 import { runVisual } from "./commands/visual.js";
@@ -44,6 +45,9 @@ async function main(argv: string[]): Promise<void> {
     case "report":
       await runReport(parsed.flags);
       return;
+    case "status":
+      await runStatus(parsed.flags);
+      return;
     case "doctor":
       await runDoctor(parsed.flags);
       return;
@@ -75,6 +79,7 @@ Usage:
   dev-flow verify [--command <shell-command>] [--out <path>]
   dev-flow visual --url <preview-url> [--text <a,b>] [--viewport <name:widthxheight>] [--out <dir>]
   dev-flow report [--out <path>] [--manifest-out <path>] [--visual-report <path|none>]
+  dev-flow status [--manifest <path>] [--json]
   dev-flow doctor [--json] [--no-source-context]
   dev-flow version
 
@@ -88,6 +93,7 @@ Commands:
   verify    Run recommended verification commands and record results
   visual    Capture screenshots, blank-screen checks, and text checks for a preview URL
   report    Generate a delivery report from DevFlow artifacts
+  status    Print delivery readiness and manifest status
   doctor    Check local runtime and project readiness
   version   Print the installed DevFlow version
 

@@ -15,6 +15,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
 - Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
+- Added `dev-flow status` and `dev-flow status --json` for local delivery manifest summaries.
 - Added `schemas/delivery-manifest.schema.json` and delivery manifest schema documentation for downstream integrations.
 - Added frontend delivery blueprint sections to implementation plans for routes, components, state, data/API integration, styling, tests, and accessibility.
 - Added planner guardrails so patch-set JSON returned in the planner slot falls back to the local planner and provider plans missing the blueprint receive a generated blueprint appendix.
