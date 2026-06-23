@@ -8,6 +8,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `dev-flow version` and `dev-flow --version` for installed CLI diagnostics.
 - Added the installed CLI version to `dev-flow doctor` output.
 - Added `dev-flow doctor --json` for machine-readable diagnostics.
+- Updated the bug report template to collect sanitized `dev-flow doctor --json` diagnostics.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.

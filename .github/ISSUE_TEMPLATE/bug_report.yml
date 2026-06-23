@@ -22,6 +22,12 @@ body:
     validations:
       required: true
   - type: textarea
+    id: doctor_json
+    attributes:
+      label: Doctor diagnostics
+      description: Run `dev-flow doctor --json` and paste the sanitized output.
+      render: json
+  - type: textarea
     id: command
     attributes:
       label: Command
