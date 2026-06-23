@@ -14,6 +14,12 @@ import type { ProjectBrief } from "./brief.js";
 
 test("parseViewportSpec returns defaults when absent", () => {
   assert.deepEqual(parseViewportSpec(undefined), defaultViewports);
+  assert.deepEqual(defaultViewports.map((viewport) => viewport.name), ["desktop", "tablet", "mobile"]);
+  assert.deepEqual(defaultViewports.find((viewport) => viewport.name === "mobile"), {
+    name: "mobile",
+    width: 390,
+    height: 844
+  });
 });
 
 test("parseViewportSpec parses named dimensions", () => {

@@ -31,6 +31,7 @@
 - Aggregated recommended verification commands from detected package scripts.
 - Recommended verification command selection from common script aliases and dependency-aware TypeScript, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
+- Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen and layout-overflow detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.
 - Delivery report.
@@ -65,7 +66,7 @@
 
 ## Milestone 3: UI And Visual Verification
 
-- Expand screenshot capture for local preview URLs beyond the default desktop/tablet set.
+- Expand screenshot capture for local preview URLs beyond the default desktop/tablet/mobile set.
 - Deeper responsive viewport checks.
 - Basic overlap detection and richer screenshot heuristics beyond overflow checks.
 - Multimodal interpretation of referenced UI screenshots, wireframes, and design exports beyond lightweight image metadata.

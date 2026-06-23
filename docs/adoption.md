@@ -165,7 +165,7 @@ With a preview server running, capture visual checks:
 dev-flow visual --url http://127.0.0.1:5173 --text Home,Checkout
 ```
 
-Visual checks capture desktop/tablet screenshots, blank-screen analysis, basic layout-overflow checks, and required text checks. `dev-flow deliver --preview-url <url>` infers default text checks from design asset text snippets and UI state labels when `--visual-text` is omitted; `dev-flow visual` uses only explicit `--text` values.
+Visual checks capture desktop, tablet, and mobile screenshots, blank-screen analysis, basic layout-overflow checks, and required text checks. `dev-flow deliver --preview-url <url>` infers default text checks from design asset text snippets and UI state labels when `--visual-text` is omitted; `dev-flow visual` uses only explicit `--text` values.
 
 ## 8. Run The Full Delivery Flow
 

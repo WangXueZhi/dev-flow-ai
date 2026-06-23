@@ -65,7 +65,8 @@ export interface ChromiumRuntimeStatus {
 
 export const defaultViewports: VisualViewport[] = [
   { name: "desktop", width: 1440, height: 1000 },
-  { name: "tablet", width: 900, height: 1100 }
+  { name: "tablet", width: 900, height: 1100 },
+  { name: "mobile", width: 390, height: 844 }
 ];
 
 export const chromiumInstallCommand = "npx playwright install chromium";

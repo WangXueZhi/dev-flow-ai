@@ -342,7 +342,7 @@ dev-flow visual --url http://127.0.0.1:5173 --text OpsBoard,Checkout
 
 `dev-flow visual` only uses explicit `--text` values. `dev-flow deliver --preview-url <url>` can infer default text checks from the project brief when no explicit `--visual-text` or `--text` value is provided.
 
-By default, DevFlow captures desktop and tablet screenshots in `.devflow/artifacts/visual/` and writes `.devflow/artifacts/visual/visual-report.json` with pixel-level blank-screen analysis and basic layout issue detection.
+By default, DevFlow captures desktop, tablet, and mobile screenshots in `.devflow/artifacts/visual/` and writes `.devflow/artifacts/visual/visual-report.json` with pixel-level blank-screen analysis and basic layout issue detection.
 
 Visual checks require a local Playwright Chromium browser. If `dev-flow doctor` reports it missing, install it with:
 

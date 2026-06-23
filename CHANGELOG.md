@@ -65,6 +65,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added guarded patch-set delete operations with backup and rollback coverage for obsolete source files.
 - Added safe `deliver` orchestration with optional explicitly approved source-changing apply.
 - Added verification reports, visual screenshot checks, and delivery reports with applied-change summaries, touched files, operation counts, backup counts, line-count deltas, and bounded failure excerpts.
+- Added mobile to the default visual verification viewport set alongside desktop and tablet screenshots.
 - Added visual blank-screen detection with pixel-level screenshot analysis in visual reports.
 - Added basic visual layout-overflow detection for horizontal overflow and clipped text.
 - Added acceptance criteria and delivery readiness summaries to delivery reports.
