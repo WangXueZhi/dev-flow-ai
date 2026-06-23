@@ -177,7 +177,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
       startedAt: "2026-01-01T00:00:00.000Z",
       finishedAt: "2026-01-01T00:00:01.000Z",
       url: "http://127.0.0.1:5173",
-      status: "passed",
+      status: "failed",
       screenshots: [
         {
           viewport: { name: "desktop", width: 1440, height: 1000 },
@@ -194,7 +194,15 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
           }
         }
       ],
-      layoutIssues: [],
+      layoutIssues: [
+        {
+          viewport: { name: "desktop", width: 1440, height: 1000 },
+          type: "overlap",
+          selector: "button.primary <-> span.badge",
+          message: "Elements overlap by 120px^2 (30% of the smaller element).",
+          text: "Deploy / Blocked"
+        }
+      ],
       requiredText: [{ text: "OpsBoard", found: true }]
     }
   });
@@ -212,7 +220,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /AC1: Dashboard renders release health/);
   assert.match(report, /Evidence: Source-changing execution recorded 1 entry touching `src\/App\.tsx`, `src\/ObsoletePanel\.tsx`/);
   assert.match(report, /Evidence: Verification passed: `npm run check` exit 0/);
-  assert.match(report, /Evidence: Visual verification passed: 1 screenshot\(s\), 1\/1 required text checks found/);
+  assert.match(report, /Evidence: Visual verification failed: 1 screenshot\(s\), 1\/1 required text checks found/);
   assert.match(report, /Status: needs attention/);
   assert.match(report, /Known gap: 1 open question\(s\) remain/);
   assert.match(report, /Assumption: Delivery-level evidence applies to this criterion/);
@@ -242,11 +250,11 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /replace `src\/App\.tsx`: written, 2048 bytes, 1 replacements, lines 80->86 \(\+6\)/);
   assert.match(report, /delete `src\/ObsoletePanel\.tsx`: deleted, 0 bytes, lines 24->0 \(-24\)/);
   assert.match(report, /Frameworks: React/);
-  assert.match(report, /Status: passed/);
+  assert.match(report, /Status: failed/);
   assert.match(report, /desktop 1440x1000/);
   assert.match(report, /!\[desktop screenshot\]\(\.devflow\/artifacts\/visual\/desktop\.png\)/);
   assert.match(report, /blank: no, distinct pixels: 25\.00%/);
-  assert.match(report, /Layout issues: none/);
+  assert.match(report, /Layout desktop overlap at button\.primary <-> span\.badge: Elements overlap by 120px\^2 \(30% of the smaller element\)\. Text: "Deploy \/ Blocked"/);
   assert.match(report, /Risk Assessment/);
   assert.match(report, /\[high\] requirements:8: Requirement contains an unresolved placeholder/);
   assert.match(report, /\[medium\] ui: UI checklist does not include responsive behavior/);
@@ -255,6 +263,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Evidence: 2 acceptance criteria recorded/);
   assert.match(report, /Evidence: 1 medium delivery risk\(s\) recorded for review/);
   assert.match(report, /Attention: 1 high delivery risk\(s\) remain/);
+  assert.match(report, /Attention: Visual verification status is failed/);
   assert.match(report, /Attention: 1 open question\(s\) remain/);
   assert.match(report, /Confirm empty state copy/);
 });

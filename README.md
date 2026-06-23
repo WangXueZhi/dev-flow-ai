@@ -334,7 +334,7 @@ Use `--fail-on-attention` in CI when any delivery readiness blocker should fail 
 
 ### `dev-flow visual`
 
-Captures screenshots, blank-screen checks, layout-overflow checks, and optional text checks for a running preview URL:
+Captures screenshots, blank-screen checks, layout issue checks, and optional text checks for a running preview URL:
 
 ```bash
 dev-flow visual --url http://127.0.0.1:5173 --text OpsBoard,Checkout
@@ -420,7 +420,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
-- Visual report with screenshots, blank-screen checks, layout-overflow checks, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
+- Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
@@ -435,7 +435,7 @@ Planned capabilities:
 - Interpret design assets beyond lightweight Markdown/image metadata, including Figma exports, screenshots, and structured design notes with multimodal models.
 - Continue expanding stack-specific route/component/data-fetching tasks beyond the normalized frontend targets and initial target profiles.
 - Add interactive approvals and safer review UX around source-changing patch sets.
-- Expand visual verification beyond screenshots, text checks, blank-screen detection, and basic layout-overflow checks.
+- Expand visual verification beyond screenshots, text checks, blank-screen detection, and basic layout issue checks.
 - Continue expanding final delivery reports with richer reviewer notes, screenshots, and known risks.
 - Support multiple AI providers and local models.
 - Provide reusable workflow plugins for React, Vue, Next.js, Vite, and design systems.

@@ -33,7 +33,7 @@
 - Recommended verification command selection from common script aliases and dependency-aware TypeScript, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
-- Visual screenshot report with basic blank-screen and layout-overflow detection.
+- Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.
 - Delivery report.
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
@@ -69,7 +69,7 @@
 
 - Expand screenshot capture for local preview URLs beyond the default desktop/tablet/mobile set.
 - Deeper responsive viewport checks.
-- Basic overlap detection and richer screenshot heuristics beyond overflow checks.
+- Richer screenshot heuristics beyond basic overflow, clipped-text, and overlap checks.
 - Multimodal interpretation of referenced UI screenshots, wireframes, and design exports beyond lightweight image metadata.
 
 ## Milestone 4: Delivery Report

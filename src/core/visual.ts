@@ -44,7 +44,7 @@ export interface VisualTextCheck {
 
 export interface VisualLayoutIssue {
   viewport: VisualViewport;
-  type: "horizontal-overflow" | "clipped-text";
+  type: "horizontal-overflow" | "clipped-text" | "overlap";
   selector: string;
   message: string;
   text?: string;
@@ -169,7 +169,13 @@ async function collectLayoutIssues(page: Page, viewport: VisualViewport): Promis
   const issues = await page.evaluate(() => {
     const doc = (globalThis as any).document;
     const win = (globalThis as any).window;
-    const output: Array<{ type: "horizontal-overflow" | "clipped-text"; selector: string; message: string; text?: string }> = [];
+    const output: Array<{ type: "horizontal-overflow" | "clipped-text" | "overlap"; selector: string; message: string; text?: string }> = [];
+    const overlapCandidates: Array<{
+      element: any;
+      selector: string;
+      rect: { left: number; top: number; right: number; bottom: number; width: number; height: number };
+      text: string;
+    }> = [];
     const root = doc.documentElement;
 
     if (root.scrollWidth > win.innerWidth + 2) {
@@ -187,23 +193,33 @@ async function collectLayoutIssues(page: Page, viewport: VisualViewport): Promis
 
       const style = win.getComputedStyle(element);
       const rect = element.getBoundingClientRect();
+      const visibleRect = clipRectToVisibleArea(element, rect);
 
       if (
         style.display === "none" ||
         style.visibility === "hidden" ||
         Number(style.opacity) === 0 ||
-        rect.width < 1 ||
-        rect.height < 1
+        visibleRect.width < 1 ||
+        visibleRect.height < 1
       ) {
         continue;
       }
 
-      const text = String(element.innerText || element.textContent || "")
+      const text = elementText(element)
         .replace(/\s+/g, " ")
         .trim();
 
       if (!text) {
         continue;
+      }
+
+      if (isOverlapCandidate(element, visibleRect)) {
+        overlapCandidates.push({
+          element,
+          selector: describeElement(element),
+          rect: visibleRect,
+          text: text.length > 80 ? `${text.slice(0, 77)}...` : text
+        });
       }
 
       const clipsX = clipsOverflow(style.overflowX);
@@ -223,10 +239,111 @@ async function collectLayoutIssues(page: Page, viewport: VisualViewport): Promis
       });
     }
 
+    for (let firstIndex = 0; firstIndex < overlapCandidates.length && output.length < 50; firstIndex += 1) {
+      const first = overlapCandidates[firstIndex];
+
+      for (let secondIndex = firstIndex + 1; secondIndex < overlapCandidates.length && output.length < 50; secondIndex += 1) {
+        const second = overlapCandidates[secondIndex];
+
+        if (first.element.contains(second.element) || second.element.contains(first.element)) {
+          continue;
+        }
+
+        const overlapWidth = Math.min(first.rect.right, second.rect.right) - Math.max(first.rect.left, second.rect.left);
+        const overlapHeight = Math.min(first.rect.bottom, second.rect.bottom) - Math.max(first.rect.top, second.rect.top);
+
+        if (overlapWidth <= 0 || overlapHeight <= 0) {
+          continue;
+        }
+
+        const overlapArea = overlapWidth * overlapHeight;
+        const firstArea = first.rect.width * first.rect.height;
+        const secondArea = second.rect.width * second.rect.height;
+        const smallerArea = Math.min(firstArea, secondArea);
+        const overlapRatio = smallerArea > 0 ? overlapArea / smallerArea : 0;
+
+        if (overlapArea < 48 || overlapRatio < 0.2) {
+          continue;
+        }
+
+        output.push({
+          type: "overlap",
+          selector: `${first.selector} <-> ${second.selector}`,
+          message: `Elements overlap by ${Math.round(overlapArea)}px^2 (${Math.round(overlapRatio * 100)}% of the smaller element).`,
+          text: `${first.text} / ${second.text}`.slice(0, 160)
+        });
+      }
+    }
+
     return output;
 
     function clipsOverflow(value: string): boolean {
       return value === "hidden" || value === "clip";
+    }
+
+    function isOverlapCandidate(element: any, rect: { width: number; height: number }): boolean {
+      if (rect.width < 12 || rect.height < 12) {
+        return false;
+      }
+
+      const tag = String(element.tagName || "").toLowerCase();
+      const role = String(element.getAttribute("role") || "").toLowerCase();
+      const interactive = /^(a|button|input|select|textarea)$/.test(tag) ||
+        /^(button|checkbox|link|menuitem|option|radio|switch|tab)$/.test(role);
+      const hasTextChild = Array.from(element.children || []).some((child: any) =>
+        String(child.innerText || child.textContent || "").replace(/\s+/g, " ").trim().length > 0
+      );
+
+      return interactive || !hasTextChild;
+    }
+
+    function clipRectToVisibleArea(element: any, rect: any): { left: number; top: number; right: number; bottom: number; width: number; height: number } {
+      let left = Math.max(rect.left, 0);
+      let top = Math.max(rect.top, 0);
+      let right = Math.min(rect.right, win.innerWidth);
+      let bottom = Math.min(rect.bottom, win.innerHeight);
+      let parent = element.parentElement;
+
+      while (parent && parent !== doc.body && parent !== doc.documentElement) {
+        const parentStyle = win.getComputedStyle(parent);
+        const parentRect = parent.getBoundingClientRect();
+
+        if (clipsVisibleArea(parentStyle.overflowX)) {
+          left = Math.max(left, parentRect.left);
+          right = Math.min(right, parentRect.right);
+        }
+
+        if (clipsVisibleArea(parentStyle.overflowY)) {
+          top = Math.max(top, parentRect.top);
+          bottom = Math.min(bottom, parentRect.bottom);
+        }
+
+        parent = parent.parentElement;
+      }
+
+      return {
+        left,
+        top,
+        right,
+        bottom,
+        width: Math.max(0, right - left),
+        height: Math.max(0, bottom - top)
+      };
+    }
+
+    function clipsVisibleArea(value: string): boolean {
+      return value === "auto" || value === "clip" || value === "hidden" || value === "scroll";
+    }
+
+    function elementText(element: any): string {
+      return String(
+        element.innerText ||
+        element.value ||
+        element.getAttribute("aria-label") ||
+        element.getAttribute("alt") ||
+        element.textContent ||
+        ""
+      );
     }
 
     function describeElement(element: any): string {
