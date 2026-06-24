@@ -75,6 +75,18 @@ export interface ApiContract {
   path: string;
   sourceLine: number;
   summary: string;
+  parameters?: ApiParameter[];
+}
+
+export type ApiParameterLocation = "cookie" | "header" | "path" | "query";
+
+export interface ApiParameter {
+  name: string;
+  in: ApiParameterLocation;
+  required?: boolean;
+  schema?: string;
+  defaultValue?: string;
+  summary: string;
 }
 
 export interface ApiDataModel {
@@ -282,7 +294,7 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
       ...input.apiContracts.map((contract) => frontendTarget(
         "api",
         `Integrate ${contract.method} ${contract.path}`,
-        [contract.summary],
+        [contract.summary, ...formatApiParameterEvidence(contract.parameters)],
         contract.sourceLine
       )),
       ...input.apiDataModels.map((model) => frontendTarget(
@@ -477,6 +489,14 @@ function uniqueFrontendTargets(items: FrontendTargetItem[], limit: number): Fron
   return results;
 }
 
+function formatApiParameterEvidence(parameters: ApiParameter[] | undefined): string[] {
+  if (!parameters?.length) {
+    return [];
+  }
+
+  return [`Parameters: ${parameters.map(formatApiParameterSummary).join("; ")}`];
+}
+
 export function extractUiStateChecklist(uiMarkdown: string, limit = 24): UiStateChecklistItem[] {
   const items: UiStateChecklistItem[] = [];
   const seen = new Set<string>();
@@ -669,13 +689,19 @@ export function extractApiContracts(apiMarkdown: string): ApiContract[] {
     if (match) {
       const method = (match[1] ?? "").toUpperCase();
       const path = (match[2] ?? "").replace(/`+$/g, "");
-
-      addApiContract(contracts, seen, {
+      const parameters = extractApiParametersFromPath(path);
+      const contract: ApiContract = {
         method,
         path,
         sourceLine: index + 1,
         summary: normalizeApiSummary(line)
-      });
+      };
+
+      if (parameters.length) {
+        contract.parameters = parameters;
+      }
+
+      addApiContract(contracts, seen, contract);
     }
 
     if (!inFencedCodeBlock) {
@@ -1606,6 +1632,76 @@ function normalizeApiSummary(line: string): string {
     .trim();
 }
 
+function extractApiParametersFromPath(path: string): ApiParameter[] {
+  const parameters: ApiParameter[] = [];
+  const seen = new Set<string>();
+  const [pathWithoutQuery = "", query = ""] = path.split("?", 2);
+
+  for (const match of pathWithoutQuery.matchAll(/\{([^}/?#]+)\}|\/:([A-Za-z_][A-Za-z0-9_]*)/g)) {
+    const name = normalizeApiParameterName(match[1] ?? match[2]);
+
+    if (!name) {
+      continue;
+    }
+
+    addApiParameter(parameters, seen, {
+      name,
+      in: "path",
+      required: true,
+      summary: `path parameter ${name} required`
+    });
+  }
+
+  for (const part of query.split("&")) {
+    if (!part.trim()) {
+      continue;
+    }
+
+    const [rawName = "", rawValue = ""] = part.split("=", 2);
+    const name = normalizeApiParameterName(decodeUrlPart(rawName));
+
+    if (!name) {
+      continue;
+    }
+
+    const defaultValue = decodeUrlPart(rawValue);
+    addApiParameter(parameters, seen, {
+      name,
+      in: "query",
+      required: false,
+      defaultValue: defaultValue || undefined,
+      summary: `query parameter ${name}${defaultValue ? ` default ${defaultValue}` : ""}`
+    });
+  }
+
+  return parameters;
+}
+
+function decodeUrlPart(value: string): string {
+  try {
+    return decodeURIComponent(value.replace(/\+/g, " "));
+  } catch {
+    return value;
+  }
+}
+
+function normalizeApiParameterName(name: string | undefined): string | undefined {
+  const cleaned = name?.replace(/`/g, "").trim();
+
+  return cleaned || undefined;
+}
+
+function addApiParameter(parameters: ApiParameter[], seen: Set<string>, parameter: ApiParameter): void {
+  const key = `${parameter.in}:${parameter.name.toLowerCase()}`;
+
+  if (seen.has(key)) {
+    return;
+  }
+
+  seen.add(key);
+  parameters.push(parameter);
+}
+
 function extractInlineGraphqlContracts(line: string, sourceLine: number): ApiContract[] {
   const summary = normalizeApiSummary(line);
 
@@ -1654,12 +1750,51 @@ function extractGraphqlOperationContracts(
 function addApiContract(contracts: ApiContract[], seen: Set<string>, contract: ApiContract): void {
   const key = `${contract.method} ${contract.path}`;
 
-  if (!contract.method || !contract.path || seen.has(key)) {
+  if (!contract.method || !contract.path) {
+    return;
+  }
+
+  if (seen.has(key)) {
+    const existing = contracts.find((item) => `${item.method} ${item.path}` === key);
+
+    if (existing && contract.parameters?.length) {
+      existing.parameters = mergeApiParameters(existing.parameters, contract.parameters);
+    }
+
     return;
   }
 
   seen.add(key);
   contracts.push(contract);
+}
+
+function mergeApiParameters(
+  current: ApiParameter[] | undefined,
+  incoming: ApiParameter[]
+): ApiParameter[] {
+  const merged: ApiParameter[] = [];
+  const seen = new Set<string>();
+
+  for (const parameter of [...(current ?? []), ...incoming]) {
+    addApiParameter(merged, seen, parameter);
+  }
+
+  return merged.length ? merged : [];
+}
+
+function formatApiParameterSummary(parameter: ApiParameter): string {
+  const required = parameter.required === undefined
+    ? undefined
+    : parameter.required
+      ? "required"
+      : "optional";
+  const details = [
+    parameter.schema,
+    required,
+    parameter.defaultValue ? `default ${parameter.defaultValue}` : undefined
+  ].filter((value): value is string => Boolean(value));
+
+  return `${parameter.in} ${parameter.name}${details.length ? ` (${details.join(", ")})` : ""}`;
 }
 
 function extractOpenApiDocuments(markdown: string): Array<{ sourceLine: number; document: Record<string, unknown> }> {
@@ -1733,16 +1868,177 @@ function extractOpenApiContracts(openApi: { sourceLine: number; document: Record
       }
 
       const summary = stringValue(operation.summary) ?? stringValue(operation.description) ?? `${normalizedMethod} ${path}`;
-      contracts.push({
+      const parameters = readOpenApiParameters(openApi.document, pathItem.parameters, operation.parameters);
+      const contract: ApiContract = {
         method: normalizedMethod,
         path,
         sourceLine: openApi.sourceLine,
         summary
-      });
+      };
+
+      if (parameters?.length) {
+        contract.parameters = parameters;
+      }
+
+      contracts.push(contract);
     }
   }
 
   return contracts;
+}
+
+function readOpenApiParameters(
+  document: Record<string, unknown>,
+  pathParameters: unknown,
+  operationParameters: unknown
+): ApiParameter[] | undefined {
+  const parameters: ApiParameter[] = [];
+  const seen = new Set<string>();
+
+  for (const value of [...readOpenApiParameterObjects(document, pathParameters), ...readOpenApiParameterObjects(document, operationParameters)]) {
+    const name = normalizeApiParameterName(stringValue(value.name));
+    const location = normalizeApiParameterLocation(stringValue(value.in));
+
+    if (!name || !location) {
+      continue;
+    }
+
+    const required = value.required === true || location === "path"
+      ? true
+      : value.required === false
+        ? false
+        : undefined;
+    const schema = describeOpenApiParameterSchema(value.schema);
+    const defaultValue = readOpenApiParameterDefault(value);
+    const description = stringValue(value.description);
+    const parameter: ApiParameter = {
+      name,
+      in: location,
+      summary: [
+        `${location} parameter ${name}`,
+        required === undefined ? undefined : required ? "required" : "optional",
+        schema ? `schema ${schema}` : undefined,
+        defaultValue ? `default ${defaultValue}` : undefined,
+        description
+      ].filter((part): part is string => Boolean(part)).join("; ")
+    };
+
+    if (required !== undefined) {
+      parameter.required = required;
+    }
+
+    if (schema) {
+      parameter.schema = schema;
+    }
+
+    if (defaultValue) {
+      parameter.defaultValue = defaultValue;
+    }
+
+    addApiParameter(parameters, seen, parameter);
+  }
+
+  return parameters.length ? parameters : undefined;
+}
+
+function readOpenApiParameterObjects(
+  document: Record<string, unknown>,
+  value: unknown
+): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => resolveOpenApiParameter(document, item))
+    .filter((item): item is Record<string, unknown> => Boolean(item));
+}
+
+function resolveOpenApiParameter(
+  document: Record<string, unknown>,
+  value: unknown
+): Record<string, unknown> | undefined {
+  if (!isPlainObject(value)) {
+    return undefined;
+  }
+
+  const ref = stringValue(value.$ref);
+
+  if (!ref) {
+    return value;
+  }
+
+  const resolved = resolveOpenApiRef(document, ref);
+
+  return isPlainObject(resolved) ? resolved : undefined;
+}
+
+function resolveOpenApiRef(document: Record<string, unknown>, ref: string): unknown {
+  if (!ref.startsWith("#/")) {
+    return undefined;
+  }
+
+  return ref
+    .slice(2)
+    .split("/")
+    .map((part) => part.replace(/~1/g, "/").replace(/~0/g, "~"))
+    .reduce<unknown>((current, part) => isPlainObject(current) ? current[part] : undefined, document);
+}
+
+function normalizeApiParameterLocation(value: string | undefined): ApiParameterLocation | undefined {
+  if (value === "cookie" || value === "header" || value === "path" || value === "query") {
+    return value;
+  }
+
+  return undefined;
+}
+
+function describeOpenApiParameterSchema(schema: unknown): string | undefined {
+  if (!isPlainObject(schema)) {
+    return undefined;
+  }
+
+  const ref = stringValue(schema.$ref);
+  if (ref) {
+    return formatOpenApiRef(ref);
+  }
+
+  const type = stringValue(schema.type);
+  const format = stringValue(schema.format);
+  const enumValues = Array.isArray(schema.enum)
+    ? schema.enum.map((value) => scalarToString(value)).filter((value): value is string => Boolean(value)).slice(0, 6)
+    : [];
+  const parts = [
+    type,
+    format ? `format ${format}` : undefined,
+    enumValues.length ? `enum ${enumValues.join("|")}` : undefined
+  ].filter((value): value is string => Boolean(value));
+
+  return parts.length ? parts.join(", ") : undefined;
+}
+
+function readOpenApiParameterDefault(parameter: Record<string, unknown>): string | undefined {
+  if (isPlainObject(parameter.schema)) {
+    const schemaDefault = scalarToString(parameter.schema.default);
+
+    if (schemaDefault) {
+      return schemaDefault;
+    }
+  }
+
+  return scalarToString(parameter.example);
+}
+
+function scalarToString(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  return undefined;
 }
 
 function extractOpenApiErrorCases(openApi: { sourceLine: number; document: Record<string, unknown> }): ApiErrorCase[] {

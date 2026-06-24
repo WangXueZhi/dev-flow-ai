@@ -15,7 +15,7 @@ Developers should be able to run DevFlow inside a frontend repository, provide t
 
 - Requirements: goals, scope, user stories, acceptance criteria, constraints.
 - UI: screens, components, states, interactions, responsive behavior, design tokens.
-- API: endpoints, schemas, auth, errors, loading states, integration notes.
+- API: endpoints, parameters, schemas, auth, errors, loading states, integration notes.
 
 The workflow should continue from plan to scoped implementation work, verification, visual evidence, and a delivery report.
 

@@ -405,9 +405,11 @@ function formatStateAndInteractionBlueprint(brief: ProjectBrief | undefined, uiS
 
 function formatDataIntegrationBlueprint(brief: ProjectBrief | undefined, apiSignals: string[]): string {
   const dataTargets = formatFrontendTargetItems(brief?.frontendTargets?.dataNeeds);
-  const contractItems = (brief?.apiContracts ?? []).map(
-    (contract) => `Integrate \`${contract.method} ${contract.path}\` from API line ${contract.sourceLine}: ${contract.summary}`
-  );
+  const contractItems = (brief?.apiContracts ?? []).map((contract) => {
+    const parameters = formatApiParameterList(contract.parameters);
+
+    return `Integrate \`${contract.method} ${contract.path}\` from API line ${contract.sourceLine}: ${contract.summary}${parameters ? ` Parameters: ${parameters}.` : ""}`;
+  });
   const modelItems = (brief?.apiDataModels ?? []).map((model) => {
     const fields = model.fields.length ? model.fields.join(", ") : "no fields listed";
 
@@ -582,7 +584,25 @@ function formatApiContractsSection(brief: ProjectBrief): string {
 }
 
 function formatApiContract(contract: ProjectBrief["apiContracts"][number]): string {
-  return `- \`${contract.method} ${contract.path}\` (line ${contract.sourceLine}): ${contract.summary}`;
+  const parameters = formatApiParameterList(contract.parameters);
+
+  return `- \`${contract.method} ${contract.path}\` (line ${contract.sourceLine}): ${contract.summary}${parameters ? ` Parameters: ${parameters}.` : ""}`;
+}
+
+function formatApiParameterList(parameters: ProjectBrief["apiContracts"][number]["parameters"]): string | undefined {
+  if (!parameters?.length) {
+    return undefined;
+  }
+
+  return parameters.map((parameter) => {
+    const details = [
+      parameter.schema,
+      parameter.required === undefined ? undefined : parameter.required ? "required" : "optional",
+      parameter.defaultValue ? `default ${parameter.defaultValue}` : undefined
+    ].filter((item): item is string => Boolean(item));
+
+    return `${parameter.in} ${parameter.name}${details.length ? ` (${details.join(", ")})` : ""}`;
+  }).join("; ");
 }
 
 function formatApiDataModelsSection(brief: ProjectBrief): string {

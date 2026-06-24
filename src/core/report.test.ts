@@ -75,7 +75,16 @@ const brief: ProjectBrief = {
       method: "GET",
       path: "/api/dashboard",
       sourceLine: 12,
-      summary: "GET /api/dashboard"
+      summary: "GET /api/dashboard",
+      parameters: [
+        {
+          name: "range",
+          in: "query",
+          required: false,
+          defaultValue: "7d",
+          summary: "query parameter range default 7d"
+        }
+      ]
     }
   ],
   apiDataModels: [
@@ -276,6 +285,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /\[color\] Primary color: #2563eb \(ui:18\)/);
   assert.match(report, /API Contracts/);
   assert.match(report, /GET \/api\/dashboard/);
+  assert.match(report, /Parameters: query range \(optional, default 7d\)/);
   assert.match(report, /API Data Models/);
   assert.match(report, /dashboard.*releaseHealth, deployConfidence/);
   assert.match(report, /API Error Cases/);

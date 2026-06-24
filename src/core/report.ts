@@ -719,8 +719,28 @@ function formatApiContracts(brief: ProjectBrief): string {
   }
 
   return brief.apiContracts
-    .map((contract) => `- \`${contract.method} ${contract.path}\` (line ${contract.sourceLine}): ${contract.summary}`)
+    .map((contract) => {
+      const parameters = formatApiParameterList(contract.parameters);
+
+      return `- \`${contract.method} ${contract.path}\` (line ${contract.sourceLine}): ${contract.summary}${parameters ? ` Parameters: ${parameters}.` : ""}`;
+    })
     .join("\n");
+}
+
+function formatApiParameterList(parameters: ProjectBrief["apiContracts"][number]["parameters"]): string | undefined {
+  if (!parameters?.length) {
+    return undefined;
+  }
+
+  return parameters.map((parameter) => {
+    const details = [
+      parameter.schema,
+      parameter.required === undefined ? undefined : parameter.required ? "required" : "optional",
+      parameter.defaultValue ? `default ${parameter.defaultValue}` : undefined
+    ].filter((item): item is string => Boolean(item));
+
+    return `${parameter.in} ${parameter.name}${details.length ? ` (${details.join(", ")})` : ""}`;
+  }).join("; ");
 }
 
 function formatApiDataModels(brief: ProjectBrief): string {

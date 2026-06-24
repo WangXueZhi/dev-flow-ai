@@ -77,7 +77,16 @@ const brief: ProjectBrief = {
       method: "GET",
       path: "/orders",
       sourceLine: 4,
-      summary: "GET /orders"
+      summary: "GET /orders",
+      parameters: [
+        {
+          name: "status",
+          in: "query",
+          required: false,
+          defaultValue: "open",
+          summary: "query parameter status default open"
+        }
+      ]
     }
   ],
   apiDataModels: [
@@ -196,6 +205,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /\[frontend-data\] Integrate GET \/orders/);
   assert.match(markdown, /\[frontend-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /GET \/orders/);
+  assert.match(markdown, /Parameters: query status \(optional, default open\)/);
   assert.match(markdown, /Fields: id, status/);
   assert.match(markdown, /Orders endpoint unavailable/);
   assert.match(markdown, /Authorization: Bearer token/);

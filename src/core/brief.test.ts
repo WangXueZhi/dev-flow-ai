@@ -668,7 +668,16 @@ test("extractApiContracts handles common HTTP endpoint lines and removes duplica
         method: "GET",
         path: "/orders?status=open",
         sourceLine: 2,
-        summary: "GET /orders?status=open"
+        summary: "GET /orders?status=open",
+        parameters: [
+          {
+            name: "status",
+            in: "query",
+            required: false,
+            defaultValue: "open",
+            summary: "query parameter status default open"
+          }
+        ]
       },
       {
         method: "POST",
@@ -680,7 +689,15 @@ test("extractApiContracts handles common HTTP endpoint lines and removes duplica
         method: "PATCH",
         path: "/orders/{id}",
         sourceLine: 4,
-        summary: "PATCH /orders/{id} updates an order"
+        summary: "PATCH /orders/{id} updates an order",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            summary: "path parameter id required"
+          }
+        ]
       }
     ]
   );
@@ -744,13 +761,25 @@ test("extractApiContracts handles OpenAPI JSON paths", () => {
       openapi: "3.1.0",
       paths: {
         "/orders": {
-          get: {
-            summary: "List orders",
-            security: [{ bearerAuth: [] }],
-            responses: {
-              "200": { description: "OK" },
-              "401": { description: "Unauthorized" },
-              "500": { description: "Service unavailable" }
+            get: {
+              summary: "List orders",
+              parameters: [
+                {
+                  name: "status",
+                  in: "query",
+                  required: false,
+                  schema: { type: "string", enum: ["open", "closed"] },
+                  description: "Filter by status"
+                },
+                {
+                  $ref: "#/components/parameters/RequestId"
+                }
+              ],
+              security: [{ bearerAuth: [] }],
+              responses: {
+                "200": { description: "OK" },
+                "401": { description: "Unauthorized" },
+                "500": { description: "Service unavailable" }
             }
           },
           post: {
@@ -763,6 +792,15 @@ test("extractApiContracts handles OpenAPI JSON paths", () => {
         }
       },
       components: {
+        parameters: {
+          RequestId: {
+            name: "X-Request-ID",
+            in: "header",
+            required: true,
+            schema: { type: "string" },
+            description: "Trace id"
+          }
+        },
         securitySchemes: {
           bearerAuth: {
             type: "http",
@@ -776,12 +814,28 @@ test("extractApiContracts handles OpenAPI JSON paths", () => {
   ].join("\n");
 
   assert.deepEqual(extractApiContracts(openApiMarkdown), [
-    {
-      method: "GET",
-      path: "/orders",
-      sourceLine: 3,
-      summary: "List orders"
-    },
+      {
+        method: "GET",
+        path: "/orders",
+        sourceLine: 3,
+        summary: "List orders",
+        parameters: [
+          {
+            name: "status",
+            in: "query",
+            required: false,
+            schema: "string, enum open|closed",
+            summary: "query parameter status; optional; schema string, enum open|closed; Filter by status"
+          },
+          {
+            name: "X-Request-ID",
+            in: "header",
+            required: true,
+            schema: "string",
+            summary: "header parameter X-Request-ID; required; schema string; Trace id"
+          }
+        ]
+      },
     {
       method: "POST",
       path: "/orders",
@@ -827,6 +881,13 @@ test("extractApiContracts and API summaries handle OpenAPI YAML blocks", () => {
     "  /orders:",
     "    get:",
     "      summary: List orders",
+    "      parameters:",
+    "        - name: status",
+    "          in: query",
+    "          required: false",
+    "          schema:",
+    "            type: string",
+    "            default: open",
     "      security:",
     "        - bearerAuth: []",
     "      responses:",
@@ -882,12 +943,22 @@ test("extractApiContracts and API summaries handle OpenAPI YAML blocks", () => {
   ].join("\n");
 
   assert.deepEqual(extractApiContracts(openApiMarkdown), [
-    {
-      method: "GET",
-      path: "/orders",
-      sourceLine: 3,
-      summary: "List orders"
-    },
+      {
+        method: "GET",
+        path: "/orders",
+        sourceLine: 3,
+        summary: "List orders",
+        parameters: [
+          {
+            name: "status",
+            in: "query",
+            required: false,
+            schema: "string",
+            defaultValue: "open",
+            summary: "query parameter status; optional; schema string; default open"
+          }
+        ]
+      },
     {
       method: "POST",
       path: "/orders",

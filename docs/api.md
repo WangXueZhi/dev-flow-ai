@@ -2,7 +2,7 @@
 
 The MVP integrates with OpenAI-compatible chat completion APIs. Local fallback planning, dry-run execution, and local patch-set application require no API.
 
-When project API docs include endpoint lines such as ``GET /api/orders`` or ``POST /api/orders``, DevFlow records those API contracts in the project brief, implementation plan, task units, and delivery report. DevFlow also recognizes GraphQL `query`, `mutation`, and `subscription` operations in inline notes and fenced `graphql` or `gql` blocks. Fenced `json` examples are summarized as API data models with top-level model names and field lists.
+When project API docs include endpoint lines such as ``GET /api/orders`` or ``GET /api/orders?status=open``, DevFlow records those API contracts in the project brief, implementation plan, task units, and delivery report. Inline endpoint paths can also surface query parameters like `status` and path parameters like `{id}`. DevFlow also recognizes GraphQL `query`, `mutation`, and `subscription` operations in inline notes and fenced `graphql` or `gql` blocks. Fenced `json` examples are summarized as API data models with top-level model names and field lists.
 
 DevFlow also extracts operational API constraints that affect frontend delivery:
 
@@ -30,6 +30,7 @@ mutation UpdateOrderStatus($id: ID!, $status: OrderStatus!) {
 Fenced OpenAPI JSON or YAML blocks are recognized when they contain `openapi` and `paths`:
 
 - `paths` methods become API contracts.
+- Path-level and operation-level `parameters` become API contract parameter notes for query, path, header, and cookie parameters.
 - `components.schemas` become API data models.
 - Operation `requestBody` content schemas become API request data models.
 - Operation response content schemas become API response data models.

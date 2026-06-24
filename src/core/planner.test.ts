@@ -81,6 +81,7 @@ test("createImplementationPlan includes UI state checklist from the brief", asyn
   assert.match(plan, /Integrate GET \/orders\?status=open \(api line 3\)/);
   assert.match(plan, /Implement documented UI state from line 3: Orders table includes loading and empty states/);
   assert.match(plan, /Integrate `GET \/orders\?status=open`/);
+  assert.match(plan, /Parameters: query status \(optional, default open\)/);
   assert.match(plan, /Cover acceptance criterion with automated test or documented manual QA/);
   assert.match(plan, /Use color token from UI note line 4: Primary color = #2563eb/);
 });

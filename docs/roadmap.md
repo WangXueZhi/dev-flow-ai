@@ -10,7 +10,8 @@
 - Runtime doctor command.
 - Structured project brief.
 - API error case and auth requirement extraction.
-- OpenAPI JSON/YAML path, component schema, request/response schema, error response, and security extraction.
+- API parameter extraction for inline endpoint references and OpenAPI parameter objects.
+- OpenAPI JSON/YAML path, parameter, component schema, request/response schema, error response, and security extraction.
 - GraphQL operation extraction for `query`, `mutation`, and `subscription` API docs.
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
 - UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography.

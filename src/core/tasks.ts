@@ -371,7 +371,11 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
       kind: "api-endpoint",
       title: `${contract.method} ${contract.path}`,
       source: `${brief.sourceDocuments.apiPath}:${contract.sourceLine}`,
-      details: ["Map this endpoint to data fetching, loading, empty, error, and success states.", contract.summary]
+      details: [
+        "Map this endpoint to data fetching, loading, empty, error, and success states.",
+        contract.summary,
+        ...formatApiParameterDetails(contract.parameters)
+      ]
     });
   }
 
@@ -437,6 +441,24 @@ function frontendTargetDocumentPath(brief: ProjectBrief, source: FrontendTargetS
 
 function formatFrontendTargetEvidence(evidence: string[]): string[] {
   return evidence.slice(0, 4).map((item) => `Evidence: ${item}`);
+}
+
+function formatApiParameterDetails(parameters: ProjectBrief["apiContracts"][number]["parameters"]): string[] {
+  if (!parameters?.length) {
+    return [];
+  }
+
+  return [`Parameters: ${parameters.map(formatApiParameterDetail).join("; ")}`];
+}
+
+function formatApiParameterDetail(parameter: NonNullable<ProjectBrief["apiContracts"][number]["parameters"]>[number]): string {
+  const details = [
+    parameter.schema,
+    parameter.required === undefined ? undefined : parameter.required ? "required" : "optional",
+    parameter.defaultValue ? `default ${parameter.defaultValue}` : undefined
+  ].filter((item): item is string => Boolean(item));
+
+  return `${parameter.in} ${parameter.name}${details.length ? ` (${details.join(", ")})` : ""}`;
 }
 
 function truncateTitle(value: string): string {
