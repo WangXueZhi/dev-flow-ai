@@ -18,12 +18,14 @@ const validInput = {
     files: [
       "dist",
       "scripts/example-visual-smoke.mjs",
+      "scripts/release-external-status.mjs",
       "scripts/release-readiness.mjs",
       "scripts/verify-live-smoke-report.mjs",
       "scripts/summarize-live-smoke-report.mjs"
     ],
     scripts: {
       "example:visual-smoke": "node scripts/example-visual-smoke.mjs",
+      "release:external-status": "node scripts/release-external-status.mjs",
       "release:readiness": "node scripts/release-readiness.mjs",
       "release:preflight": "node scripts/release-preflight.mjs",
       "smoke:live:report": "node scripts/verify-live-smoke-report.mjs",

@@ -9,9 +9,12 @@ Run the root checks:
 ```bash
 npm ci
 npx playwright install chromium
+npm run release:external-status
 npm run release:readiness
 npm run release:preflight
 ```
+
+`npm run release:external-status` checks live external publication state: npm authentication, whether `dev-flow-ai` is published on npm, whether the `v0.1.0` GitHub Release is published rather than draft, and whether the repository has `NPM_TOKEN` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured as Actions secrets. It supports `-- --json` for machine-readable evidence and `-- --require-passed` when a maintainer wants the command to fail until every external release condition is satisfied.
 
 `npm run release:readiness` runs static release checks for package/package-lock version alignment, changelog coverage, versioned release notes, package allowlists, npm provenance workflow configuration, example visual smoke wiring, live-provider report validation wiring, and live-provider gate documentation.
 
@@ -67,6 +70,7 @@ node ../../dist/cli.js deliver \
 - Confirm `docs/github-action.md` and `action.yml` match the current safe delivery behavior.
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
 - Confirm the repository has `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured before publishing a GitHub Release.
+- Confirm `npm run release:external-status -- --json` reports the expected npm, GitHub Release, and Actions secret state.
 - Confirm `dev-flow doctor --json` reports the expected provider endpoint, model, key source, and fixture override state without exposing secret values.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run release:readiness` passes.

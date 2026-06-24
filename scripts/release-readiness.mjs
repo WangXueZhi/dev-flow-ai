@@ -37,9 +37,10 @@ export function evaluateReleaseReadiness(input) {
     ),
     check(
       "release-script",
-      "Package exposes release readiness, preflight, example visual smoke, and live-smoke report scripts",
+      "Package exposes release readiness, preflight, external status, example visual smoke, and live-smoke report scripts",
       input.packageJson.scripts?.["release:readiness"] === "node scripts/release-readiness.mjs" &&
         input.packageJson.scripts?.["release:preflight"] === "node scripts/release-preflight.mjs" &&
+        input.packageJson.scripts?.["release:external-status"] === "node scripts/release-external-status.mjs" &&
         input.packageJson.scripts?.["example:visual-smoke"] === "node scripts/example-visual-smoke.mjs" &&
         input.packageJson.scripts?.["smoke:live:report"] === "node scripts/verify-live-smoke-report.mjs" &&
         input.packageJson.scripts?.["smoke:live:summary"] === "node scripts/summarize-live-smoke-report.mjs",
@@ -50,10 +51,11 @@ export function evaluateReleaseReadiness(input) {
       "Release support scripts are included in the package file allowlist",
       Array.isArray(input.packageJson.files) &&
         input.packageJson.files.includes("scripts/example-visual-smoke.mjs") &&
+        input.packageJson.files.includes("scripts/release-external-status.mjs") &&
         input.packageJson.files.includes("scripts/release-readiness.mjs") &&
         input.packageJson.files.includes("scripts/verify-live-smoke-report.mjs") &&
         input.packageJson.files.includes("scripts/summarize-live-smoke-report.mjs"),
-      "example visual smoke, release readiness, live-smoke report, and live-smoke summary scripts"
+      "example visual smoke, release external status, release readiness, live-smoke report, and live-smoke summary scripts"
     ),
     check(
       "changelog-entry",
