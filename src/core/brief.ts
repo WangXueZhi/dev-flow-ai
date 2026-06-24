@@ -3,7 +3,7 @@ import { dirname, isAbsolute, join, normalize } from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { ProjectContext } from "./context.js";
 import { extractChecklistItems, extractMarkdownSignals } from "./signals.js";
-import type { StackProfile } from "./stack.js";
+import type { StackProfile, WorkspacePackage } from "./stack.js";
 
 export interface DesignAsset {
   source: "ui-markdown-image";
@@ -2475,7 +2475,10 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function buildRecommendedVerification(stack: StackProfile): string[] {
   const scripts = stack.scripts;
-  const scriptCommands = buildPackageScriptVerificationCommands(stack.packageManager, scripts);
+  const scriptCommands = uniqueStrings([
+    ...buildPackageScriptVerificationCommands(stack.packageManager, scripts),
+    ...buildWorkspacePackageVerificationCommands(stack.packageManager, stack.workspacePackages ?? [])
+  ]).slice(0, 16);
 
   if (scriptCommands.length > 0) {
     return scriptCommands;
@@ -2490,6 +2493,23 @@ function buildPackageScriptVerificationCommands(
   packageManager: string | undefined,
   scripts: Record<string, string>
 ): string[] {
+  return selectVerificationScriptNames(scripts)
+    .map((name) => formatPackageScriptCommand(packageManager, name));
+}
+
+function buildWorkspacePackageVerificationCommands(
+  packageManager: string | undefined,
+  workspacePackages: WorkspacePackage[]
+): string[] {
+  return workspacePackages
+    .flatMap((workspacePackage) =>
+      selectVerificationScriptNames(workspacePackage.scripts)
+        .map((scriptName) => formatWorkspacePackageScriptCommand(packageManager, workspacePackage, scriptName))
+    )
+    .slice(0, 12);
+}
+
+function selectVerificationScriptNames(scripts: Record<string, string>): string[] {
   const scriptGroups = [
     ["check", "verify", "validate", "ci"],
     ["lint", "lint:ci", "lint:check", "eslint", "biome:check"],
@@ -2504,19 +2524,18 @@ function buildPackageScriptVerificationCommands(
 
   return scriptGroups
     .map((names) => names.find((name) => scripts[name]))
-    .filter((name): name is string => Boolean(name))
-    .map((name) => formatPackageScriptCommand(packageManager, name));
+    .filter((name): name is string => Boolean(name));
 }
 
 function buildInferredVerificationCommands(stack: StackProfile): string[] {
   const hasTypeScriptSignal =
     hasStackSignal(stack, "runtimes", "TypeScript") ||
     hasStackSignal(stack, "buildTools", "tsc") ||
-    stack.configFiles.includes("tsconfig.json");
+    hasConfigFileNamed(stack, "tsconfig.json");
   const hasVueTypeChecker = hasStackSignal(stack, "buildTools", "vue-tsc");
   const hasSvelteTypeChecker = hasStackSignal(stack, "buildTools", "svelte-check");
   const hasFrameworkTypeChecker = hasVueTypeChecker || hasSvelteTypeChecker;
-  const svelteCheckArgs = stack.configFiles.includes("tsconfig.json") ? "--tsconfig ./tsconfig.json" : "";
+  const svelteCheckArgs = hasConfigFileNamed(stack, "tsconfig.json") ? "--tsconfig ./tsconfig.json" : "";
   const commands = [
     hasStackSignal(stack, "buildTools", "Biome")
       ? formatPackageExecCommand(stack.packageManager, "biome", "check .")
@@ -2557,6 +2576,30 @@ function formatPackageScriptCommand(packageManager: string | undefined, scriptNa
   }
 
   return `npm run ${scriptName}`;
+}
+
+function formatWorkspacePackageScriptCommand(
+  packageManager: string | undefined,
+  workspacePackage: WorkspacePackage,
+  scriptName: string
+): string {
+  if (packageManager === "pnpm") {
+    return workspacePackage.name
+      ? `pnpm --filter ${workspacePackage.name} ${scriptName}`
+      : `pnpm --dir ${workspacePackage.path} ${scriptName}`;
+  }
+
+  if (packageManager === "yarn") {
+    return workspacePackage.name
+      ? `yarn workspace ${workspacePackage.name} ${scriptName}`
+      : `yarn --cwd ${workspacePackage.path} ${scriptName}`;
+  }
+
+  if (packageManager === "bun") {
+    return `bun --cwd ${workspacePackage.path} run ${scriptName}`;
+  }
+
+  return `npm --prefix ${workspacePackage.path} run ${scriptName}`;
 }
 
 function formatPackageExecCommand(packageManager: string | undefined, binary: string, args = ""): string {
@@ -2603,6 +2646,10 @@ function inferBuildCommand(stack: StackProfile): string | undefined {
 
 function hasStackSignal(stack: StackProfile, field: "buildTools" | "frameworks" | "runtimes" | "testing", value: string): boolean {
   return stack[field].includes(value);
+}
+
+function hasConfigFileNamed(stack: StackProfile, fileName: string): boolean {
+  return stack.configFiles.some((configFile) => configFile.split("/").pop() === fileName);
 }
 
 function uniqueStrings(values: string[]): string[] {

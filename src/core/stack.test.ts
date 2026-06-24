@@ -113,3 +113,104 @@ test("detectStack identifies framework conventions from config files and package
   assert.ok(stack.configFiles.includes("biome.json"));
   assert.ok(!stack.notes.some((note) => /No lockfile/.test(note)));
 });
+
+test("detectStack identifies workspace package scripts and frontend signals", async () => {
+  const root = await mkdtemp(join(tmpdir(), "dev-flow-stack-workspace-"));
+  await mkdir(join(root, "apps", "web", "src"), { recursive: true });
+  await mkdir(join(root, "packages", "ui", "src"), { recursive: true });
+  await mkdir(join(root, "packages", "utils"), { recursive: true });
+  await writeFile(join(root, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n", "utf8");
+  await writeFile(
+    join(root, "package.json"),
+    JSON.stringify(
+      {
+        private: true,
+        workspaces: ["apps/*"]
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(join(root, "pnpm-workspace.yaml"), "packages:\n  - apps/*\n  - packages/*\n", "utf8");
+  await writeFile(
+    join(root, "apps", "web", "package.json"),
+    JSON.stringify(
+      {
+        name: "@acme/web",
+        scripts: {
+          lint: "eslint .",
+          typecheck: "tsc --noEmit",
+          "test:e2e": "playwright test",
+          build: "vite build"
+        },
+        dependencies: {
+          "@playwright/test": "^latest",
+          react: "^latest",
+          "react-dom": "^latest",
+          vite: "^latest"
+        },
+        devDependencies: {
+          eslint: "^latest",
+          typescript: "^latest"
+        }
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    join(root, "packages", "ui", "package.json"),
+    JSON.stringify(
+      {
+        name: "@acme/ui",
+        scripts: {
+          test: "node --test",
+          build: "tsc -p tsconfig.json"
+        }
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    join(root, "packages", "utils", "package.json"),
+    JSON.stringify(
+      {
+        name: "@acme/utils",
+        dependencies: {
+          vue: "^latest"
+        }
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(join(root, "apps", "web", "vite.config.ts"), "export default {}", "utf8");
+  await writeFile(join(root, "apps", "web", "tsconfig.json"), "{}", "utf8");
+
+  const stack = await detectStack(root);
+
+  assert.equal(stack.packageManager, "pnpm");
+  assert.deepEqual(stack.workspacePackages?.map((workspacePackage) => workspacePackage.path), [
+    "apps/web",
+    "packages/ui",
+    "packages/utils"
+  ]);
+  assert.ok(stack.frameworks.includes("React"));
+  assert.ok(stack.frameworks.includes("Vue"));
+  assert.ok(stack.buildTools.includes("Vite"));
+  assert.ok(stack.buildTools.includes("tsc"));
+  assert.ok(stack.buildTools.includes("ESLint"));
+  assert.ok(stack.testing.includes("Playwright"));
+  assert.ok(stack.testing.includes("node:test"));
+  assert.ok(stack.sourceDirectories.includes("apps/web/src"));
+  assert.ok(stack.sourceDirectories.includes("packages/ui/src"));
+  assert.ok(stack.configFiles.includes("apps/web/vite.config.ts"));
+  assert.ok(stack.configFiles.includes("apps/web/tsconfig.json"));
+  assert.ok(stack.notes.some((note) => /Workspace packages detected: apps\/web, packages\/ui, packages\/utils/.test(note)));
+  assert.ok(!stack.notes.some((note) => /No package scripts detected/.test(note)));
+});

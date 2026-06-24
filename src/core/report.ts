@@ -607,10 +607,17 @@ function formatStack(brief: ProjectBrief): string {
     stack.buildTools.length ? `Build tools: ${stack.buildTools.join(", ")}` : undefined,
     stack.styling.length ? `Styling: ${stack.styling.join(", ")}` : undefined,
     stack.testing.length ? `Testing: ${stack.testing.join(", ")}` : undefined,
+    stack.workspacePackages?.length ? `Workspace packages: ${formatWorkspacePackages(stack.workspacePackages)}` : undefined,
     stack.sourceDirectories.length ? `Source directories: ${stack.sourceDirectories.join(", ")}` : undefined
   ].filter((line): line is string => Boolean(line));
 
   return lines.length ? lines.map((line) => `- ${line}`).join("\n") : "- No stack signals recorded.";
+}
+
+function formatWorkspacePackages(workspacePackages: NonNullable<ProjectBrief["stack"]["workspacePackages"]>): string {
+  return workspacePackages.map((workspacePackage) =>
+    workspacePackage.name ? `${workspacePackage.path} (${workspacePackage.name})` : workspacePackage.path
+  ).join(", ");
 }
 
 function formatSourceContextSummary(summary: SourceContextSummaryLog | undefined): string {

@@ -21,7 +21,16 @@ const brief: ProjectBrief = {
     scripts: {
       check: "vitest run"
     },
-    sourceDirectories: ["src"],
+    workspacePackages: [
+      {
+        name: "@acme/web",
+        path: "apps/web",
+        scripts: {
+          check: "vitest run"
+        }
+      }
+    ],
+    sourceDirectories: ["apps/web/src"],
     configFiles: ["vite.config.ts"],
     notes: []
   },
@@ -261,6 +270,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /release owner.*dashboard health visible/);
   assert.match(report, /Requirement Constraints/);
   assert.match(report, /dense and operational/);
+  assert.match(report, /Workspace packages: apps\/web \(@acme\/web\)/);
   assert.match(report, /Acceptance Criteria/);
   assert.match(report, /Dashboard renders release health/);
   assert.match(report, /Acceptance Evidence/);

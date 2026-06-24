@@ -195,9 +195,9 @@ The brief includes:
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
 - Fenced OpenAPI JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
-- Detected package manager, runtime, frameworks, build and quality tools, styling, testing, scripts, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
+- Detected package manager, runtime, frameworks, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
-- Recommended verification commands from package scripts, common script aliases, or inferred quality, framework type-checking, test, and build tooling.
+- Recommended verification commands from root and workspace package scripts, common script aliases, or inferred quality, framework type-checking, test, and build tooling.
 
 ### `dev-flow doctor`
 
@@ -310,7 +310,7 @@ Use `--save-prompts <dir>` during delivery to write planner, dry-run, and AI app
 
 ### `dev-flow verify`
 
-Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. If `.devflow/artifacts/task-changelog.md` exists, `verify` also refreshes a generated Verification Summary block with status, report path, and command exit codes. Recommended commands are derived from detected package scripts in `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` order, including common script aliases such as `validate`, `format:check`, `type:check`, `test:unit`, `test:e2e`, and `compile`. When explicit verification scripts are missing, DevFlow can infer package-manager-aware commands from detected Biome, ESLint, Prettier, Vue/Svelte type checkers, TypeScript, Vitest, Jest, node:test, Playwright, Cypress, Vite, Next.js, Nuxt, Astro, or Angular signals.
+Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. If `.devflow/artifacts/task-changelog.md` exists, `verify` also refreshes a generated Verification Summary block with status, report path, and command exit codes. Recommended commands are derived from detected root and workspace package scripts in `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` order, including common script aliases such as `validate`, `format:check`, `type:check`, `test:unit`, `test:e2e`, and `compile`. When explicit verification scripts are missing, DevFlow can infer package-manager-aware commands from detected Biome, ESLint, Prettier, Vue/Svelte type checkers, TypeScript, Vitest, Jest, node:test, Playwright, Cypress, Vite, Next.js, Nuxt, Astro, or Angular signals.
 
 Override the command when needed:
 
@@ -427,9 +427,9 @@ The first public milestone focuses on planning quality and repository ergonomics
 - API data model summaries extracted from fenced `json` examples.
 - API error and auth requirement summaries extracted from API docs.
 - OpenAPI JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
-- Stack detection for package manager metadata, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
+- Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
-- Aggregated recommended verification commands from detected `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` package scripts, common aliases, or inferred quality, framework type-checking, test, and build tooling.
+- Aggregated recommended verification commands from detected root/workspace `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` package scripts, common aliases, or inferred quality, framework type-checking, test, and build tooling.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - Normalized frontend target extraction for routes/views, explicit route paths, component names, data needs, UI states, and acceptance criteria.
 - Delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.

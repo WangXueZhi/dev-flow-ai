@@ -21,7 +21,7 @@
 - Explicit frontend route path and component name extraction from requirements, UI notes, user stories, and acceptance criteria.
 - Acceptance-criterion-derived frontend targets.
 - Risk scoring for ambiguous requirements.
-- Expanded stack detection from package manager metadata, nested source directories, and common frontend framework/tool config files.
+- Expanded stack detection from package manager metadata, workspace packages, nested source directories, and common frontend framework/tool config files.
 - Task plan generation.
 - Implementation unit dependency hints and type-specific review checklists in task artifacts and focused dry-run proposals.
 - Dry-run patch proposal generation.
@@ -38,7 +38,7 @@
 - Human-readable task changelog generated after source-changing apply.
 - Task changelog review handoff notes with execution, verification, and delivery artifact links.
 - Task changelog verification summary refreshes after `dev-flow verify` runs.
-- Aggregated recommended verification commands from detected package scripts.
+- Aggregated recommended verification commands from detected root and workspace package scripts.
 - Recommended verification command selection from common script aliases and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
@@ -71,7 +71,7 @@
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Further enrich task changelogs with reviewer-authored notes and deeper review metadata.
-- Further expand verification command selection with provider, monorepo, and CI-specific checks.
+- Further expand verification command selection with provider and CI-specific checks.
 - Feed verification results into the delivery report after code changes.
 
 ## Milestone 3: UI And Visual Verification

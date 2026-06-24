@@ -330,6 +330,42 @@ test("createProjectBrief recognizes expanded verification script aliases", () =>
   ]);
 });
 
+test("createProjectBrief recommends workspace package verification scripts", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "pnpm",
+    scripts: {},
+    workspacePackages: [
+      {
+        name: "@acme/web",
+        path: "apps/web",
+        scripts: {
+          lint: "eslint .",
+          typecheck: "tsc --noEmit",
+          "test:e2e": "playwright test",
+          build: "vite build"
+        }
+      },
+      {
+        path: "packages/ui",
+        scripts: {
+          test: "node --test",
+          build: "tsc -p tsconfig.json"
+        }
+      }
+    ]
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "pnpm --filter @acme/web lint",
+    "pnpm --filter @acme/web typecheck",
+    "pnpm --filter @acme/web test:e2e",
+    "pnpm --filter @acme/web build",
+    "pnpm --dir packages/ui test",
+    "pnpm --dir packages/ui build"
+  ]);
+});
+
 test("createProjectBrief infers verification commands from detected frontend tooling", () => {
   const brief = createProjectBrief(context, {
     ...stack,

@@ -59,6 +59,19 @@ test("createImplementationPlan uses fallback when provider is absent", async () 
 test("createImplementationPlan includes UI state checklist from the brief", async () => {
   const brief = {
     ...createProjectBrief(context, stack),
+    stack: {
+      ...stack,
+      workspacePackages: [
+        {
+          name: "@acme/web",
+          path: "apps/web",
+          scripts: {
+            build: "vite build"
+          }
+        }
+      ],
+      sourceDirectories: ["apps/web/src"]
+    },
     acceptanceCriteria: ["Orders can be filtered by open status."],
     designTokens: [
       {
@@ -73,6 +86,7 @@ test("createImplementationPlan includes UI state checklist from the brief", asyn
   const plan = await createImplementationPlan(context, undefined, brief);
 
   assert.match(plan, /Design Tokens/);
+  assert.match(plan, /Workspace packages: apps\/web \(@acme\/web\)/);
   assert.match(plan, /Primary color = #2563eb/);
   assert.match(plan, /UI State Checklist/);
   assert.match(plan, /\[state\] Line 3: Orders table includes loading and empty states/);
