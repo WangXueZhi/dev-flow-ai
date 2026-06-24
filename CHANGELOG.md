@@ -80,6 +80,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.
 - Added local GraphQL/GQL file link extraction, schema root-field contracts, and GraphQL schema data model summaries.
 - Added repository stack detection for package manager, runtime, framework, build, styling, testing, scripts, source directories, and config files.
+- Added detection for common data-fetching and state data libraries, including TanStack Query, SWR, Apollo Client, Redux Toolkit, Pinia, Vuex, NgRx, Axios, and graphql-request.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Added React Router stack detection plus route configuration target candidates for React/Vite source-context sampling.
 - Added structured project brief generation.
@@ -94,6 +95,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added dry-run patch proposals with stack-specific target profiles for likely component, data, style, test, config, and verification targets.
 - Added source-context target profile candidates derived from explicit route paths and component names in requirements and UI notes.
 - Added data/API target profile candidates derived from explicit API endpoint paths.
+- Added data-library-aware API target candidates and AI execution notes for common query, GraphQL, store, and HTTP client conventions.
 - Added selected-unit-prioritized target profile candidates for normalized frontend route, component, and data units.
 - Added selected-unit-prioritized source-context sampling so AI prompts see relevant route, component, or data candidates before broader repository files.
 - Added `.devflow/artifacts/source-context-summary.json` plus delivery report and manifest evidence for path-level AI source-context sampling.

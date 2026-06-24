@@ -23,6 +23,7 @@
 - Acceptance criteria extraction from checkbox items, acceptance sections, Gherkin lines, tables, and localized headings.
 - Risk scoring for ambiguous requirements.
 - Expanded stack detection from package manager metadata, workspace packages, nested source directories, and common frontend framework/tool config files.
+- Common data-fetching and state data-library detection for target profiles and AI source-context candidates.
 - Task plan generation.
 - Implementation unit dependency hints and type-specific review checklists in task artifacts and focused dry-run proposals.
 - Dry-run patch proposal generation.
@@ -30,6 +31,7 @@
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
 - Explicit route/component-derived file candidates in target profiles and source-context sampling, including React Router route configuration candidates for React/Vite projects.
 - Explicit API endpoint-derived data/API file candidates in target profiles and source-context sampling.
+- Data-library-aware API candidates for TanStack Query, SWR, Apollo Client, urql, Redux Toolkit, Pinia, Vuex, NgRx, Axios, and graphql-request projects.
 - Nuxt-aware route, layout, composable, server API, Playwright, and Cypress target profile candidates.
 - Svelte/SvelteKit, Astro, and Angular-aware route, data/API, service, style, and spec target profile candidates.
 - Normalized frontend target summaries in AI execution target profiles.

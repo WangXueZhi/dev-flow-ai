@@ -203,7 +203,7 @@ The brief includes:
 - API data models extracted from fenced `json` examples and GraphQL `type`, `input`, `interface`, and `enum` schema definitions.
 - API error cases, authentication requirements, and API-driven loading, cache, refresh, and data freshness requirements extracted from API docs.
 - Fenced or locally linked OpenAPI/Swagger JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
-- Detected package manager, runtime, frameworks and routing conventions, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
+- Detected package manager, runtime, frameworks and routing conventions, common data-fetching/state data libraries, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
 - Recommended verification commands from root and workspace package scripts, common script aliases, or inferred quality, framework type-checking, test, and build tooling.
 
@@ -464,7 +464,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - API data model summaries extracted from fenced `json` examples and GraphQL schema definitions.
 - API error, auth, and state requirement summaries extracted from API docs.
 - OpenAPI/Swagger JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks and local Markdown links.
-- Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
+- Stack detection for package manager metadata, workspace packages, framework, data-fetching/state data libraries, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria from checkbox and acceptance sections, and downstream planning context.
 - Aggregated recommended verification commands from detected root/workspace `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, coverage, `build`, and audit package scripts, common local/CI aliases, or inferred quality, framework type-checking, test, and build tooling.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.

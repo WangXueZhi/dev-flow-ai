@@ -177,6 +177,85 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
   ]);
 });
 
+test("createImplementationTargetProfile includes detected data-library candidates", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js", "TypeScript"],
+      frameworks: ["React"],
+      buildTools: ["Vite"],
+      dataLibraries: ["TanStack Query", "SWR", "Apollo Client", "Redux Toolkit", "Axios"],
+      styling: [],
+      testing: ["Vitest"],
+      scripts: {
+        test: "vitest run"
+      },
+      sourceDirectories: ["src"],
+      configFiles: ["vite.config.ts"],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [
+      {
+        method: "GET",
+        path: "/api/orders/recent",
+        sourceLine: 8,
+        summary: "GET /api/orders/recent"
+      }
+    ],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    frontendTargets: {
+      routes: [],
+      components: [],
+      dataNeeds: [],
+      uiStates: []
+    },
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: ["npm run test"]
+  };
+
+  const profile = createImplementationTargetProfile(task, brief);
+
+  assert.ok(profile.stackTags.includes("TanStack Query"));
+  assert.deepEqual(profile.dataCandidates.slice(0, 7), [
+    "src/hooks/useOrdersRecentQuery.ts",
+    "src/queries/orders-recent.ts",
+    "src/lib/queries/orders-recent.ts",
+    "src/hooks/useOrdersRecent.ts",
+    "src/swr/orders-recent.ts",
+    "src/lib/swr/orders-recent.ts",
+    "src/graphql/orders-recent.ts"
+  ]);
+  assert.ok(profile.dataCandidates.includes("src/store/orders-recentApi.ts"));
+  assert.ok(profile.dataCandidates.includes("src/features/orders-recent/orders-recentApi.ts"));
+  assert.ok(profile.dataCandidates.includes("src/lib/http/orders-recent.ts"));
+  assert.ok(profile.dataCandidates.includes("src/lib/queryClient.ts"));
+  assert.ok(profile.dataCandidates.includes("src/lib/fetcher.ts"));
+  assert.ok(profile.dataCandidates.includes("src/lib/http.ts"));
+  assert.ok(profile.notes.some((note) => /query\/fetching library/.test(note)));
+  assert.ok(profile.notes.some((note) => /GraphQL client/.test(note)));
+  assert.ok(profile.notes.some((note) => /store\/data-layer conventions/.test(note)));
+});
+
 test("createImplementationTargetProfile prioritizes candidates from selected frontend units", () => {
   const brief: ProjectBrief = {
     version: 1,

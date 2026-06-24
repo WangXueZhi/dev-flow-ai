@@ -20,6 +20,8 @@ test("detectStack identifies common frontend repository signals", async () => {
           check: "vitest run && tsc --noEmit"
         },
         dependencies: {
+          "@tanstack/react-query": "^latest",
+          axios: "^latest",
           "@vitejs/plugin-react": "^latest",
           react: "^latest",
           "react-router-dom": "^latest",
@@ -46,6 +48,8 @@ test("detectStack identifies common frontend repository signals", async () => {
   assert.ok(stack.frameworks.includes("React"));
   assert.ok(stack.frameworks.includes("React Router"));
   assert.ok(stack.buildTools.includes("Vite"));
+  assert.ok(stack.dataLibraries?.includes("TanStack Query"));
+  assert.ok(stack.dataLibraries?.includes("Axios"));
   assert.ok(stack.styling.includes("Tailwind CSS"));
   assert.ok(stack.testing.includes("Vitest"));
   assert.ok(stack.sourceDirectories.includes("src"));

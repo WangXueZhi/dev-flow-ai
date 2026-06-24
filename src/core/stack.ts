@@ -95,6 +95,7 @@ export interface StackProfile {
   runtimes: string[];
   frameworks: string[];
   buildTools: string[];
+  dataLibraries?: string[];
   styling: string[];
   testing: string[];
   scripts: Record<string, string>;
@@ -198,6 +199,19 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     hasPrettierSignal ? "Prettier" : undefined
   ]);
 
+  const dataLibraries = unique([
+    hasDependency("@tanstack/react-query") || hasDependency("react-query") ? "TanStack Query" : undefined,
+    hasDependency("swr") ? "SWR" : undefined,
+    hasDependency("@apollo/client") || hasDependency("apollo-angular") || hasDependency("@vue/apollo-composable") ? "Apollo Client" : undefined,
+    hasDependency("urql") || hasDependency("@urql/vue") ? "urql" : undefined,
+    hasDependency("@reduxjs/toolkit") || hasDependency("react-redux") ? "Redux Toolkit" : undefined,
+    hasDependency("pinia") ? "Pinia" : undefined,
+    hasDependency("vuex") ? "Vuex" : undefined,
+    hasDependency("@ngrx/store") || hasDependency("@ngrx/effects") ? "NgRx" : undefined,
+    hasDependency("axios") ? "Axios" : undefined,
+    hasDependency("graphql-request") ? "graphql-request" : undefined
+  ]);
+
   const styling = unique([
     hasDependency("tailwindcss") || hasConfigFile(/^tailwind\.config\./) ? "Tailwind CSS" : undefined,
     hasDependency("sass") ? "Sass" : undefined,
@@ -230,6 +244,7 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     runtimes,
     frameworks,
     buildTools,
+    dataLibraries,
     styling,
     testing,
     scripts,

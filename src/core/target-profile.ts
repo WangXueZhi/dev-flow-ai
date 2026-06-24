@@ -36,6 +36,7 @@ export function createImplementationTargetProfile(
     stackTags: unique([
       ...brief.stack.frameworks,
       ...brief.stack.buildTools,
+      ...(brief.stack.dataLibraries ?? []),
       ...brief.stack.styling,
       ...brief.stack.testing
     ]),
@@ -307,6 +308,7 @@ function buildDataCandidates(
 ): string[] {
   const candidates = [
     ...buildExplicitApiDataCandidates(brief, root, moduleExtension, unit),
+    ...buildDataLibraryRootCandidates(brief, root, moduleExtension),
     `${root}/api/`,
     `${root}/lib/api.${moduleExtension}`,
     `${root}/services/`,
@@ -389,7 +391,82 @@ function apiDataCandidatesForPath(
     candidates.push(`${root}/app/services/${resourceName}.service.${moduleExtension}`);
   }
 
+  candidates.push(...dataLibraryCandidatesForApiPath(brief, root, moduleExtension, resourceName, pascalName));
   candidates.push(`${root}/lib/api/${resourceName}.${moduleExtension}`, `${root}/services/${resourceName}.${moduleExtension}`, `${root}/api/${resourceName}.${moduleExtension}`);
+
+  return candidates;
+}
+
+function buildDataLibraryRootCandidates(brief: ProjectBrief, root: string, moduleExtension: string): string[] {
+  const candidates: string[] = [];
+
+  if (hasDataLibrary(brief, "TanStack Query")) {
+    candidates.push(`${root}/lib/queryClient.${moduleExtension}`, `${root}/queries/`, `${root}/hooks/`);
+  }
+
+  if (hasDataLibrary(brief, "SWR")) {
+    candidates.push(`${root}/lib/fetcher.${moduleExtension}`, `${root}/swr/`, `${root}/hooks/`);
+  }
+
+  if (hasGraphqlClient(brief)) {
+    candidates.push(`${root}/graphql/`, `${root}/lib/graphql.${moduleExtension}`, `${root}/lib/graphql/`);
+  }
+
+  if (hasDataLibrary(brief, "Redux Toolkit")) {
+    candidates.push(`${root}/store/`, `${root}/features/`);
+  }
+
+  if (hasDataLibrary(brief, "Pinia") || hasDataLibrary(brief, "Vuex")) {
+    candidates.push(`${root}/stores/`);
+  }
+
+  if (hasDataLibrary(brief, "NgRx")) {
+    candidates.push(`${root}/app/store/`, `${root}/app/**/*.effects.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "Axios")) {
+    candidates.push(`${root}/lib/http.${moduleExtension}`, `${root}/lib/axios.${moduleExtension}`);
+  }
+
+  return candidates;
+}
+
+function dataLibraryCandidatesForApiPath(
+  brief: ProjectBrief,
+  root: string,
+  moduleExtension: string,
+  resourceName: string,
+  pascalName: string
+): string[] {
+  const candidates: string[] = [];
+
+  if (hasDataLibrary(brief, "TanStack Query")) {
+    candidates.push(`${root}/hooks/use${pascalName}Query.${moduleExtension}`, `${root}/queries/${resourceName}.${moduleExtension}`, `${root}/lib/queries/${resourceName}.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "SWR")) {
+    candidates.push(`${root}/hooks/use${pascalName}.${moduleExtension}`, `${root}/swr/${resourceName}.${moduleExtension}`, `${root}/lib/swr/${resourceName}.${moduleExtension}`);
+  }
+
+  if (hasGraphqlClient(brief)) {
+    candidates.push(`${root}/graphql/${resourceName}.${moduleExtension}`, `${root}/lib/graphql/${resourceName}.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "Redux Toolkit")) {
+    candidates.push(`${root}/store/${resourceName}Api.${moduleExtension}`, `${root}/features/${resourceName}/${resourceName}Api.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "Pinia") || hasDataLibrary(brief, "Vuex")) {
+    candidates.push(`${root}/stores/${resourceName}.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "NgRx")) {
+    candidates.push(`${root}/app/store/${resourceName}.actions.${moduleExtension}`, `${root}/app/store/${resourceName}.effects.${moduleExtension}`, `${root}/app/store/${resourceName}.reducer.${moduleExtension}`);
+  }
+
+  if (hasDataLibrary(brief, "Axios")) {
+    candidates.push(`${root}/lib/http/${resourceName}.${moduleExtension}`);
+  }
 
   return candidates;
 }
@@ -540,6 +617,18 @@ function buildTargetNotes(
     notes.push("Map API contracts into a data client or service layer before wiring loading, empty, error, and success UI states.");
   }
 
+  if (hasDataLibrary(brief, "TanStack Query") || hasDataLibrary(brief, "SWR")) {
+    notes.push("Use the detected query/fetching library boundaries for cache keys, revalidation, loading, error, and stale-data states.");
+  }
+
+  if (hasGraphqlClient(brief)) {
+    notes.push("Use the detected GraphQL client conventions for queries, mutations, generated types, and colocated data hooks where present.");
+  }
+
+  if (hasDataLibrary(brief, "Redux Toolkit") || hasDataLibrary(brief, "Pinia") || hasDataLibrary(brief, "Vuex") || hasDataLibrary(brief, "NgRx")) {
+    notes.push("Use the detected store/data-layer conventions before wiring API results into presentational components.");
+  }
+
   if (unit?.kind === "frontend-route") {
     notes.push("Scope this unit to the route or view shell first, then connect component, data, state, styling, and tests around that route boundary.");
   }
@@ -605,6 +694,14 @@ function hasClientSideReactRouting(brief: ProjectBrief): boolean {
 
 function hasConfigFile(brief: ProjectBrief, pattern: RegExp): boolean {
   return brief.stack.configFiles.some((configFile) => pattern.test(configFile));
+}
+
+function hasDataLibrary(brief: ProjectBrief, library: string): boolean {
+  return (brief.stack.dataLibraries ?? []).includes(library);
+}
+
+function hasGraphqlClient(brief: ProjectBrief): boolean {
+  return hasDataLibrary(brief, "Apollo Client") || hasDataLibrary(brief, "urql") || hasDataLibrary(brief, "graphql-request");
 }
 
 function isApiUnit(unit: ImplementationUnit | undefined): boolean {
