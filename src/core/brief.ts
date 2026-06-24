@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, join, normalize } from "node:path";
+import { PNG } from "pngjs";
 import { parse as parseYaml } from "yaml";
 import type { ProjectContext } from "./context.js";
 import { extractChecklistItems, extractMarkdownSignals } from "./signals.js";
@@ -26,6 +27,10 @@ export interface DesignAssetMetadata {
 }
 
 export type DesignTokenCategory = "color" | "iconography" | "motion" | "other" | "radius" | "shadow" | "spacing" | "typography";
+
+const pngPalettePixelLimit = 6_000_000;
+const pngPaletteSampleLimit = 20_000;
+const transparentAlphaThreshold = 16;
 
 export interface DesignToken {
   category: DesignTokenCategory;
@@ -298,6 +303,7 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         const label = asset.altText || asset.reference;
         const evidence = [
           `Design asset: ${asset.reference}`,
+          asset.metadata?.colors?.length ? `Colors: ${asset.metadata.colors.join(", ")}` : undefined,
           asset.metadata?.textSnippets?.length ? `Text: ${asset.metadata.textSnippets.join("; ")}` : undefined
         ].filter((item): item is string => Boolean(item));
 
@@ -1166,16 +1172,25 @@ function extractSvgMetadata(path: string): DesignAssetMetadata | undefined {
 function extractRasterImageMetadata(path: string, reference: string): DesignAssetMetadata | undefined {
   try {
     const bytes = readFileSync(path);
-    const dimensions = isPngReference(reference) ? readPngDimensions(bytes) : readJpegDimensions(bytes);
+    const png = isPngReference(reference);
+    const dimensions = png ? readPngDimensions(bytes) : readJpegDimensions(bytes);
 
     if (!dimensions) {
       return undefined;
     }
 
-    return {
+    const colors = png ? extractPngPalette(bytes, dimensions, 8) : [];
+
+    const metadata: DesignAssetMetadata = {
       width: String(dimensions.width),
       height: String(dimensions.height)
     };
+
+    if (colors.length > 0) {
+      metadata.colors = colors;
+    }
+
+    return metadata;
   } catch {
     return undefined;
   }
@@ -1201,6 +1216,51 @@ function readPngDimensions(bytes: Buffer): { width: number; height: number } | u
   }
 
   return toDimensions(bytes.readUInt32BE(16), bytes.readUInt32BE(20));
+}
+
+function extractPngPalette(bytes: Buffer, dimensions: { width: number; height: number }, limit: number): string[] {
+  if (dimensions.width * dimensions.height > pngPalettePixelLimit) {
+    return [];
+  }
+
+  try {
+    const png = PNG.sync.read(bytes);
+    const totalPixels = png.width * png.height;
+    const stride = Math.max(1, Math.ceil(totalPixels / pngPaletteSampleLimit));
+    const buckets = new Map<string, { count: number; r: number; g: number; b: number }>();
+
+    for (let pixel = 0; pixel < totalPixels; pixel += stride) {
+      const offset = pixel * 4;
+      const alpha = png.data[offset + 3] ?? 0;
+
+      if (alpha < transparentAlphaThreshold) {
+        continue;
+      }
+
+      const r = png.data[offset] ?? 0;
+      const g = png.data[offset + 1] ?? 0;
+      const b = png.data[offset + 2] ?? 0;
+      const key = `${r >> 4}:${g >> 4}:${b >> 4}`;
+      const bucket = buckets.get(key) ?? { count: 0, r: 0, g: 0, b: 0 };
+
+      bucket.count += 1;
+      bucket.r += r;
+      bucket.g += g;
+      bucket.b += b;
+      buckets.set(key, bucket);
+    }
+
+    return Array.from(buckets.values())
+      .sort((left, right) => right.count - left.count)
+      .slice(0, limit)
+      .map((bucket) => rgbToHex(
+        Math.round(bucket.r / bucket.count),
+        Math.round(bucket.g / bucket.count),
+        Math.round(bucket.b / bucket.count)
+      ));
+  } catch {
+    return [];
+  }
 }
 
 function readJpegDimensions(bytes: Buffer): { width: number; height: number } | undefined {
@@ -1276,6 +1336,14 @@ function toDimensions(width: number, height: number): { width: number; height: n
   }
 
   return { width, height };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  return `#${[r, g, b].map((value) => clampColorByte(value).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function clampColorByte(value: number): number {
+  return Math.max(0, Math.min(255, Math.round(value)));
 }
 
 function readSvgAttribute(attributes: string, name: string): string | undefined {

@@ -2,7 +2,7 @@
 
 The MVP user interface is a terminal CLI. Output should be concise, predictable, and useful in local development, CI logs, and documentation.
 
-UI notes may reference local screenshots, wireframes, or design exports with Markdown image links, and may include Figma, FigJam, Adobe XD, Zeplin, Sketch Cloud, InVision, or Framer design handoff links. DevFlow records those assets in the project brief, reports whether local files exist, reads lightweight metadata and color swatches from local SVG assets, records PNG/JPEG dimensions when available, and keeps recognized design links as remote UI evidence.
+UI notes may reference local screenshots, wireframes, or design exports with Markdown image links, and may include Figma, FigJam, Adobe XD, Zeplin, Sketch Cloud, InVision, or Framer design handoff links. DevFlow records those assets in the project brief, reports whether local files exist, reads lightweight metadata and color swatches from local SVG assets, records PNG dimensions plus representative color swatches, records JPEG dimensions when available, and keeps recognized design links as remote UI evidence.
 
 ## Commands
 

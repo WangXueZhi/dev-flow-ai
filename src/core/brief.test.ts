@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { PNG } from "pngjs";
 import {
   assessDeliveryRisks,
   createProjectBrief,
@@ -1667,6 +1668,45 @@ test("extractDesignAssets reads dimensions from local png and jpeg design assets
   );
 });
 
+test("extractDesignAssets extracts representative colors from local png design assets", (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-brief-"));
+  const docsDir = join(workspace, "docs");
+  const assetsDir = join(docsDir, "assets");
+  const pngPath = join(assetsDir, "palette.png");
+
+  t.after(() => rmSync(workspace, { recursive: true, force: true }));
+  mkdirSync(assetsDir, { recursive: true });
+  writeFileSync(
+    pngPath,
+    createPngImage(4, 2, [
+      [0x25, 0x63, 0xeb],
+      [0x25, 0x63, 0xeb],
+      [0x25, 0x63, 0xeb],
+      [0x25, 0x63, 0xeb],
+      [0xf8, 0xfa, 0xfc],
+      [0xf8, 0xfa, 0xfc],
+      [0x22, 0xc5, 0x5e],
+      [0xdc, 0x26, 0x26, 0]
+    ])
+  );
+
+  assert.deepEqual(extractDesignAssets("![Palette](assets/palette.png)", join(docsDir, "ui.md")), [
+    {
+      source: "ui-markdown-image",
+      kind: "local",
+      altText: "Palette",
+      reference: "assets/palette.png",
+      resolvedPath: pngPath,
+      exists: true,
+      metadata: {
+        width: "4",
+        height: "2",
+        colors: ["#2563eb", "#f8fafc", "#22c55e"]
+      }
+    }
+  ]);
+});
+
 function createPngHeader(width: number, height: number): Buffer {
   const bytes = Buffer.alloc(24);
   Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(bytes, 0);
@@ -1674,6 +1714,22 @@ function createPngHeader(width: number, height: number): Buffer {
   bytes.writeUInt32BE(height, 20);
 
   return bytes;
+}
+
+function createPngImage(width: number, height: number, pixels: Array<[number, number, number, number?]>): Buffer {
+  const png = new PNG({ width, height });
+
+  for (let index = 0; index < width * height; index += 1) {
+    const [r, g, b, a = 255] = pixels[index] ?? [0, 0, 0, 255];
+    const offset = index * 4;
+
+    png.data[offset] = r;
+    png.data[offset + 1] = g;
+    png.data[offset + 2] = b;
+    png.data[offset + 3] = a;
+  }
+
+  return PNG.sync.write(png);
 }
 
 function createJpegHeader(width: number, height: number): Buffer {

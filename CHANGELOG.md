@@ -70,7 +70,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added machine-readable live provider smoke reports for release evidence.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
-- Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
+- Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG dimensions with representative color swatches and JPEG dimensions.
 - Added UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography in briefs, plans, task units, and delivery reports.
 - Added API error case and auth requirement extraction for planning, task units, and delivery reports.
 - Added API-driven loading, cache, refresh, and data freshness requirement extraction for project briefs, frontend state targets, and delivery reports.

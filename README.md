@@ -195,7 +195,7 @@ The brief includes:
 - Source document paths.
 - Extracted requirement, UI, and API signals.
 - User stories, requirement constraints, and acceptance criteria extracted from requirements, including checkbox items plus bullets, numbered lists, Given/When/Then lines, and simple table rows under acceptance sections.
-- UI design assets referenced from Markdown image links or recognized design handoff links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
+- UI design assets referenced from Markdown image links or recognized design handoff links, including local file existence, SVG structure/text/color metadata, PNG dimensions plus representative color swatches, and JPEG dimensions for local assets.
 - UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
 - Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
@@ -458,7 +458,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 
 - Local CLI that works in any frontend repository.
 - Document ingestion for requirements, UI notes, and API docs.
-- UI design asset references extracted from Markdown image links and recognized Figma/FigJam/Adobe XD/Zeplin/Sketch Cloud/InVision/Framer design links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
+- UI design asset references extracted from Markdown image links and recognized Figma/FigJam/Adobe XD/Zeplin/Sketch Cloud/InVision/Framer design links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG dimensions with representative color swatches and JPEG dimensions.
 - UI design tokens extracted from visual token notes and surfaced in plans, task units, and delivery reports.
 - API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, GraphQL operations, and linked local GraphQL schema root fields.
 - API data model summaries extracted from fenced `json` examples and GraphQL schema definitions.
