@@ -15,7 +15,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow execute --validate`: validates a patch set without changing source files.
 - `dev-flow execute --apply`: applies a validated patch set and prints execution log and task changelog paths.
 - `dev-flow execute --rollback`: restores files from a backup manifest and prints rollback report path.
-- `dev-flow verify`: writes a verification report and prints status.
+- `dev-flow verify`: writes a verification report, refreshes the existing task changelog verification summary, and prints status.
 - `dev-flow visual`: captures desktop, tablet, and mobile screenshots, checks for blank screenshots and layout overflow, and prints visual status.
 - `dev-flow report`: writes a delivery report.
 - `dev-flow report --visual-report none`: writes a delivery report without reusing an existing visual report artifact.

@@ -260,7 +260,7 @@ AI-generated patch sets are saved to `.devflow/artifacts/patch-sets/<task>.json`
 
 Use `--save-prompt` to save the AI prompt for review. For dry-runs the value is a directory and DevFlow writes one prompt file per selected task. For AI apply the value is a file path for the patch-set prompt. Prompt saving is explicit because saved prompts can include sampled source snippets when source context is enabled.
 
-Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json` and summarized for handoff in `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report artifacts so source-changing work can move into verification without losing the trail.
+Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json` and summarized for handoff in `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report artifacts so source-changing work can move into verification without losing the trail. Later `dev-flow verify` runs update the existing changelog with a generated Verification Summary block.
 
 Use `execute --validate --patch-set <path>` to check a reviewed or AI-generated patch set without changing source files, creating backups, or writing the execution log.
 
@@ -310,7 +310,7 @@ Use `--save-prompts <dir>` during delivery to write planner, dry-run, and AI app
 
 ### `dev-flow verify`
 
-Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. Recommended commands are derived from detected package scripts in `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` order, including common script aliases such as `validate`, `format:check`, `type:check`, `test:unit`, `test:e2e`, and `compile`. When explicit verification scripts are missing, DevFlow can infer package-manager-aware commands from detected Biome, ESLint, Prettier, Vue/Svelte type checkers, TypeScript, Vitest, Jest, node:test, Playwright, Cypress, Vite, Next.js, Nuxt, Astro, or Angular signals.
+Reads the project brief, runs recommended verification commands, and writes `.devflow/artifacts/verification-report.json`. If `.devflow/artifacts/task-changelog.md` exists, `verify` also refreshes a generated Verification Summary block with status, report path, and command exit codes. Recommended commands are derived from detected package scripts in `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, and `build` order, including common script aliases such as `validate`, `format:check`, `type:check`, `test:unit`, `test:e2e`, and `compile`. When explicit verification scripts are missing, DevFlow can infer package-manager-aware commands from detected Biome, ESLint, Prettier, Vue/Svelte type checkers, TypeScript, Vitest, Jest, node:test, Playwright, Cypress, Vite, Next.js, Nuxt, Astro, or Angular signals.
 
 Override the command when needed:
 
@@ -442,11 +442,11 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Explicit prompt audit artifacts through `--save-prompt` and `deliver --save-prompts`.
-- Validated patch-set application with write, replace, delete, execution logs, task changelogs with review handoff links, and rollback.
+- Validated patch-set application with write, replace, delete, execution logs, task changelogs with review handoff links and verification summaries, and rollback.
 - Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.
-- Verification report generated from project commands.
+- Verification report generated from project commands, with existing task changelogs refreshed with command status summaries.
 - Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, design tokens, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.

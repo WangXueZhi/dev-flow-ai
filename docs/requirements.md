@@ -55,6 +55,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Failed patch-set application restores the apply backup automatically and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow execute --rollback --backup <manifest>` restores files and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow verify` writes `.devflow/artifacts/verification-report.json`.
+- [ ] `dev-flow verify` refreshes a generated Verification Summary block in `.devflow/artifacts/task-changelog.md` when a task changelog already exists.
 - [ ] Failed verification commands include bounded stdout/stderr excerpts for reports, manifests, status summaries, and GitHub Action job summaries.
 - [ ] `dev-flow visual --url <preview-url>` writes desktop, tablet, and mobile screenshots, blank-screen analysis, layout issue checks, and `.devflow/artifacts/visual/visual-report.json`.
 - [ ] `dev-flow report` writes `.devflow/artifacts/delivery-report.md` with source context, user stories, requirement constraints, acceptance criteria, stack, design tokens, API contracts, API data models, API error cases, API auth requirements, applied changes, touched files, operation counts, line-count deltas, verification, visual checks, delivery readiness, and next actions.

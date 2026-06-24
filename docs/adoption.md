@@ -154,7 +154,7 @@ dev-flow execute --apply --unit U18
 dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
 ```
 
-Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report so review can continue after verification runs. If an apply fails after partial writes, DevFlow restores the backup automatically.
+Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report so review can continue after verification runs. Later `dev-flow verify` runs refresh the existing changelog with a Verification Summary block. If an apply fails after partial writes, DevFlow restores the backup automatically.
 
 Manual rollback is also available:
 
@@ -169,6 +169,8 @@ Run project verification:
 ```bash
 dev-flow verify
 ```
+
+When a task changelog exists, verification updates it with status, report path, and command exit codes.
 
 With a preview server running, capture visual checks:
 

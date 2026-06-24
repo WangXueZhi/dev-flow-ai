@@ -37,6 +37,7 @@
 - Validated patch-set application.
 - Human-readable task changelog generated after source-changing apply.
 - Task changelog review handoff notes with execution, verification, and delivery artifact links.
+- Task changelog verification summary refreshes after `dev-flow verify` runs.
 - Aggregated recommended verification commands from detected package scripts.
 - Recommended verification command selection from common script aliases and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
@@ -69,7 +70,7 @@
 - Further improve task files generated from the implementation plan with richer dependency ordering and review metadata.
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
-- Further enrich task changelogs with reviewer-authored notes and verification result summaries.
+- Further enrich task changelogs with reviewer-authored notes and deeper review metadata.
 - Further expand verification command selection with provider, monorepo, and CI-specific checks.
 - Feed verification results into the delivery report after code changes.
 
