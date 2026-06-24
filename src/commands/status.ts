@@ -164,6 +164,10 @@ function formatVerificationFailures(manifest: DeliveryManifest): string[] {
         lines.push(`  - ${formatOneLineExcerpt(excerpt)}`);
       }
 
+      if (command.remediation) {
+        lines.push(`  - Suggested follow-up: ${command.remediation}`);
+      }
+
       if (command.outputExcerpt?.truncatedStderr || command.outputExcerpt?.truncatedStdout) {
         lines.push("  - Output excerpt was truncated.");
       }

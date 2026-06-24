@@ -469,6 +469,7 @@ test("formatDeliveryReport includes verification failure output excerpts", () =>
   assert.match(report, /Build failed/);
   assert.match(report, /Missing export/);
   assert.match(report, /Output excerpt was truncated/);
+  assert.match(report, /Suggested follow-up for `npm run check`: Fix missing imports, exports, or module paths/);
 });
 
 test("createDeliveryManifest summarizes artifact status and delivery evidence", () => {
@@ -668,4 +669,8 @@ test("createDeliveryManifest includes verification failure output excerpts", () 
   });
 
   assert.equal(manifest.evidence.verificationCommands[0]?.outputExcerpt?.stderr, "Missing export");
+  assert.equal(
+    manifest.evidence.verificationCommands[0]?.remediation,
+    "Fix missing imports, exports, or module paths, then rerun the failing verification command."
+  );
 });

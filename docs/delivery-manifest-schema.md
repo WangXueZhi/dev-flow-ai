@@ -26,7 +26,7 @@ The manifest schema describes:
 - Delivery counts for acceptance criteria, open questions, delivery risks, design tokens, changed files, verification commands, visual evidence, and applied operations.
 - Acceptance evidence with status, evidence, known gaps, assumptions, and manual QA prompts.
 - Design token evidence extracted from UI notes for color, typography, spacing, radius, shadows, motion, and iconography.
-- Verification command summaries with optional bounded stdout/stderr excerpts for failed commands.
+- Verification command summaries with optional bounded stdout/stderr excerpts and remediation hints for failed commands.
 - Visual screenshots and required text checks.
 - Applied-change summaries with touched files, operation counts, line delta, task changelog artifact, and backup manifests.
 - Task changelog review handoff notes and the latest changelog Verification Summary when available.
@@ -58,4 +58,4 @@ The Markdown delivery report is optimized for reviewers.
 
 The JSON manifest is optimized for tools. Prefer the manifest when automation needs to locate artifacts, gate delivery readiness, summarize evidence, or route follow-up work to another agent.
 
-Verification command entries may include `outputExcerpt` when a command fails. Excerpts are bounded summaries intended for CI logs, dashboards, and follow-up agents; use the full verification report when complete command output is required.
+Verification command entries may include `outputExcerpt` and `remediation` when a command fails. Excerpts are bounded summaries intended for CI logs, dashboards, and follow-up agents; remediation hints provide command-category follow-up guidance. Use the full verification report when complete command output is required.

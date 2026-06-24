@@ -69,6 +69,7 @@ const manifest = {
         command: "npm run check",
         exitCode: 1,
         durationMs: 1000,
+        remediation: "Fix missing imports, exports, or module paths, then rerun the failing verification command.",
         outputExcerpt: {
           stderr: "Build failed\nMissing export",
           truncatedStderr: true
@@ -149,6 +150,7 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Verification failures/);
   assert.match(summary, /`npm run check`: exit 1/);
   assert.match(summary, /Build failed Missing export/);
+  assert.match(summary, /Suggested follow-up: Fix missing imports, exports, or module paths/);
   assert.match(summary, /Output excerpt was truncated/);
   assert.match(summary, /\[high\] requirements:12: Acceptance criterion needs review/);
   assert.match(summary, /Confirm empty state copy/);

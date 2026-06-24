@@ -109,6 +109,7 @@ export interface DeliveryManifest {
       command: string;
       exitCode: number | null;
       durationMs: number;
+      remediation?: string;
       outputExcerpt?: {
         stdout?: string;
         stderr?: string;
@@ -336,6 +337,7 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
         command: result.command,
         exitCode: result.exitCode,
         durationMs: result.durationMs,
+        remediation: verificationRemediationForResult(result),
         outputExcerpt: result.outputExcerpt
       })) ?? [],
       visualScreenshots: input.visualReport?.screenshots.map((screenshot) => ({
@@ -1027,31 +1029,90 @@ function formatVerification(report: VerificationReport): string {
   const commands = report.results.map(
     (result) => `- \`${result.command}\`: exit ${result.exitCode ?? "unknown"} in ${result.durationMs}ms`
   );
-  const failureExcerpts = report.results.flatMap(formatVerificationFailureExcerpt);
+  const failureDetails = report.results.flatMap(formatVerificationFailureDetails);
 
-  return [...summary, ...commands, ...failureExcerpts].join("\n");
+  return [...summary, ...commands, ...failureDetails].join("\n");
 }
 
-function formatVerificationFailureExcerpt(result: VerificationReport["results"][number]): string[] {
-  if (!result.outputExcerpt) {
+function formatVerificationFailureDetails(result: VerificationReport["results"][number]): string[] {
+  if (result.exitCode === 0) {
     return [];
   }
 
-  const lines = [`- Failure output for \`${result.command}\`:`];
+  const lines: string[] = [];
 
-  if (result.outputExcerpt.stderr) {
-    lines.push("  - stderr excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stderr, "    "));
+  if (result.outputExcerpt) {
+    lines.push(`- Failure output for \`${result.command}\`:`);
+
+    if (result.outputExcerpt.stderr) {
+      lines.push("  - stderr excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stderr, "    "));
+    }
+
+    if (result.outputExcerpt.stdout) {
+      lines.push("  - stdout excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stdout, "    "));
+    }
+
+    if (result.outputExcerpt.truncatedStderr || result.outputExcerpt.truncatedStdout) {
+      lines.push("  - Output excerpt was truncated.");
+    }
   }
 
-  if (result.outputExcerpt.stdout) {
-    lines.push("  - stdout excerpt:", formatIndentedCodeBlock(result.outputExcerpt.stdout, "    "));
-  }
+  const remediation = verificationRemediationForResult(result);
 
-  if (result.outputExcerpt.truncatedStderr || result.outputExcerpt.truncatedStdout) {
-    lines.push("  - Output excerpt was truncated.");
+  if (remediation) {
+    lines.push(`- Suggested follow-up for \`${result.command}\`: ${remediation}`);
   }
 
   return lines;
+}
+
+function verificationRemediationForResult(result: VerificationReport["results"][number]): string | undefined {
+  if (result.exitCode === 0) {
+    return undefined;
+  }
+
+  const command = result.command.toLowerCase();
+  const output = [
+    result.stdout,
+    result.stderr,
+    result.outputExcerpt?.stdout,
+    result.outputExcerpt?.stderr
+  ].filter((value): value is string => Boolean(value)).join("\n").toLowerCase();
+  const signal = `${command}\n${output}`;
+
+  if (/\b(missing export|no exported member|module not found|cannot find module|failed to resolve import|cannot resolve)\b/.test(signal)) {
+    return "Fix missing imports, exports, or module paths, then rerun the failing verification command.";
+  }
+
+  if (/\b(audit|advisory|vulnerabilit|security)\b/.test(command)) {
+    return "Review dependency advisories, update or patch affected packages, then rerun the audit command.";
+  }
+
+  if (/\b(prettier|format|format:check|check:format)\b/.test(command)) {
+    return "Run the project formatter or fix formatting drift, then rerun the formatting check.";
+  }
+
+  if (/\b(eslint|lint|biome)\b/.test(command)) {
+    return "Fix lint diagnostics or adjust the relevant rule intentionally, then rerun the lint command.";
+  }
+
+  if (/\b(typecheck|type-check|type:check|check:types|tsc|vue-tsc|svelte-check|typescript|ts\d{4})\b/.test(signal)) {
+    return "Resolve TypeScript or framework type-checking errors, then rerun the type check.";
+  }
+
+  if (/\b(playwright|cypress|e2e)\b/.test(command)) {
+    return "Inspect E2E failure artifacts such as screenshots, traces, or videos, fix the user flow, then rerun the E2E command.";
+  }
+
+  if (/\b(vitest|jest|node --test|test|unit|component|integration|coverage)\b/.test(command)) {
+    return "Inspect failing tests or coverage thresholds, update the implementation or tests, then rerun the test command.";
+  }
+
+  if (/\b(build|compile|vite|next|nuxt|astro|ng build|angular)\b/.test(command)) {
+    return "Resolve bundler or production build errors, then rerun the build command.";
+  }
+
+  return "Inspect the full verification report, address the failing command, then rerun verification before handoff.";
 }
 
 function formatIndentedCodeBlock(value: string, indent: string): string {

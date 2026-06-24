@@ -361,6 +361,9 @@
         "durationMs": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "remediation": {
+          "type": "string"
+        },
         "outputExcerpt": {
           "$ref": "#/$defs/verificationOutputExcerpt"
         }

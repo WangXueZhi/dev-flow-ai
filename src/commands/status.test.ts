@@ -251,6 +251,7 @@ test("runStatus prints verification failure excerpts", async (t) => {
           command: "npm run check",
           exitCode: 1,
           durationMs: 1000,
+          remediation: "Fix missing imports, exports, or module paths, then rerun the failing verification command.",
           outputExcerpt: {
             stderr: "Build failed\nMissing export",
             truncatedStderr: true
@@ -265,6 +266,7 @@ test("runStatus prints verification failure excerpts", async (t) => {
   assert.match(output, /Verification failures/);
   assert.match(output, /`npm run check`: exit 1/);
   assert.match(output, /Build failed Missing export/);
+  assert.match(output, /Suggested follow-up: Fix missing imports, exports, or module paths/);
   assert.match(output, /Output excerpt was truncated/);
 });
 

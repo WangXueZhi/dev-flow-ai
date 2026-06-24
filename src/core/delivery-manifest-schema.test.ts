@@ -44,6 +44,7 @@ const schema = JSON.parse(
     taskChangelogVerificationSummary: unknown;
     verificationCommand: {
       properties: {
+        remediation: { type: string };
         outputExcerpt: { $ref: string };
       };
     };
@@ -98,6 +99,7 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.taskChangelogReviewHandoff);
   assert.ok(schema.$defs.taskChangelogVerificationSummary);
   assert.ok(schema.$defs.verificationCommand);
+  assert.equal(schema.$defs.verificationCommand.properties.remediation.type, "string");
   assert.equal(schema.$defs.verificationCommand.properties.outputExcerpt.$ref, "#/$defs/verificationOutputExcerpt");
   assert.ok(schema.$defs.verificationOutputExcerpt);
   assert.ok(schema.$defs.visualRequiredText);
