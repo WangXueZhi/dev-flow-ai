@@ -12,6 +12,7 @@ const commands = [
   [npmCommand, ["run", "pack:smoke"]],
   [npmCommand, ["run", "github:smoke"]],
   [npmCommand, ["run", "example:smoke"]],
+  [npmCommand, ["run", "example:visual-smoke"]],
   [npmCommand, ["run", "smoke:live"]],
   [npmCommand, ["run", "smoke:live:report"]]
 ];

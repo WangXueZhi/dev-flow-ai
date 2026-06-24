@@ -16,6 +16,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added GitHub Action inputs for manifest-backed readiness, failed-verification, failed-visual, and missing-artifact gates.
 - Updated the composite GitHub Action to support GitHub package specs before the first npm release.
 - Added a root `npm run example:smoke` command for a disposable fixture-backed delivery trial.
+- Added `npm run example:visual-smoke` for disposable React/Vite source-changing delivery with a preview server, screenshots, required visual text, manifest evidence, and status gates.
 - Added manifest-backed `dev-flow status` assertions to the example delivery smoke flow.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
 - Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.

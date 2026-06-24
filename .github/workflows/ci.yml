@@ -41,6 +41,9 @@ jobs:
       - name: Smoke test example delivery
         run: npm run example:smoke
 
+      - name: Smoke test example visual delivery
+        run: npm run example:visual-smoke
+
       - name: Optional live provider smoke
         env:
           DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
@@ -101,4 +104,6 @@ jobs:
           name: devflow-artifacts
           path: |
             .devflow/artifacts
+            .devflow/example-smoke/react-vite-dashboard/.devflow/artifacts
+            .devflow/example-visual-smoke/react-vite-dashboard/.devflow/artifacts
             examples/react-vite-dashboard/.devflow/artifacts

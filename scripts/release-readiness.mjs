@@ -37,9 +37,10 @@ export function evaluateReleaseReadiness(input) {
     ),
     check(
       "release-script",
-      "Package exposes release readiness, preflight, and live-smoke report scripts",
+      "Package exposes release readiness, preflight, example visual smoke, and live-smoke report scripts",
       input.packageJson.scripts?.["release:readiness"] === "node scripts/release-readiness.mjs" &&
         input.packageJson.scripts?.["release:preflight"] === "node scripts/release-preflight.mjs" &&
+        input.packageJson.scripts?.["example:visual-smoke"] === "node scripts/example-visual-smoke.mjs" &&
         input.packageJson.scripts?.["smoke:live:report"] === "node scripts/verify-live-smoke-report.mjs" &&
         input.packageJson.scripts?.["smoke:live:summary"] === "node scripts/summarize-live-smoke-report.mjs",
       "release scripts in package.json"
@@ -48,10 +49,11 @@ export function evaluateReleaseReadiness(input) {
       "release-script-packaged",
       "Release support scripts are included in the package file allowlist",
       Array.isArray(input.packageJson.files) &&
+        input.packageJson.files.includes("scripts/example-visual-smoke.mjs") &&
         input.packageJson.files.includes("scripts/release-readiness.mjs") &&
         input.packageJson.files.includes("scripts/verify-live-smoke-report.mjs") &&
         input.packageJson.files.includes("scripts/summarize-live-smoke-report.mjs"),
-      "release readiness, live-smoke report, and live-smoke summary scripts"
+      "example visual smoke, release readiness, live-smoke report, and live-smoke summary scripts"
     ),
     check(
       "changelog-entry",
@@ -85,6 +87,14 @@ export function evaluateReleaseReadiness(input) {
       "Release workflow runs static release readiness before publish",
       /npm run release:readiness/.test(input.releaseWorkflow),
       "npm run release:readiness"
+    ),
+    check(
+      "release-workflow-example-visual-smoke",
+      "Release workflow runs example visual delivery smoke with Playwright Chromium",
+      /npx playwright install --with-deps chromium/.test(input.releaseWorkflow) &&
+        /Smoke test example visual delivery/.test(input.releaseWorkflow) &&
+        /run:\s*npm run example:visual-smoke/.test(input.releaseWorkflow),
+      "npx playwright install --with-deps chromium and npm run example:visual-smoke"
     ),
     check(
       "release-workflow-live-smoke",

@@ -33,9 +33,10 @@ To see the full MVP loop before trying DevFlow in your own repository:
 
 ```bash
 npm run example:smoke
+npm run example:visual-smoke
 ```
 
-The script uses a disposable copy of `examples/react-vite-dashboard`, runs non-destructive delivery, replays the fixture-backed AI patch path, applies the patch, and verifies that delivery artifacts were generated.
+The scripts use disposable copies of `examples/react-vite-dashboard`. `example:smoke` verifies the planning, fixture-backed apply, report, and status path; `example:visual-smoke` starts a local Vite preview and verifies source-changing delivery with screenshots, required visual text, manifest evidence, and status gates.
 
 ## 2. Initialize Project Context
 

@@ -13,13 +13,20 @@ npm run release:readiness
 npm run release:preflight
 ```
 
-`npm run release:readiness` runs static release checks for package/package-lock version alignment, changelog coverage, versioned release notes, package allowlists, npm provenance workflow configuration, live-provider report validation wiring, and live-provider gate documentation.
+`npm run release:readiness` runs static release checks for package/package-lock version alignment, changelog coverage, versioned release notes, package allowlists, npm provenance workflow configuration, example visual smoke wiring, live-provider report validation wiring, and live-provider gate documentation.
 
-`npm run release:preflight` runs release readiness, the package checks, installed package smoke, GitHub install smoke, example delivery smoke, manifest-backed status smoke, optional live provider smoke, live-smoke report validation, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
+`npm run release:preflight` runs release readiness, the package checks, installed package smoke, GitHub install smoke, example delivery smoke, example visual delivery smoke, manifest-backed status smoke, optional live provider smoke, live-smoke report validation, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
 
 `dev-flow smoke-provider --require-live` sends a minimal request through the installed CLI and writes `.devflow/artifacts/live-provider-smoke.json` without using fixture replay. `npm run smoke:live` runs the fuller repository release smoke and skips when no live provider key is configured. `npm run smoke:live:report` validates the JSON report shape and fails on `status: "failed"`; add `-- --require-passed` when a release gate must prove `status: "passed"` and `required: true`. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`. Set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` when CI should store the JSON report in a custom artifact location. `dev-flow status` surfaces that report in the text delivery summary when it exists, while `status --json` remains the raw delivery manifest. The Release workflow fixes this path, validates the report before npm publish, writes a sanitized live-smoke section to the GitHub job summary, and uploads the JSON with the `Upload live provider smoke report` workflow artifact, even when the smoke step fails, so maintainers can inspect skipped, failed, and passed live-smoke evidence.
 
 Run the React/Vite example smoke test:
+
+```bash
+npm run example:smoke
+npm run example:visual-smoke
+```
+
+For manual debugging, the same source-changing path can be run inside the example:
 
 ```bash
 cd examples/react-vite-dashboard
@@ -64,10 +71,11 @@ node ../../dist/cli.js deliver \
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run release:readiness` passes.
 - Confirm `npm run release:preflight` passes.
-- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `scripts/release-readiness.mjs`, `scripts/live-provider-smoke.mjs`, `scripts/verify-live-smoke-report.mjs`, and `scripts/summarize-manifest.mjs`.
+- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `scripts/example-visual-smoke.mjs`, `scripts/release-readiness.mjs`, `scripts/live-provider-smoke.mjs`, `scripts/verify-live-smoke-report.mjs`, and `scripts/summarize-manifest.mjs`.
 - Confirm `schemas/patch-set.schema.json` is included in the npm package.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/version/init/smoke-provider`.
 - Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release and runs `dev-flow help/version/init/smoke-provider`.
+- Confirm `npm run example:visual-smoke` passes with Playwright Chromium installed.
 - Confirm `dev-flow smoke-provider --require-live` passes when validating the installed CLI against a real provider.
 - Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release, then run `npm run smoke:live:report` to validate `.devflow/artifacts/live-provider-smoke.json`.
 - Confirm `dev-flow status` shows the live provider smoke section when `.devflow/artifacts/live-provider-smoke.json` exists.
@@ -84,12 +92,14 @@ The repository includes `.github/workflows/release.yml` for npm publishing. It r
 The workflow:
 
 - Installs dependencies with `npm ci`.
+- Installs Playwright Chromium for visual smoke coverage.
 - Runs `npm run release:readiness`.
 - Runs `npm run check`.
 - Runs `npm run pack:dry-run`.
 - Runs `npm run pack:smoke`.
 - Runs `npm run github:smoke`.
 - Runs `npm run example:smoke`, including manifest-backed `dev-flow status` checks.
+- Runs `npm run example:visual-smoke`, including preview-server screenshots, required visual text, manifest evidence, and delivery gates.
 - Runs optional `npm run smoke:live` for manual dispatch unless `require_live_smoke` is `"true"`.
 - Requires `npm run smoke:live` with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a GitHub Release is published.
 - Validates the live-provider smoke JSON with `npm run smoke:live:report`, requiring `status: "passed"` before publish when the live smoke gate is required.

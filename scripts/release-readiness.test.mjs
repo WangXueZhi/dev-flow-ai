@@ -17,11 +17,13 @@ const validInput = {
     },
     files: [
       "dist",
+      "scripts/example-visual-smoke.mjs",
       "scripts/release-readiness.mjs",
       "scripts/verify-live-smoke-report.mjs",
       "scripts/summarize-live-smoke-report.mjs"
     ],
     scripts: {
+      "example:visual-smoke": "node scripts/example-visual-smoke.mjs",
       "release:readiness": "node scripts/release-readiness.mjs",
       "release:preflight": "node scripts/release-preflight.mjs",
       "smoke:live:report": "node scripts/verify-live-smoke-report.mjs",
@@ -56,8 +58,12 @@ const validInput = {
     "    env:",
     "      DEVFLOW_LIVE_SMOKE_REPORT: .devflow/artifacts/live-provider-smoke.json",
     "    steps:",
+    "      - name: Install Playwright Chromium",
+    "        run: npx playwright install --with-deps chromium",
     "      - name: Check release readiness",
     "        run: npm run release:readiness",
+    "      - name: Smoke test example visual delivery",
+    "        run: npm run example:visual-smoke",
     "      - name: Required live provider smoke",
     "        env:",
     "          DEVFLOW_REQUIRE_LIVE_SMOKE: \"true\"",
@@ -136,6 +142,7 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.ok(failedIds.includes("release-workflow-trigger"));
   assert.ok(failedIds.includes("release-workflow-provenance"));
   assert.ok(failedIds.includes("release-workflow-readiness"));
+  assert.ok(failedIds.includes("release-workflow-example-visual-smoke"));
   assert.ok(failedIds.includes("release-workflow-live-smoke"));
   assert.ok(failedIds.includes("release-workflow-live-smoke-artifact"));
   assert.ok(failedIds.includes("release-workflow-live-smoke-report-gate"));

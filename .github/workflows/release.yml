@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Check release readiness
         run: npm run release:readiness
 
@@ -57,6 +60,9 @@ jobs:
 
       - name: Smoke test example delivery
         run: npm run example:smoke
+
+      - name: Smoke test example visual delivery
+        run: npm run example:visual-smoke
 
       - name: Optional live provider smoke
         if: ${{ github.event_name != 'release' && github.event.inputs.require_live_smoke != 'true' }}

@@ -61,9 +61,10 @@ To see the full MVP loop on a disposable copy of the included React/Vite example
 
 ```bash
 npm run example:smoke
+npm run example:visual-smoke
 ```
 
-The smoke script copies `examples/react-vite-dashboard` into `.devflow/example-smoke/`, builds it, runs non-destructive delivery, replays a fixture-backed AI patch set, applies that patch set, and verifies that the delivery report plus `dev-flow status` summary were generated from the manifest.
+The smoke scripts copy `examples/react-vite-dashboard` into disposable `.devflow/` workspaces. `example:smoke` builds it, runs non-destructive delivery, replays a fixture-backed AI patch set, applies that patch set, and verifies that the delivery report plus `dev-flow status` summary were generated from the manifest. `example:visual-smoke` starts a Vite preview server and verifies source-changing delivery with screenshots, required visual text, manifest evidence, and status gates.
 
 After `init`, edit these files:
 
@@ -435,6 +436,7 @@ npm run pack:dry-run
 npm run pack:smoke
 npm run github:smoke
 npm run example:smoke
+npm run example:visual-smoke
 npm run smoke:live
 npm run smoke:live:report
 npm run release:readiness
