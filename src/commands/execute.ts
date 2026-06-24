@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { FlagMap } from "../core/args.js";
@@ -120,6 +121,11 @@ async function runApply(flags: FlagMap): Promise<void> {
   const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
   const verificationReportPath = join(config.artifactsDir, "verification-report.json");
   const deliveryReportPath = join(config.artifactsDir, "delivery-report.md");
+
+  if (flags["require-clean"] === "true") {
+    await assertCleanGitWorktree(config.artifactsDir);
+  }
+
   const patchSet = flags["patch-set"] ? await readPatchSet(flags["patch-set"]) : await generateAiPatchSet(flags);
   const reviewerNotes = collectReviewerNotes(flags);
 
@@ -371,4 +377,106 @@ function countPatchOperations(patchSet: PatchSet): Record<PatchSet["operations"]
       delete: 0
     }
   );
+}
+
+async function assertCleanGitWorktree(artifactsDir: string): Promise<void> {
+  const status = await getGitStatusPorcelain();
+
+  if (status.error) {
+    throw new CliError(
+      `execute --apply --require-clean could not run git status: ${status.error.message}. Run from a git repository with git installed, or omit --require-clean.`
+    );
+  }
+
+  if (status.exitCode !== 0) {
+    const detail = oneLine(status.stderr || status.stdout);
+    throw new CliError(
+      `execute --apply --require-clean requires git status to succeed.${detail ? ` git status: ${detail}` : ""}`
+    );
+  }
+
+  const dirtyEntries = status.stdout
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > 0)
+    .filter((line) => !statusLineOnlyTouchesPath(line, artifactsDir));
+
+  if (dirtyEntries.length > 0) {
+    const preview = dirtyEntries.slice(0, 5).map(oneLine).join(", ");
+    const suffix = dirtyEntries.length > 5 ? ", ..." : "";
+
+    throw new CliError(
+      `execute --apply --require-clean requires a clean git working tree outside ${artifactsDir}. Commit, stash, or discard local changes before applying source changes. Dirty entries: ${preview}${suffix}`
+    );
+  }
+
+  console.log(`Git working tree is clean outside ${artifactsDir}.`);
+}
+
+function getGitStatusPorcelain(): Promise<{
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  error?: Error;
+}> {
+  return new Promise((resolve) => {
+    const child = spawn("git", ["status", "--porcelain=v1", "--untracked-files=all"], {
+      cwd: process.cwd(),
+      env: process.env
+    });
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+
+    const finish = (result: { exitCode: number | null; stdout: string; stderr: string; error?: Error }) => {
+      if (!settled) {
+        settled = true;
+        resolve(result);
+      }
+    };
+
+    child.stdout?.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString("utf8");
+    });
+    child.on("error", (error) => {
+      finish({ exitCode: null, stdout, stderr, error });
+    });
+    child.on("close", (exitCode) => {
+      finish({ exitCode, stdout, stderr });
+    });
+  });
+}
+
+function statusLineOnlyTouchesPath(line: string, ignoredPath: string): boolean {
+  const paths = statusLinePaths(line);
+
+  return paths.length > 0 && paths.every((path) => isSameOrInsidePath(path, ignoredPath));
+}
+
+function statusLinePaths(line: string): string[] {
+  const value = line.slice(3).trim();
+
+  if (!value) {
+    return [];
+  }
+
+  return value.split(" -> ").map((path) => path.trim()).filter(Boolean);
+}
+
+function isSameOrInsidePath(path: string, parentPath: string): boolean {
+  const normalizedPath = normalizeGitPath(path);
+  const normalizedParent = normalizeGitPath(parentPath);
+
+  return normalizedPath === normalizedParent || normalizedPath.startsWith(`${normalizedParent}/`);
+}
+
+function normalizeGitPath(path: string): string {
+  return path.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+$/g, "");
+}
+
+function oneLine(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
 }

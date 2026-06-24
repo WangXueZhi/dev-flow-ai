@@ -142,12 +142,15 @@ Source-changing delivery must be explicit:
   with:
     apply: "true"
     confirm-apply: "true"
+    require-clean: "true"
     patch-set: .devflow/artifacts/patch-sets/reviewed.json
 ```
 
 Without `confirm-apply: "true"`, the action exits before running `dev-flow deliver --apply`.
 
 When `patch-set` is provided, the action runs `dev-flow execute --validate --patch-set <path>` before delivery so reviewed patch sets are checked before any source-changing apply.
+
+Set `require-clean: "true"` when the action should stop source-changing delivery unless `git status --porcelain` is clean outside the DevFlow artifact directory.
 
 ## Inputs
 
@@ -165,6 +168,7 @@ When `patch-set` is provided, the action runs `dev-flow execute --validate --pat
 - `install-chromium`: install Playwright Chromium before visual checks. Default: `"false"`.
 - `apply`: run source-changing delivery. Default: `"false"`.
 - `confirm-apply`: required confirmation for source-changing delivery. Default: `"false"`.
+- `require-clean`: require a clean git working tree outside the DevFlow artifact directory before source-changing apply. Default: `"false"`.
 - `patch-set`: optional reviewed patch-set JSON path.
 - `save-patch-set`: optional path for saving AI-generated patch sets.
 - `source-context`: include bounded repository source snippets in AI prompts. Set to `"false"` to omit sampled source snippets. Default: `"true"`.

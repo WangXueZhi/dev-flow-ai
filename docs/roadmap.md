@@ -35,6 +35,7 @@
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Explicit local prompt audit artifacts for planner, dry-run, patch-set, and delivery flows.
 - Validated patch-set application.
+- Optional clean-worktree guardrails for source-changing apply.
 - Human-readable task changelog generated after source-changing apply.
 - Task changelog review handoff notes with execution, verification, and delivery artifact links.
 - Reviewer-authored task changelog notes from source-changing apply.

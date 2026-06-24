@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createServer, type Server } from "node:http";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
@@ -331,6 +332,106 @@ test("runExecute writes a task changelog after successful apply", async (t) => {
   assert.match(logs.join("\n"), /Task changelog written to \.devflow\/artifacts\/task-changelog\.md/);
 });
 
+test("runExecute can require a clean git worktree before apply", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-require-clean-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const logs: string[] = [];
+
+  t.after(() => {
+    console.log = originalLog;
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = (message?: unknown) => {
+    logs.push(String(message));
+  };
+  process.chdir(workspace);
+  mkdirSync(join(workspace, ".devflow", "artifacts"), { recursive: true });
+  mkdirSync(join(workspace, "src"), { recursive: true });
+  writeFileSync(join(workspace, "src", "existing.txt"), "before\n", "utf8");
+  initGitRepository(workspace);
+  writeFileSync(join(workspace, ".devflow", "artifacts", "patch.json"), `${JSON.stringify(
+    {
+      version: 1,
+      taskId: "T03-code-implementation",
+      summary: "Clean apply.",
+      operations: [
+        {
+          type: "replace",
+          path: "src/existing.txt",
+          search: "before",
+          replace: "after",
+          expectedReplacements: 1
+        }
+      ]
+    },
+    null,
+    2
+  )}\n`, "utf8");
+
+  await runExecute({
+    apply: "true",
+    "patch-set": ".devflow/artifacts/patch.json",
+    "require-clean": "true"
+  });
+
+  assert.equal(readFileSync(join(workspace, "src", "existing.txt"), "utf8"), "after\n");
+  assert.match(logs.join("\n"), /Git working tree is clean outside \.devflow\/artifacts/);
+  assert.match(logs.join("\n"), /Patch set applied for task T03-code-implementation/);
+});
+
+test("runExecute rejects require-clean apply when the git worktree is dirty", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-require-clean-dirty-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+
+  t.after(() => {
+    console.log = originalLog;
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = () => undefined;
+  process.chdir(workspace);
+  mkdirSync(join(workspace, ".devflow", "artifacts"), { recursive: true });
+  mkdirSync(join(workspace, "src"), { recursive: true });
+  writeFileSync(join(workspace, "src", "existing.txt"), "before\n", "utf8");
+  initGitRepository(workspace);
+  writeFileSync(join(workspace, "src", "existing.txt"), "local edit\n", "utf8");
+  writeFileSync(join(workspace, ".devflow", "artifacts", "patch.json"), `${JSON.stringify(
+    {
+      version: 1,
+      taskId: "T03-code-implementation",
+      summary: "Dirty apply should stop.",
+      operations: [
+        {
+          type: "replace",
+          path: "src/existing.txt",
+          search: "before",
+          replace: "after",
+          expectedReplacements: 1
+        }
+      ]
+    },
+    null,
+    2
+  )}\n`, "utf8");
+
+  await assert.rejects(
+    () => runExecute({
+      apply: "true",
+      "patch-set": ".devflow/artifacts/patch.json",
+      "require-clean": "true"
+    }),
+    /requires a clean git working tree outside \.devflow\/artifacts/
+  );
+
+  assert.equal(readFileSync(join(workspace, "src", "existing.txt"), "utf8"), "local edit\n");
+  assert.equal(existsSync(join(workspace, ".devflow", "artifacts", "backups")), false);
+});
+
 test("runExecute can save AI patch-set prompts before apply", async (t) => {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-apply-save-prompt-"));
   const originalCwd = process.cwd();
@@ -522,6 +623,19 @@ function writeProject(workspace: string): void {
 
   writeFileSync(join(workspace, ".devflow", "artifacts", "project-brief.json"), `${JSON.stringify(brief, null, 2)}\n`, "utf8");
   writeFileSync(join(workspace, ".devflow", "artifacts", "tasks.json"), `${JSON.stringify(taskPlan, null, 2)}\n`, "utf8");
+}
+
+function initGitRepository(workspace: string): void {
+  runGit(workspace, ["init"]);
+  runGit(workspace, ["add", "."]);
+  runGit(workspace, ["-c", "user.name=DevFlow", "-c", "user.email=devflow@example.com", "commit", "-m", "initial"]);
+}
+
+function runGit(workspace: string, args: string[]): void {
+  execFileSync("git", args, {
+    cwd: workspace,
+    stdio: "pipe"
+  });
 }
 
 function startProviderServer(requests: unknown[]): Promise<Server> {

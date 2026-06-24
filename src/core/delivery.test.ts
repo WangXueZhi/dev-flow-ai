@@ -37,7 +37,8 @@ test("createDeliveryExecutionPlan supports AI task apply", () => {
       tasks: undefined,
       "patch-set": undefined,
       "save-patch-set": undefined,
-      "no-source-context": undefined
+      "no-source-context": undefined,
+      "require-clean": undefined
     }
   });
 });
@@ -52,7 +53,8 @@ test("createDeliveryExecutionPlan supports AI unit apply", () => {
       tasks: undefined,
       "patch-set": undefined,
       "save-patch-set": undefined,
-      "no-source-context": undefined
+      "no-source-context": undefined,
+      "require-clean": undefined
     }
   });
 });
@@ -73,7 +75,8 @@ test("createDeliveryExecutionPlan supports reviewed patch-set apply", () => {
         tasks: undefined,
         "patch-set": ".devflow/artifacts/patch-sets/reviewed.json",
         "save-patch-set": undefined,
-        "no-source-context": undefined
+        "no-source-context": undefined,
+        "require-clean": undefined
       }
     }
   );
@@ -96,7 +99,32 @@ test("createDeliveryExecutionPlan forwards source context privacy flags", () => 
         tasks: undefined,
         "patch-set": undefined,
         "save-patch-set": undefined,
-        "no-source-context": "true"
+        "no-source-context": "true",
+        "require-clean": undefined
+      }
+    }
+  );
+});
+
+test("createDeliveryExecutionPlan forwards clean worktree guardrails", () => {
+  assert.deepEqual(
+    createDeliveryExecutionPlan({
+      apply: "true",
+      yes: "true",
+      task: "T03-code-implementation",
+      "require-clean": "true"
+    }),
+    {
+      mode: "apply",
+      applyFlags: {
+        apply: "true",
+        task: "T03-code-implementation",
+        unit: undefined,
+        tasks: undefined,
+        "patch-set": undefined,
+        "save-patch-set": undefined,
+        "no-source-context": undefined,
+        "require-clean": "true"
       }
     }
   );

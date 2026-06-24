@@ -34,6 +34,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added patch-set validation to the fixture-backed example smoke flow.
 - Added `schemas/patch-set.schema.json` and patch-set schema documentation.
 - Updated the GitHub Action to validate provided patch sets before delivery.
+- Added optional clean-worktree guardrails for source-changing apply through `--require-clean` and the GitHub Action `require-clean` input.
 - Added embedded screenshot previews to delivery reports when visual artifacts are available.
 - Added `npm run release:preflight` for consolidated release checks and residue scanning.
 - Added `npm run release:readiness` for static package metadata, changelog, release notes, and npm provenance workflow checks.

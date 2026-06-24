@@ -49,6 +49,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow execute --validate --patch-set <path>` validates patch sets without changing source files.
 - [ ] The package includes `schemas/patch-set.schema.json` for external AI agents, editors, and CI checks.
 - [ ] `dev-flow execute --apply --patch-set <path>` validates and applies patch set write, replace, and delete operations.
+- [ ] `dev-flow execute --apply --require-clean` aborts source-changing apply when `git status --porcelain` reports local changes outside the DevFlow artifact directory.
 - [ ] Patch-set validation rejects oversized operation counts, write payloads, search strings, and replacement payloads.
 - [ ] Applied patch sets are recorded in `.devflow/artifacts/execution-log.json`.
 - [ ] Applied patch sets are summarized in `.devflow/artifacts/task-changelog.md` with default and reviewer-authored notes plus links to execution, verification, and delivery artifacts.

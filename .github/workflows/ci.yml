@@ -67,6 +67,7 @@ jobs:
           node ../../dist/cli.js deliver \
             --apply \
             --yes \
+            --require-clean \
             --unit U18 \
             --requirements docs/requirements.md \
             --ui docs/ui.md \

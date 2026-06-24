@@ -58,6 +58,10 @@ inputs:
     description: Explicit confirmation that source-changing delivery may modify files.
     required: false
     default: "false"
+  require-clean:
+    description: Require a clean git working tree outside the DevFlow artifact directory before source-changing apply.
+    required: false
+    default: "false"
   patch-set:
     description: Optional reviewed patch-set JSON path for source-changing delivery.
     required: false
@@ -120,6 +124,7 @@ runs:
         VERIFY_COMMAND: ${{ inputs.verify-command }}
         APPLY: ${{ inputs.apply }}
         CONFIRM_APPLY: ${{ inputs.confirm-apply }}
+        REQUIRE_CLEAN: ${{ inputs.require-clean }}
         PATCH_SET: ${{ inputs.patch-set }}
         SAVE_PATCH_SET: ${{ inputs.save-patch-set }}
         SOURCE_CONTEXT: ${{ inputs.source-context }}
@@ -143,6 +148,9 @@ runs:
         [[ -n "$VERIFY_COMMAND" ]] && args+=(--command "$VERIFY_COMMAND")
         [[ -n "$PATCH_SET" ]] && args+=(--patch-set "$PATCH_SET")
         [[ -n "$SAVE_PATCH_SET" ]] && args+=(--save-patch-set "$SAVE_PATCH_SET")
+        if [[ "${REQUIRE_CLEAN,,}" == "true" ]]; then
+          args+=(--require-clean)
+        fi
         if [[ "${SOURCE_CONTEXT,,}" == "false" ]]; then
           args+=(--no-source-context)
         fi

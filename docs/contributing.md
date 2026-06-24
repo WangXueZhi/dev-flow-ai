@@ -68,6 +68,7 @@ cd examples/react-vite-dashboard
 node ../../dist/cli.js deliver \
   --apply \
   --yes \
+  --require-clean \
   --patch-set fixtures/patch-set-ai-applied.json
 ```
 

@@ -47,6 +47,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - Layout issues: mark visual verification failed and include horizontal overflow, clipped-text, or overlap details in the visual report.
 - Missing patch set: explain that `execute --apply` requires `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`, `DEVFLOW_AI_FIXTURE_PATH`, or `--patch-set`.
 - Oversized patch set: explain which operation count or payload limit was exceeded.
+- Dirty worktree guard: when `--require-clean` is used, stop before source-changing apply and explain which local git changes must be committed, stashed, or discarded.
 - Failed apply: restore the apply backup, write a rollback report, and explain the original apply failure.
 - Missing delivery confirmation: explain that `deliver --apply` changes project files and requires `--yes`.
 - Missing delivery apply source: explain that `deliver --apply` requires `--task <id>`, `--unit <id>`, or `--patch-set <path>`.

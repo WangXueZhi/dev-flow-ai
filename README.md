@@ -256,6 +256,7 @@ dev-flow execute --apply --task T03-code-implementation --unit U18
 dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
 dev-flow execute --apply --task T03-code-implementation --review-note "Reviewer should check generated copy before merge."
 dev-flow execute --apply --task T03-code-implementation --no-source-context
+dev-flow execute --apply --task T03-code-implementation --require-clean
 dev-flow execute --rollback --backup .devflow/artifacts/backups/<id>/manifest.json
 ```
 
@@ -266,6 +267,8 @@ AI-generated patch sets are saved to `.devflow/artifacts/patch-sets/<task>.json`
 Use `--save-prompt` to save the AI prompt for review. For dry-runs the value is a directory and DevFlow writes one prompt file per selected task. For AI apply the value is a file path for the patch-set prompt. Prompt saving is explicit because saved prompts can include sampled source snippets when source context is enabled.
 
 Use `--review-note "<note>"` during apply to append reviewer-authored handoff notes to `.devflow/artifacts/task-changelog.md` while keeping DevFlow's default verification and report reminders.
+
+Use `--require-clean` when source-changing apply should abort unless `git status --porcelain` is clean outside the DevFlow artifact directory. This is useful for CI and team workflows that want AI-generated patch sets to start from a reviewed baseline while still allowing DevFlow to write `.devflow/artifacts`.
 
 Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json` and summarized for handoff in `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report artifacts so source-changing work can move into verification without losing the trail. Later `dev-flow verify` runs update the existing changelog with a generated Verification Summary block.
 
@@ -309,6 +312,7 @@ dev-flow deliver --apply --yes --task T03-code-implementation
 dev-flow deliver --apply --yes --unit U18
 dev-flow deliver --apply --yes --patch-set .devflow/artifacts/patch-sets/reviewed.json
 dev-flow deliver --apply --yes --task T03-code-implementation --no-source-context
+dev-flow deliver --apply --yes --task T03-code-implementation --require-clean
 ```
 
 `deliver --apply` runs the same plan, tasks, and dry-run proposal steps first, then applies either an AI-generated task/unit patch set or a reviewed local patch set before verification, visual checks, and the final report. The `--yes` flag is required so CI and local scripts cannot modify source files by accident.

@@ -28,7 +28,8 @@ export function createDeliveryExecutionPlan(flags: FlagMap): DeliveryExecutionPl
       tasks: flags.tasks,
       "patch-set": flags["patch-set"],
       "save-patch-set": flags["save-patch-set"],
-      "no-source-context": flags["no-source-context"]
+      "no-source-context": flags["no-source-context"],
+      "require-clean": flags["require-clean"]
     }
   };
 }
