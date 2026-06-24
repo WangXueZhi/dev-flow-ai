@@ -4,7 +4,7 @@ DevFlow includes a composite GitHub Action for running the safe delivery workflo
 
 The action defaults to non-destructive delivery. It runs `dev-flow deliver`, writes DevFlow artifacts, and only performs source-changing execution when both `apply: "true"` and `confirm-apply: "true"` are provided.
 
-By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts, key artifact paths including prompt artifact directory status when present, source-context sampling evidence, bounded verification failure excerpts, top risks, and open questions.
+By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts, key artifact paths including prompt artifact directory status when present, reviewer notes, source-context sampling evidence, bounded verification failure excerpts, top risks, and open questions.
 
 ## Basic Workflow
 
@@ -66,7 +66,7 @@ Set `upload-artifacts: "true"` to upload `.devflow/artifacts` from the selected 
 
 Use `artifacts-path` when your project writes artifacts somewhere other than `.devflow/artifacts`.
 
-Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, source-context sampling evidence, design tokens, screenshots, touched files, backups, open questions, and delivery risks.
+Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, source-context sampling evidence, task changelog reviewer notes and verification summaries, design tokens, screenshots, touched files, backups, open questions, and delivery risks.
 
 Tools that inspect the uploaded manifest can validate it with `schemas/delivery-manifest.schema.json`.
 

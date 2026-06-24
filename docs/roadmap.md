@@ -73,7 +73,7 @@
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Further enrich task changelogs with deeper review metadata.
 - Further expand verification command selection with provider and CI-specific checks.
-- Feed verification results into the delivery report after code changes.
+- Feed richer remediation guidance from verification results into delivery reports after code changes.
 
 ## Milestone 3: UI And Visual Verification
 

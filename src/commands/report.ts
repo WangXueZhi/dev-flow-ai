@@ -9,6 +9,7 @@ import { fileExists } from "../core/fs.js";
 import {
   createDeliveryManifest,
   formatDeliveryReport,
+  parseTaskChangelogSummary,
   type DeliveryArtifactEntry,
   type DeliveryArtifactKind,
   type DeliveryArtifactStatus
@@ -39,6 +40,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
   const brief = await readJsonIfExists<ProjectBrief>(projectBriefPath);
   const sourceContextSummary = await readJsonIfExists<SourceContextSummaryLog>(sourceContextSummaryPath);
   const executionLog = await readJsonIfExists<ExecutionLog>(executionLogPath);
+  const taskChangelog = await readTaskChangelogIfExists(taskChangelogPath);
   const verification = await readJsonIfExists<VerificationReport>(verificationReportPath);
   const visualReportEnabled = flags["visual-report"] !== "none";
   const visualReport = flags["visual-report"] === "none"
@@ -57,6 +59,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
     sourceContextSummary,
     executionLogPath,
     taskChangelogPath,
+    taskChangelog,
     executionLog,
     rollbackReportPath,
     verificationReportPath,
@@ -111,6 +114,14 @@ async function readJsonIfExists<T>(path: string): Promise<T | undefined> {
   }
 
   return JSON.parse(await readFile(path, "utf8")) as T;
+}
+
+async function readTaskChangelogIfExists(path: string) {
+  if (!(await fileExists(path))) {
+    return undefined;
+  }
+
+  return parseTaskChangelogSummary(await readFile(path, "utf8"));
 }
 
 async function collectDeliveryArtifacts(input: {

@@ -22,7 +22,31 @@ test("runReport can suppress stale visual reports", async (t) => {
   mkdirSync(".devflow/artifacts/prompts/dry-run", { recursive: true });
   writeFileSync(".devflow/artifacts/prompts/plan.prompt.md", "Planner prompt\n", "utf8");
   writeFileSync(".devflow/artifacts/prompts/dry-run/T03-code-implementation.prompt.md", "Dry-run prompt\n", "utf8");
-  writeFileSync(".devflow/artifacts/task-changelog.md", "# Task Changelog\n\n- T03-code-implementation\n", "utf8");
+  writeFileSync(
+    ".devflow/artifacts/task-changelog.md",
+    `# Task Changelog
+
+## Review Handoff
+
+- Execution log: \`.devflow/artifacts/execution-log.json\`
+- Verification report: \`.devflow/artifacts/verification-report.json\`
+- Delivery report: \`.devflow/artifacts/delivery-report.md\`
+- Reviewer notes:
+  - Reviewer should check generated copy before merge.
+
+<!-- devflow-verification-summary:start -->
+## Verification Summary
+
+- Status: passed
+- Report: \`.devflow/artifacts/verification-report.json\`
+- Finished at: 2026-01-01T00:00:01.000Z
+- Commands passed: 1/1
+- Commands:
+  - \`npm run check\`: exit 0, 1000ms
+<!-- devflow-verification-summary:end -->
+`,
+    "utf8"
+  );
   writeFileSync(
     ".devflow/artifacts/source-context-summary.json",
     `${JSON.stringify(
@@ -87,15 +111,21 @@ test("runReport can suppress stale visual reports", async (t) => {
   const report = readFileSync(".devflow/artifacts/delivery-report.md", "utf8");
   assert.match(report, /Visual verification has not been run yet/);
   assert.match(report, /Prompt artifacts: `\.devflow\/artifacts\/prompts`/);
+  assert.match(report, /Reviewer should check generated copy before merge/);
+  assert.match(report, /Latest changelog verification/);
   assert.match(report, /Source Context Sampling/);
   assert.match(report, /`src\/App\.tsx` \(file\)/);
   assert.doesNotMatch(report, /Stale Preview/);
 
   const manifest = JSON.parse(readFileSync(".devflow/artifacts/delivery-manifest.json", "utf8")) as {
     status: { visual: string };
+    counts: { reviewerNotes: number };
     artifacts: Array<{ id: string; status: string; count?: number }>;
+    evidence: { taskChangelog?: { reviewHandoff: { reviewerNotes: string[] } } };
   };
   assert.equal(manifest.status.visual, "not-run");
+  assert.equal(manifest.counts.reviewerNotes, 1);
+  assert.equal(manifest.evidence.taskChangelog?.reviewHandoff.reviewerNotes[0], "Reviewer should check generated copy before merge.");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "visual-report")?.status, "not-applicable");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "task-changelog")?.status, "present");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "prompt-artifacts")?.status, "present");

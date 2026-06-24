@@ -22,7 +22,8 @@ const manifest = {
     deliveryRisks: 2,
     highDeliveryRisks: 1,
     designTokens: 1,
-    touchedFiles: 2
+    touchedFiles: 2,
+    reviewerNotes: 2
   },
   artifacts: [
     {
@@ -105,6 +106,24 @@ const manifest = {
         }
       }
     ],
+    taskChangelog: {
+      reviewHandoff: {
+        executionLogPath: ".devflow/artifacts/execution-log.json",
+        verificationReportPath: ".devflow/artifacts/verification-report.json",
+        deliveryReportPath: ".devflow/artifacts/delivery-report.md",
+        reviewerNotes: [
+          "Review the operation list before merging or continuing source-changing work.",
+          "Reviewer should check generated copy before merge."
+        ]
+      },
+      verificationSummary: {
+        status: "passed",
+        reportPath: ".devflow/artifacts/verification-report.json",
+        finishedAt: "2026-01-01T00:00:01.000Z",
+        commandsPassed: "1/1",
+        commands: ["npm run check: exit 0, 1000ms"]
+      }
+    },
     openQuestions: ["Confirm empty state copy."]
   }
 };
@@ -125,6 +144,8 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Latest run: `dry-run` `T03-code-implementation`, unit `U07` \[frontend-route\] Route path \/dashboard/);
   assert.match(summary, /`src\/App\.jsx` \(file\)/);
   assert.match(summary, /Omitted candidates: 1/);
+  assert.match(summary, /Reviewer notes/);
+  assert.match(summary, /Reviewer should check generated copy before merge/);
   assert.match(summary, /Verification failures/);
   assert.match(summary, /`npm run check`: exit 1/);
   assert.match(summary, /Build failed Missing export/);

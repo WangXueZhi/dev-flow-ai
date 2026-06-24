@@ -91,7 +91,8 @@ const manifest: DeliveryManifest = {
     visualScreenshots: 0,
     visualLayoutIssues: 0,
     visualRequiredText: 0,
-    designTokens: 1
+    designTokens: 1,
+    reviewerNotes: 2
   },
   evidence: {
     acceptanceCriteria: [],
@@ -142,6 +143,24 @@ const manifest: DeliveryManifest = {
         }
       }
     ],
+    taskChangelog: {
+      reviewHandoff: {
+        executionLogPath: ".devflow/artifacts/execution-log.json",
+        verificationReportPath: ".devflow/artifacts/verification-report.json",
+        deliveryReportPath: ".devflow/artifacts/delivery-report.md",
+        reviewerNotes: [
+          "Review the operation list before merging or continuing source-changing work.",
+          "Reviewer should check generated copy before merge."
+        ]
+      },
+      verificationSummary: {
+        status: "passed",
+        reportPath: ".devflow/artifacts/verification-report.json",
+        finishedAt: "2026-01-01T00:00:01.000Z",
+        commandsPassed: "1/1",
+        commands: ["npm run check: exit 0, 1000ms"]
+      }
+    },
     deliveryRisks: [
       {
         level: "high",
@@ -168,6 +187,8 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
   assert.match(output, /Prompt artifacts: \.devflow\/artifacts\/prompts \(present\)/);
   assert.match(output, /Source context summary: \.devflow\/artifacts\/source-context-summary\.json \(present\)/);
+  assert.match(output, /Reviewer notes/);
+  assert.match(output, /Reviewer should check generated copy before merge/);
   assert.match(output, /Source context sampling/);
   assert.match(output, /Runs recorded: 1/);
   assert.match(output, /Latest run: dry-run T03-code-implementation, unit U07 \[frontend-route\] Route path \/dashboard/);

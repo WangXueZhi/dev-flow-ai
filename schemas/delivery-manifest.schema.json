@@ -124,7 +124,8 @@
         "visualScreenshots",
         "visualLayoutIssues",
         "visualRequiredText",
-        "designTokens"
+        "designTokens",
+        "reviewerNotes"
       ],
       "properties": {
         "acceptanceCriteria": {
@@ -161,6 +162,9 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "designTokens": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "reviewerNotes": {
           "$ref": "#/$defs/nonNegativeInteger"
         }
       }
@@ -222,6 +226,9 @@
             "$ref": "#/$defs/sourceContextEntry"
           }
         },
+        "taskChangelog": {
+          "$ref": "#/$defs/taskChangelog"
+        },
         "deliveryRisks": {
           "type": "array",
           "items": {
@@ -233,6 +240,60 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "taskChangelog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewHandoff"],
+      "properties": {
+        "reviewHandoff": {
+          "$ref": "#/$defs/taskChangelogReviewHandoff"
+        },
+        "verificationSummary": {
+          "$ref": "#/$defs/taskChangelogVerificationSummary"
+        }
+      }
+    },
+    "taskChangelogReviewHandoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewerNotes"],
+      "properties": {
+        "executionLogPath": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "verificationReportPath": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "deliveryReportPath": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "reviewerNotes": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "taskChangelogVerificationSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commands"],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "reportPath": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "finishedAt": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "commandsPassed": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "commands": {
+          "$ref": "#/$defs/stringArray"
         }
       }
     },

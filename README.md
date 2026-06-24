@@ -327,9 +327,11 @@ Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus 
 
 When `.devflow/artifacts/source-context-summary.json` exists, the delivery report and manifest include path-level source-context sampling evidence so reviewers can see which files were sampled for AI prompts without exposing duplicated source snippets.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+When `.devflow/artifacts/task-changelog.md` exists, the delivery report and manifest also include the review handoff notes plus the latest changelog Verification Summary written by `dev-flow verify`.
 
-The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, review handoff notes, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+
+The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, reviewer-note counts, task changelog handoff evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
 ```bash
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
@@ -355,7 +357,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, source-context sampling, artifact, verification-failure, risk, and open-question status without opening the Markdown report.
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, source-context sampling, reviewer-note, artifact, verification-failure, risk, and open-question status without opening the Markdown report.
 
 Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code while still printing the status summary or JSON manifest.
 
@@ -466,7 +468,7 @@ Planned capabilities:
 - Continue expanding stack-specific route/component/data-fetching tasks beyond the normalized frontend targets and initial target profiles.
 - Add interactive approvals and safer review UX around source-changing patch sets.
 - Expand visual verification beyond screenshots, text checks, blank-screen detection, and basic layout issue checks.
-- Continue expanding final delivery reports with richer reviewer notes, screenshots, and known risks.
+- Continue expanding final delivery reports with richer screenshot context, remediation hints, and known risks.
 - Support multiple AI providers and local models.
 - Provide reusable workflow plugins for React, Vue, Next.js, Vite, and design systems.
 

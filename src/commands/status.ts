@@ -70,6 +70,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),
+    ...formatReviewerNotes(manifest),
     ...formatSourceContextSampling(manifest),
     ...formatVerificationFailures(manifest),
     ...formatTopRisks(manifest),
@@ -90,6 +91,26 @@ function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
   }
 
   return artifacts.map((artifact) => `- ${artifact.label}: ${artifact.path} (${artifact.status})`);
+}
+
+function formatReviewerNotes(manifest: DeliveryManifest): string[] {
+  const notes = manifest.evidence.taskChangelog?.reviewHandoff.reviewerNotes ?? [];
+
+  if (notes.length === 0) {
+    return [];
+  }
+
+  const shown = notes.slice(-3);
+  const hidden = notes.length - shown.length;
+  const lines = ["", "Reviewer notes:"];
+
+  if (hidden > 0) {
+    lines.push(`- Showing latest ${shown.length}; ${hidden} older note(s) omitted.`);
+  }
+
+  lines.push(...shown.map((note) => `- ${note}`));
+
+  return lines;
 }
 
 function formatSourceContextSampling(manifest: DeliveryManifest): string[] {

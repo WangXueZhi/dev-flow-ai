@@ -14,6 +14,9 @@ export function formatDevFlowSummary(manifest) {
   const sourceContextEntries = Array.isArray(manifest.evidence?.sourceContext)
     ? manifest.evidence.sourceContext
     : [];
+  const reviewerNotes = Array.isArray(manifest.evidence?.taskChangelog?.reviewHandoff?.reviewerNotes)
+    ? manifest.evidence.taskChangelog.reviewHandoff.reviewerNotes
+    : [];
   const risks = Array.isArray(manifest.evidence?.deliveryRisks) ? manifest.evidence.deliveryRisks : [];
   const openQuestions = Array.isArray(manifest.evidence?.openQuestions) ? manifest.evidence.openQuestions : [];
   const artifact = (id) => artifacts.find((item) => item.id === id);
@@ -45,6 +48,7 @@ export function formatDevFlowSummary(manifest) {
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
 
   lines.push(...formatSourceContextSampling(sourceContextEntries));
+  lines.push(...formatReviewerNotes(reviewerNotes));
 
   if (verificationFailures.length > 0) {
     lines.push("", "Verification failures:");
@@ -78,6 +82,26 @@ export function formatDevFlowSummary(manifest) {
   }
 
   return lines.join("\n");
+}
+
+function formatReviewerNotes(notes) {
+  if (notes.length === 0) {
+    return [];
+  }
+
+  const shown = notes.slice(-3);
+  const hidden = notes.length - shown.length;
+  const lines = ["", "Reviewer notes:"];
+
+  if (hidden > 0) {
+    lines.push(`- Showing latest ${shown.length}; ${hidden} older note(s) omitted.`);
+  }
+
+  for (const note of shown) {
+    lines.push(`- ${note}`);
+  }
+
+  return lines;
 }
 
 function formatSourceContextSampling(entries) {

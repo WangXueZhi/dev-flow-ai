@@ -18,6 +18,7 @@ export interface DeliveryReportInput {
   sourceContextSummary?: SourceContextSummaryLog;
   executionLogPath: string;
   taskChangelogPath?: string;
+  taskChangelog?: TaskChangelogSummary;
   executionLog: ExecutionLog | undefined;
   rollbackReportPath: string;
   verificationReportPath: string;
@@ -39,6 +40,22 @@ export interface DeliveryArtifactEntry {
   required: boolean;
   role: string;
   count?: number;
+}
+
+export interface TaskChangelogSummary {
+  reviewHandoff: {
+    executionLogPath?: string;
+    verificationReportPath?: string;
+    deliveryReportPath?: string;
+    reviewerNotes: string[];
+  };
+  verificationSummary?: {
+    status?: string;
+    reportPath?: string;
+    finishedAt?: string;
+    commandsPassed?: string;
+    commands: string[];
+  };
 }
 
 export interface DeliveryManifestInput extends DeliveryReportInput {
@@ -84,6 +101,7 @@ export interface DeliveryManifest {
     visualLayoutIssues: number;
     visualRequiredText: number;
     designTokens: number;
+    reviewerNotes: number;
   };
   evidence: {
     acceptanceCriteria: DeliveryAcceptanceEvidence[];
@@ -130,6 +148,7 @@ export interface DeliveryManifest {
       backupManifestPaths: string[];
     };
     sourceContext?: SourceContextSummaryLog["entries"];
+    taskChangelog?: TaskChangelogSummary;
     deliveryRisks: ProjectBrief["deliveryRisks"];
     openQuestions: string[];
   };
@@ -229,6 +248,10 @@ ${formatSourceContextSummary(input.sourceContextSummary)}
 
 ${input.executionLog ? formatExecutionLog(input.executionLog) : "- Execution log was not available."}
 
+## Review Handoff
+
+${formatReviewHandoff(input)}
+
 ## Verification
 
 ${verification ? formatVerification(verification) : "- Verification has not been run yet."}
@@ -304,7 +327,8 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       visualScreenshots: input.visualReport?.screenshots.length ?? 0,
       visualLayoutIssues: input.visualReport?.layoutIssues?.length ?? 0,
       visualRequiredText: input.visualReport?.requiredText.length ?? 0,
-      designTokens: brief?.designTokens?.length ?? 0
+      designTokens: brief?.designTokens?.length ?? 0,
+      reviewerNotes: input.taskChangelog?.reviewHandoff.reviewerNotes.length ?? 0
     },
     evidence: {
       acceptanceCriteria,
@@ -346,10 +370,165 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
         backupManifestPaths: input.executionLog?.entries.flatMap((entry) => entry.backupManifestPath ? [entry.backupManifestPath] : []) ?? []
       },
       sourceContext: input.sourceContextSummary?.entries ?? [],
+      taskChangelog: input.taskChangelog,
       deliveryRisks: brief?.deliveryRisks ?? [],
       openQuestions: brief?.openQuestions ?? []
     }
   };
+}
+
+const taskChangelogVerificationSummaryStart = "<!-- devflow-verification-summary:start -->";
+const taskChangelogVerificationSummaryEnd = "<!-- devflow-verification-summary:end -->";
+
+export function parseTaskChangelogSummary(markdown: string): TaskChangelogSummary {
+  const reviewHandoff = parseReviewHandoff(extractMarkdownSection(markdown, "Review Handoff"));
+  const verificationSummary = parseTaskChangelogVerificationSummary(markdown);
+
+  return {
+    reviewHandoff,
+    verificationSummary
+  };
+}
+
+function parseReviewHandoff(section: string | undefined): TaskChangelogSummary["reviewHandoff"] {
+  const lines = section?.split(/\r?\n/) ?? [];
+  const reviewerNotes: string[] = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    if (/^\s*-\s+Reviewer notes:\s*$/.test(lines[index] ?? "")) {
+      for (let noteIndex = index + 1; noteIndex < lines.length; noteIndex += 1) {
+        const noteMatch = /^\s{2,}-\s+(.+?)\s*$/.exec(lines[noteIndex] ?? "");
+
+        if (!noteMatch) {
+          break;
+        }
+
+        reviewerNotes.push(normalizeWhitespace(noteMatch[1]));
+      }
+    }
+  }
+
+  return {
+    executionLogPath: parseBulletValue(lines, "Execution log"),
+    verificationReportPath: parseBulletValue(lines, "Verification report"),
+    deliveryReportPath: parseBulletValue(lines, "Delivery report"),
+    reviewerNotes
+  };
+}
+
+function parseTaskChangelogVerificationSummary(markdown: string): TaskChangelogSummary["verificationSummary"] | undefined {
+  const block = extractBetweenMarkers(
+    markdown,
+    taskChangelogVerificationSummaryStart,
+    taskChangelogVerificationSummaryEnd
+  );
+
+  if (!block) {
+    return undefined;
+  }
+
+  const section = extractMarkdownSection(block, "Verification Summary") ?? block;
+  const lines = section.split(/\r?\n/);
+  const commands = readIndentedBulletsAfter(lines, "Commands").map(stripInlineCodeFromSummary);
+
+  return {
+    status: parseBulletValue(lines, "Status"),
+    reportPath: parseBulletValue(lines, "Report"),
+    finishedAt: parseBulletValue(lines, "Finished at"),
+    commandsPassed: parseBulletValue(lines, "Commands passed"),
+    commands
+  };
+}
+
+function extractMarkdownSection(markdown: string, heading: string): string | undefined {
+  const lines = markdown.split(/\r?\n/);
+  const headingLine = `## ${heading}`;
+  const start = lines.findIndex((line) => line.trim() === headingLine);
+
+  if (start === -1) {
+    return undefined;
+  }
+
+  const bodyStart = start + 1;
+  const end = lines.findIndex((line, index) => index > start && /^##\s+/.test(line));
+  const body = lines.slice(bodyStart, end === -1 ? undefined : end).join("\n").trim();
+
+  return body || undefined;
+}
+
+function extractBetweenMarkers(markdown: string, startMarker: string, endMarker: string): string | undefined {
+  const start = markdown.indexOf(startMarker);
+
+  if (start === -1) {
+    return undefined;
+  }
+
+  const contentStart = start + startMarker.length;
+  const end = markdown.indexOf(endMarker, contentStart);
+
+  if (end === -1) {
+    return undefined;
+  }
+
+  const block = markdown.slice(contentStart, end).trim();
+
+  return block || undefined;
+}
+
+function parseBulletValue(lines: string[], label: string): string | undefined {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^\\s*-\\s+${escapedLabel}:\\s+(.+?)\\s*$`);
+
+  for (const line of lines) {
+    const match = pattern.exec(line);
+
+    if (match) {
+      return stripInlineCode(match[1]);
+    }
+  }
+
+  return undefined;
+}
+
+function readIndentedBulletsAfter(lines: string[], label: string): string[] {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const startPattern = new RegExp(`^\\s*-\\s+${escapedLabel}:\\s*$`);
+  const start = lines.findIndex((line) => startPattern.test(line));
+
+  if (start === -1) {
+    return [];
+  }
+
+  const values: string[] = [];
+
+  for (const line of lines.slice(start + 1)) {
+    const match = /^\s{2,}-\s+(.+?)\s*$/.exec(line);
+
+    if (!match) {
+      break;
+    }
+
+    values.push(normalizeWhitespace(match[1]));
+  }
+
+  return values;
+}
+
+function stripInlineCode(value: string): string {
+  const trimmed = value.trim();
+  const match = /^(`+)([\s\S]*)\1$/.exec(trimmed);
+
+  return match ? match[2] : trimmed;
+}
+
+function stripInlineCodeFromSummary(value: string): string {
+  const match = /^(`+)([\s\S]*?)\1(: .*)$/.exec(value);
+
+  return match ? `${match[2]}${match[3]}` : stripInlineCode(value);
+}
+
+function normalizeWhitespace(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function formatAcceptanceCriteria(brief: ProjectBrief): string {
@@ -538,6 +717,62 @@ function formatDeliveryReadiness(input: DeliveryReportInput): string {
   }
 
   return lines.join("\n");
+}
+
+function formatReviewHandoff(input: DeliveryReportInput): string {
+  const changelog = input.taskChangelog;
+
+  if (!changelog) {
+    return "- Task changelog was not available.";
+  }
+
+  const lines = [input.taskChangelogPath ? `- Task changelog: \`${input.taskChangelogPath}\`` : undefined];
+  const review = changelog.reviewHandoff;
+
+  if (review.executionLogPath) {
+    lines.push(`- Execution log: \`${review.executionLogPath}\``);
+  }
+
+  if (review.verificationReportPath) {
+    lines.push(`- Verification report: \`${review.verificationReportPath}\``);
+  }
+
+  if (review.deliveryReportPath) {
+    lines.push(`- Delivery report: \`${review.deliveryReportPath}\``);
+  }
+
+  if (review.reviewerNotes.length) {
+    lines.push("- Reviewer notes:", ...review.reviewerNotes.map((note) => `  - ${note}`));
+  }
+
+  if (changelog.verificationSummary) {
+    lines.push("- Latest changelog verification:");
+
+    if (changelog.verificationSummary.status) {
+      lines.push(`  - Status: ${changelog.verificationSummary.status}`);
+    }
+
+    if (changelog.verificationSummary.reportPath) {
+      lines.push(`  - Report: \`${changelog.verificationSummary.reportPath}\``);
+    }
+
+    if (changelog.verificationSummary.finishedAt) {
+      lines.push(`  - Finished at: ${changelog.verificationSummary.finishedAt}`);
+    }
+
+    if (changelog.verificationSummary.commandsPassed) {
+      lines.push(`  - Commands passed: ${changelog.verificationSummary.commandsPassed}`);
+    }
+
+    if (changelog.verificationSummary.commands.length) {
+      lines.push("  - Commands:");
+      lines.push(...changelog.verificationSummary.commands.map((command) => `    - ${command}`));
+    }
+  }
+
+  const rendered = lines.filter((line): line is string => Boolean(line));
+
+  return rendered.length ? rendered.join("\n") : "- Task changelog did not include a review handoff or verification summary.";
 }
 
 function assessDeliveryReadiness(input: DeliveryReportInput): {

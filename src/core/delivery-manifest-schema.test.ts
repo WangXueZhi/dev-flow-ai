@@ -39,6 +39,9 @@ const schema = JSON.parse(
       };
     };
     sourceContextUnit: unknown;
+    taskChangelog: unknown;
+    taskChangelogReviewHandoff: unknown;
+    taskChangelogVerificationSummary: unknown;
     verificationCommand: {
       properties: {
         outputExcerpt: { $ref: string };
@@ -70,7 +73,8 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
     "visualScreenshots",
     "visualLayoutIssues",
     "visualRequiredText",
-    "designTokens"
+    "designTokens",
+    "reviewerNotes"
   ]);
   assert.deepEqual(schema.$defs.evidence.required, [
     "acceptanceCriteria",
@@ -90,6 +94,9 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.sourceContextLimits);
   assert.ok(schema.$defs.sourceContextUnit);
   assert.deepEqual(schema.$defs.sourceContextSample.properties.kind.enum, ["binary", "directory", "file", "glob", "missing"]);
+  assert.ok(schema.$defs.taskChangelog);
+  assert.ok(schema.$defs.taskChangelogReviewHandoff);
+  assert.ok(schema.$defs.taskChangelogVerificationSummary);
   assert.ok(schema.$defs.verificationCommand);
   assert.equal(schema.$defs.verificationCommand.properties.outputExcerpt.$ref, "#/$defs/verificationOutputExcerpt");
   assert.ok(schema.$defs.verificationOutputExcerpt);
