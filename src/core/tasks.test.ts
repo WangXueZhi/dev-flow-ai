@@ -187,6 +187,9 @@ test("createTaskPlan generates executable delivery phases", () => {
     taskPlan.implementationUnits.filter((unit) => unit.title === "As an operator, I want to filter orders by status so that I can focus the queue.").length,
     1
   );
+  assert.ok(taskPlan.implementationUnits.every((unit) => (unit.reviewChecklist?.length ?? 0) > 0));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "frontend-data" && unit.reviewChecklist?.some((item) => item.includes("Request parameters"))));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "design-token" && unit.reviewChecklist?.some((item) => item.includes("theme system"))));
   assert.equal(taskPlan.tasks.length, 5);
   assert.match(taskPlan.tasks[0]?.acceptanceCriteria.join("\n") ?? "", /Risk accepted or mitigated: \[medium\]/);
   assert.equal(taskPlan.tasks[2]?.id, "T03-code-implementation");
@@ -206,6 +209,9 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /\[frontend-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /GET \/orders/);
   assert.match(markdown, /Parameters: query status \(optional, default open\)/);
+  assert.match(markdown, /Review checklist/);
+  assert.match(markdown, /Request parameters, auth, loading, empty, error, and success states are handled/);
+  assert.match(markdown, /Token is applied through the project's styling or theme system/);
   assert.match(markdown, /Fields: id, status/);
   assert.match(markdown, /Orders endpoint unavailable/);
   assert.match(markdown, /Authorization: Bearer token/);

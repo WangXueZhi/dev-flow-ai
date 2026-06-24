@@ -112,7 +112,10 @@ const unit: ImplementationUnit = {
   kind: "api-endpoint",
   title: "GET /api/release/summary",
   source: "docs/api.md:7",
-  details: ["Map this endpoint to data fetching states.", "GET /api/release/summary"]
+  details: ["Map this endpoint to data fetching states.", "GET /api/release/summary"],
+  reviewChecklist: [
+    "Endpoint path, method, parameters, and auth are represented in the data client or service boundary."
+  ]
 };
 
 const frontendDataUnit: ImplementationUnit = {
@@ -169,6 +172,8 @@ test("createDryRunProposal can target an implementation unit", () => {
   assert.match(markdown, /Target Unit/);
   assert.match(markdown, /Data candidates/);
   assert.match(markdown, /GET \/api\/release\/summary/);
+  assert.match(markdown, /Review checklist/);
+  assert.match(markdown, /parameters, and auth are represented/);
 });
 
 test("createDryRunProposal can target a frontend data implementation unit", () => {

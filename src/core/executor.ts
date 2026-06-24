@@ -179,7 +179,7 @@ ${proposal.summary}
 
 ${proposal.title}
 
-${proposal.targetUnit ? `## Target Unit\n\n- ${proposal.targetUnit.id} [${proposal.targetUnit.kind}] ${proposal.targetUnit.title}\n- Source: \`${proposal.targetUnit.source}\`\n${proposal.targetUnit.details.map((detail) => `- ${detail}`).join("\n")}\n` : ""}
+${proposal.targetUnit ? `## Target Unit\n\n${formatTargetUnit(proposal.targetUnit)}\n` : ""}
 
 ## Stack Targeting
 
@@ -209,6 +209,20 @@ ${proposal.verification.length ? proposal.verification.map((command) => `- \`${c
 
 ${proposal.guardrails.map((guardrail) => `- ${guardrail}`).join("\n")}
 `;
+}
+
+function formatTargetUnit(unit: ImplementationUnit): string {
+  const details = unit.details.map((detail) => `- ${detail}`);
+  const reviewChecklist = unit.reviewChecklist?.length
+    ? ["- Review checklist:", ...unit.reviewChecklist.map((item) => `  - ${item}`)]
+    : [];
+
+  return [
+    `- ${unit.id} [${unit.kind}] ${unit.title}`,
+    `- Source: \`${unit.source}\``,
+    ...details,
+    ...reviewChecklist
+  ].join("\n");
 }
 
 function suggestFiles(

@@ -32,6 +32,7 @@ export interface ImplementationUnit {
   title: string;
   source: string;
   details: string[];
+  reviewChecklist?: string[];
 }
 
 export interface ImplementationTask {
@@ -418,13 +419,97 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
     });
   }
 
-  return units;
+  return units.map(addReviewChecklist);
 }
 
 function formatFrontendTargetSource(brief: ProjectBrief, target: FrontendTargetItem): string {
   const path = frontendTargetDocumentPath(brief, target.source);
 
   return target.sourceLine === undefined ? path : `${path}:${target.sourceLine}`;
+}
+
+function addReviewChecklist(unit: ImplementationUnit): ImplementationUnit {
+  const reviewChecklist = unique([
+    ...(unit.reviewChecklist ?? []),
+    ...reviewChecklistForUnit(unit)
+  ]);
+
+  return reviewChecklist.length ? { ...unit, reviewChecklist } : unit;
+}
+
+function reviewChecklistForUnit(unit: ImplementationUnit): string[] {
+  switch (unit.kind) {
+    case "requirement":
+      return [
+        "Acceptance criteria or manual QA evidence covers this requirement.",
+        "Implementation maps the requirement to visible UI behavior, data flow, or documented non-code follow-up."
+      ];
+    case "constraint":
+      return [
+        "Source changes do not violate this constraint.",
+        "Any tradeoff against the constraint is called out in the delivery report."
+      ];
+    case "frontend-route":
+      return [
+        "Route or view is reachable through the expected navigation path.",
+        "Route covers loading, empty, error, success, and responsive states where applicable.",
+        "Verification or visual evidence covers the route boundary."
+      ];
+    case "frontend-component":
+      return [
+        "Component boundary has clear inputs, state ownership, and rendering responsibility.",
+        "Responsive behavior, accessibility semantics, and key visual states are covered.",
+        "Nearby tests or manual QA notes cover the component behavior."
+      ];
+    case "frontend-data":
+      return [
+        "Data fetching is isolated from presentation components.",
+        "Request parameters, auth, loading, empty, error, and success states are handled.",
+        "Mock, fixture, or typed data shape is aligned with the API contract."
+      ];
+    case "frontend-state":
+    case "ui-state":
+      return [
+        "Visible state matches the UI note and has user-facing recovery where needed.",
+        "Keyboard, focus, and screen-reader behavior are considered for interactive states.",
+        "Responsive behavior is checked for the state."
+      ];
+    case "ui":
+      return [
+        "UI signal is mapped to a concrete route, component, state, or styling change.",
+        "Responsive and accessibility implications are reviewed."
+      ];
+    case "design-asset":
+      return [
+        "Layout, spacing, visible copy, and visual hierarchy are checked against the referenced asset.",
+        "Missing or stale assets are called out before source-changing execution."
+      ];
+    case "design-token":
+      return [
+        "Token is applied through the project's styling or theme system rather than one-off hardcoding.",
+        "Desktop, tablet, and mobile text fit remain stable after the token is applied."
+      ];
+    case "api-endpoint":
+      return [
+        "Endpoint path, method, parameters, and auth are represented in the data client or service boundary.",
+        "Loading, empty, error, success, and retry behavior are wired to the UI."
+      ];
+    case "api-model":
+      return [
+        "Frontend types or mapping code reflect the documented fields.",
+        "Missing, optional, or unknown fields fail gracefully."
+      ];
+    case "api-error":
+      return [
+        "Documented API failure maps to visible retry, stale, unavailable, warning, or blocked UI behavior.",
+        "Verification covers the user-facing failure state or records a manual QA note."
+      ];
+    case "api-auth":
+      return [
+        "Auth headers, cookies, or session requirements are isolated from presentation components.",
+        "Unauthorized or expired-session behavior is visible and safe."
+      ];
+  }
 }
 
 function frontendTargetDocumentPath(brief: ProjectBrief, source: FrontendTargetSource): string {
@@ -469,6 +554,10 @@ function normalizeUnitKey(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+function unique(values: string[]): string[] {
+  return [...new Set(values)];
+}
+
 function formatDesignAssetMetadata(metadata: ProjectBrief["designAssets"][number]["metadata"]): string[] {
   if (!metadata) {
     return [];
@@ -491,8 +580,11 @@ function formatImplementationUnits(units: ImplementationUnit[]): string {
 
   return units.map((unit) => {
     const details = unit.details.map((detail) => `  - ${detail}`).join("\n");
+    const reviewChecklist = unit.reviewChecklist?.length
+      ? `\n  - Review checklist:\n${unit.reviewChecklist.map((item) => `    - ${item}`).join("\n")}`
+      : "";
 
-    return `- ${unit.id} [${unit.kind}] ${unit.title}\n  - Source: \`${unit.source}\`\n${details}`;
+    return `- ${unit.id} [${unit.kind}] ${unit.title}\n  - Source: \`${unit.source}\`\n${details}${reviewChecklist}`;
   }).join("\n");
 }
 

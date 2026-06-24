@@ -66,6 +66,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added deterministic fallback planning and OpenAI-compatible provider support.
 - Added an optional live provider smoke test script for release validation without making paid AI credentials mandatory for contributors.
 - Added task plan generation.
+- Added type-specific implementation unit review checklists to task artifacts and focused dry-run proposals.
 - Added dry-run patch proposals with stack-specific target profiles for likely component, data, style, test, config, and verification targets.
 - Added source-context target profile candidates derived from explicit route paths and component names in requirements and UI notes.
 - Added data/API target profile candidates derived from explicit API endpoint paths.
