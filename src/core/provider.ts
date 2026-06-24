@@ -38,8 +38,8 @@ interface ChatCompletionResponse {
 const defaultBaseUrl = "https://api.openai.com/v1";
 const defaultModel = "gpt-4.1";
 
-export function createAiProviderFromEnv(): AiProvider | undefined {
-  const config = readAiProviderConfig(process.env);
+export function createAiProviderFromEnv(env: NodeJS.ProcessEnv = process.env): AiProvider | undefined {
+  const config = readAiProviderConfig(env);
   const fixturePath = config.fixturePath;
 
   if (fixturePath) {

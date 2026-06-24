@@ -62,7 +62,7 @@ Use fenced `json`, `yaml`, or `yml` blocks for structured OpenAPI extraction. In
 
 `DEVFLOW_AI_API_KEY` takes precedence over `OPENAI_API_KEY` when both are set. `DEVFLOW_AI_FIXTURE_PATH` takes precedence over live provider keys so deterministic tests and CI fixtures do not call an external model.
 
-Run `dev-flow doctor --json` to inspect `aiProvider.mode`, `apiKeyEnvName`, `liveApiKeyEnvName`, `baseUrl`, `baseUrlSource`, `chatCompletionsUrl`, `model`, `modelSource`, and `fixtureOverridesLive` without making a provider request.
+Run `dev-flow doctor --json` to inspect `aiProvider.mode`, `apiKeyEnvName`, `liveApiKeyEnvName`, `baseUrl`, `baseUrlSource`, `chatCompletionsUrl`, `model`, `modelSource`, and `fixtureOverridesLive` without making a provider request. Run `dev-flow smoke-provider --require-live` to make a minimal live request, ignore fixture replay, and write `.devflow/artifacts/live-provider-smoke.json` without exposing secret values.
 
 ## Endpoint
 

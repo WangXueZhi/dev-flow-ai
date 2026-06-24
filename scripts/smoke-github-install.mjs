@@ -39,7 +39,21 @@ try {
   await access(join(projectDir, "docs", "ui.md"));
   await access(join(projectDir, "docs", "api.md"));
 
-  console.log(`GitHub install smoke passed: installed ${packageSpec} and ran dev-flow help/version/init.`);
+  const smokeProviderSupported = help.includes("dev-flow smoke-provider");
+  const checkedCommands = ["help", "version", "init"];
+
+  if (smokeProviderSupported) {
+    const smokeOutput = run(devFlowBin, ["smoke-provider"], projectDir).stdout;
+    const smokeReport = JSON.parse(await readFile(join(projectDir, ".devflow", "artifacts", "live-provider-smoke.json"), "utf8"));
+
+    if (!smokeOutput.includes("AI provider smoke skipped") || smokeReport.status !== "skipped" || smokeReport.provider?.mode !== "fallback") {
+      throw new Error("GitHub-installed dev-flow binary did not run the provider smoke skip path.");
+    }
+
+    checkedCommands.push("smoke-provider");
+  }
+
+  console.log(`GitHub install smoke passed: installed ${packageSpec} and ran dev-flow ${checkedCommands.join("/")}.`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

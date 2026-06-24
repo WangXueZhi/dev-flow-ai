@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { access, mkdir, mkdtemp, rm } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,7 +44,14 @@ try {
   await access(join(projectDir, "docs", "ui.md"));
   await access(join(projectDir, "docs", "api.md"));
 
-  console.log(`Pack smoke passed: installed ${pack.filename} and ran dev-flow help/version/init.`);
+  const smokeOutput = run(devFlowBin, ["smoke-provider"], projectDir).stdout;
+  const smokeReport = JSON.parse(await readFile(join(projectDir, ".devflow", "artifacts", "live-provider-smoke.json"), "utf8"));
+
+  if (!smokeOutput.includes("AI provider smoke skipped") || smokeReport.status !== "skipped" || smokeReport.provider?.mode !== "fallback") {
+    throw new Error("Installed dev-flow binary did not run the provider smoke skip path.");
+  }
+
+  console.log(`Pack smoke passed: installed ${pack.filename} and ran dev-flow help/version/init/smoke-provider.`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

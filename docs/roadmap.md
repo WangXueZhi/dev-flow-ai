@@ -45,6 +45,7 @@
 - Verification report with bounded failure excerpts.
 - Verification remediation hints and structured remediation plans in delivery reports, manifests, local status output, and GitHub Actions job summaries.
 - Machine-readable live provider smoke reports for release evidence.
+- Installed CLI live-provider smoke command for demos, release gates, and provider diagnostics.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.

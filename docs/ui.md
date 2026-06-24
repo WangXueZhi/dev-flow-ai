@@ -25,6 +25,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow deliver --apply --yes --unit <id>`: runs approved source-changing execution for one implementation unit.
 - `dev-flow doctor`: prints installed version and readiness checks with simple status prefixes.
 - `dev-flow doctor --json`: prints the same diagnostics as structured JSON for CI and issue reports.
+- `dev-flow smoke-provider --require-live`: sends a minimal live AI provider request and writes a smoke report.
 - `dev-flow --help`: shows command usage, flags, and AI environment variables.
 - `dev-flow --version`: prints the installed CLI version.
 

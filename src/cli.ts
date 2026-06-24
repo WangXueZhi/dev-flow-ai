@@ -6,6 +6,7 @@ import { runExecute } from "./commands/execute.js";
 import { runInit } from "./commands/init.js";
 import { runPlan } from "./commands/plan.js";
 import { runReport } from "./commands/report.js";
+import { runSmokeProvider } from "./commands/smoke-provider.js";
 import { runStatus } from "./commands/status.js";
 import { runTasks } from "./commands/tasks.js";
 import { runVerify } from "./commands/verify.js";
@@ -51,6 +52,9 @@ async function main(argv: string[]): Promise<void> {
     case "doctor":
       await runDoctor(parsed.flags);
       return;
+    case "smoke-provider":
+      await runSmokeProvider(parsed.flags);
+      return;
     case "version":
       await printVersion();
       return;
@@ -81,6 +85,7 @@ Usage:
   dev-flow report [--out <path>] [--manifest-out <path>] [--visual-report <path|none>]
   dev-flow status [--manifest <path>] [--json] [--fail-on-attention] [--fail-on-failed-verification]
   dev-flow doctor [--json] [--no-source-context]
+  dev-flow smoke-provider [--out <path>] [--require-live] [--json]
   dev-flow version
 
 Commands:
@@ -95,6 +100,8 @@ Commands:
   report    Generate a delivery report from DevFlow artifacts
   status    Print delivery readiness and manifest status
   doctor    Check local runtime and project readiness
+  smoke-provider
+            Send a minimal live AI provider request and write a smoke report
   version   Print the installed DevFlow version
 
 Environment:

@@ -98,7 +98,7 @@ export DEVFLOW_AI_MODEL="gpt-4.1"
 
 Without an API key, `dev-flow plan` and `dev-flow execute --dry-run` fall back to deterministic local output. That fallback is intentionally useful for development and tests, but the AI path is where richer implementation plans and patch proposals come from.
 
-Use `dev-flow doctor --json` to inspect provider diagnostics without making a live request. The JSON includes the active mode, selected key environment variable, normalized chat completions endpoint, model, whether base URL and model came from defaults or environment variables, and whether fixture replay is overriding a configured live key.
+Use `dev-flow doctor --json` to inspect provider diagnostics without making a live request. The JSON includes the active mode, selected key environment variable, normalized chat completions endpoint, model, whether base URL and model came from defaults or environment variables, and whether fixture replay is overriding a configured live key. Use `dev-flow smoke-provider --require-live` when you want the installed CLI to make a minimal real provider request and write `.devflow/artifacts/live-provider-smoke.json` for local review or release evidence.
 
 When a live provider is configured, execution prompts may include bounded snippets of existing repository files selected from the target profile. To use an AI provider without sending sampled source snippets, pass `--no-source-context` to `dev-flow execute` or `dev-flow deliver`, or set:
 
@@ -130,12 +130,13 @@ When both `DEVFLOW_AI_FIXTURE_PATH` and a live key are set, fixture replay wins 
 To verify a real provider before a release or demo, run the optional live smoke test after building:
 
 ```bash
+DEVFLOW_AI_API_KEY="..." dev-flow smoke-provider --require-live
 npm run build
 DEVFLOW_AI_API_KEY="..." npm run smoke:live
 npm run smoke:live:report -- --require-passed
 ```
 
-Without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, the live smoke command prints a skip message and exits successfully. Each run writes `.devflow/artifacts/live-provider-smoke.json` with status, required-gate state, provider endpoint/model diagnostics, and whether a workspace was retained. Set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a release process should fail if live credentials are missing, or set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` to write the report somewhere else. Use `npm run smoke:live:report` to validate the report shape and fail on `status: "failed"`; add `-- --require-passed` when a release gate must prove a real provider smoke passed.
+Without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, the live smoke commands print a skip message and exit successfully unless `--require-live` or `DEVFLOW_REQUIRE_LIVE_SMOKE=true` is set. Each run writes `.devflow/artifacts/live-provider-smoke.json` with status, required-gate state, provider endpoint/model diagnostics, and whether a workspace was retained. Set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` to write the report somewhere else. Use `npm run smoke:live:report` to validate the report shape and fail on `status: "failed"`; add `-- --require-passed` when a release gate must prove a real provider smoke passed.
 
 ## CLI Commands
 
@@ -153,6 +154,7 @@ dev-flow visual
 dev-flow report
 dev-flow status
 dev-flow doctor
+dev-flow smoke-provider
 dev-flow version
 ```
 
@@ -215,6 +217,19 @@ dev-flow doctor --json
 ```
 
 Doctor output also reports the active AI provider mode, selected key environment variable, normalized chat completions endpoint, model, provider default/env sources, whether prompt artifacts have been saved for local review, and whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
+
+### `dev-flow smoke-provider`
+
+Sends a minimal live request to the configured OpenAI-compatible provider and writes `.devflow/artifacts/live-provider-smoke.json`:
+
+```bash
+dev-flow smoke-provider
+dev-flow smoke-provider --require-live
+dev-flow smoke-provider --out .devflow/artifacts/review/live-provider-smoke.json
+dev-flow smoke-provider --json
+```
+
+By default the command skips successfully when no live key is configured. Use `--require-live` when a local demo or release gate must fail unless a real provider request passes. The command ignores `DEVFLOW_AI_FIXTURE_PATH` so deterministic fixtures cannot masquerade as a live provider smoke. The report does not include secret values.
 
 ### `dev-flow tasks`
 
