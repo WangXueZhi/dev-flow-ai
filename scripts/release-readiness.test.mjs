@@ -57,7 +57,7 @@ const validInput = {
     "        env:",
     "          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}"
   ].join("\n"),
-  releaseGuide: "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY."
+  releaseGuide: "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY and archive live-provider-smoke.json."
 };
 
 test("evaluateReleaseReadiness passes for complete release metadata", () => {

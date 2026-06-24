@@ -45,7 +45,7 @@ DEVFLOW_AI_FIXTURE_PATH=fixtures/patch-set-ai-applied.json \
   node ../../dist/cli.js deliver --apply --yes --unit U18
 ```
 
-The live smoke command is optional for normal contributors. It skips without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, and maintainers can set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when they want missing live credentials to fail a release gate.
+The live smoke command is optional for normal contributors. It skips without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, writes `.devflow/artifacts/live-provider-smoke.json`, and maintainers can set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when they want missing live credentials to fail a release gate.
 
 For changes that affect delivery, also run the example with a preview server and the DevFlow orchestrator:
 

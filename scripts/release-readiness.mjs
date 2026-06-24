@@ -86,10 +86,11 @@ export function evaluateReleaseReadiness(input) {
     ),
     check(
       "live-smoke-gate",
-      "Release docs describe the optional required live-provider smoke gate",
+      "Release docs describe the required live-provider smoke gate and JSON evidence",
       /DEVFLOW_REQUIRE_LIVE_SMOKE=true/.test(input.releaseGuide) &&
-        /DEVFLOW_AI_API_KEY|OPENAI_API_KEY/.test(input.releaseGuide),
-      "docs/release.md live provider gate"
+        /DEVFLOW_AI_API_KEY|OPENAI_API_KEY/.test(input.releaseGuide) &&
+        /live-provider-smoke\.json/.test(input.releaseGuide),
+      "docs/release.md live provider gate and JSON evidence"
     )
   ];
 

@@ -44,6 +44,7 @@
 - Recommended verification command selection from common local/CI script aliases, coverage/audit scripts, and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Verification remediation hints and structured remediation plans in delivery reports, manifests, local status output, and GitHub Actions job summaries.
+- Machine-readable live provider smoke reports for release evidence.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
 - Inferred delivery visual text checks from design asset snippets and UI state labels.

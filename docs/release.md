@@ -17,7 +17,7 @@ npm run release:preflight
 
 `npm run release:preflight` runs release readiness, the package checks, installed package smoke, GitHub install smoke, example delivery smoke, manifest-backed status smoke, optional live provider smoke, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
 
-`npm run smoke:live` skips when no live provider key is configured. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`.
+`npm run smoke:live` writes `.devflow/artifacts/live-provider-smoke.json` and skips when no live provider key is configured. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`. Set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` when CI should store the JSON report in a custom artifact location.
 
 Run the React/Vite example smoke test:
 
@@ -68,7 +68,7 @@ node ../../dist/cli.js deliver \
 - Confirm `schemas/patch-set.schema.json` is included in the npm package.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.
 - Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release.
-- Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release.
+- Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release, and archive `.devflow/artifacts/live-provider-smoke.json` with the release evidence.
 - Confirm no secrets or local `.env`/`.env.*` files, except `.env.example`, are included in the package.
 - Tag the release after CI passes.
 

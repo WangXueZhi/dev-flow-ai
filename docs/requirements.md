@@ -77,6 +77,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow plan` uses a deterministic local fallback when no AI key is configured.
 - [ ] `dev-flow doctor` reports runtime, document, config, Playwright Chromium, AI provider readiness, provider endpoint/model diagnostics, and fixture override state without exposing provider keys.
 - [ ] `dev-flow doctor --json` reports whether sampled repository source snippets are enabled for AI prompts.
+- [ ] `npm run smoke:live` writes a machine-readable live provider smoke report for release evidence.
 - [ ] The repository includes a composite GitHub Action that runs safe `dev-flow deliver` by default and requires explicit confirmation for source-changing delivery.
 - [ ] The repository includes product, architecture, roadmap, contribution, license, and quick-start docs.
 - [ ] The project can be built and tested with `npm run check`.
