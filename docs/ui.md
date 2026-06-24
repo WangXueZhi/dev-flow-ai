@@ -46,6 +46,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - Missing AI key: use fallback planner and explain that AI is optional.
 - Missing Chromium: explain that visual checks require Playwright Chromium and print `npx playwright install chromium`.
 - Blank preview screenshot: mark visual verification failed and include the screenshot analysis in the visual report.
+- Missing required visual text: mark visual verification failed and surface the missing text in the visual report, delivery manifest, status output, and GitHub Actions summary.
 - Layout issues: mark visual verification failed and include horizontal overflow, clipped-text, or overlap details in the visual report, delivery manifest, status output, and GitHub Actions summary.
 - Missing patch set: explain that `execute --apply` requires `DEVFLOW_AI_API_KEY`, `OPENAI_API_KEY`, `DEVFLOW_AI_FIXTURE_PATH`, or `--patch-set`.
 - Oversized patch set: explain which operation count or payload limit was exceeded.

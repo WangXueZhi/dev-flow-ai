@@ -57,6 +57,8 @@ function failIfNeeded(failures: string[]): void {
 
 function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, smokeReport: SmokeProviderReportSummary): string {
   const counts = manifest.counts;
+  const visualRequiredText = manifest.evidence.visualRequiredText ?? [];
+  const missingVisualText = visualRequiredText.filter((check) => !check.found);
   const lines = [
     "DevFlow delivery status",
     "",
@@ -75,6 +77,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, 
     `- Applied operations: ${counts.appliedOperations}`,
     `- Verification commands: ${counts.verificationCommands}`,
     `- Visual screenshots: ${counts.visualScreenshots}`,
+    `- Visual required text: ${counts.visualRequiredText} (${missingVisualText.length} missing)`,
     `- Visual layout issues: ${counts.visualLayoutIssues}`,
     `- Design tokens: ${counts.designTokens ?? 0}`,
     `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
@@ -84,6 +87,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, 
     ...formatSmokeProviderReport(smokeReport),
     ...formatReviewerNotes(manifest),
     ...formatSourceContextSampling(manifest),
+    ...formatMissingVisualText(manifest),
     ...formatVisualLayoutIssues(manifest),
     ...formatVerificationFailures(manifest),
     ...formatTopRisks(manifest),
@@ -232,14 +236,35 @@ function formatSourceContextSampling(manifest: DeliveryManifest): string[] {
   ];
 }
 
+function formatMissingVisualText(manifest: DeliveryManifest): string[] {
+  const visualRequiredText = manifest.evidence.visualRequiredText ?? [];
+  const missing = visualRequiredText.filter((check) => !check.found).slice(0, 3);
+
+  if (missing.length === 0) {
+    return [];
+  }
+
+  const hidden = visualRequiredText.filter((check) => !check.found).length - missing.length;
+  const lines = ["", "Missing visual text:"];
+
+  lines.push(...missing.map((check) => `- "${formatOneLineExcerpt(check.text)}"`));
+
+  if (hidden > 0) {
+    lines.push(`- ${hidden} more missing text check${hidden === 1 ? "" : "s"} not shown.`);
+  }
+
+  return lines;
+}
+
 function formatVisualLayoutIssues(manifest: DeliveryManifest): string[] {
-  const issues = manifest.evidence.visualLayoutIssues.slice(0, 3);
+  const visualLayoutIssues = manifest.evidence.visualLayoutIssues ?? [];
+  const issues = visualLayoutIssues.slice(0, 3);
 
   if (issues.length === 0) {
     return [];
   }
 
-  const hidden = manifest.evidence.visualLayoutIssues.length - issues.length;
+  const hidden = visualLayoutIssues.length - issues.length;
   const lines = ["", "Visual layout issues:"];
 
   lines.push(...issues.map((issue) => {

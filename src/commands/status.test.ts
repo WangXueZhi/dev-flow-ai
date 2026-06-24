@@ -90,7 +90,7 @@ const manifest: DeliveryManifest = {
     verificationCommands: 1,
     visualScreenshots: 0,
     visualLayoutIssues: 1,
-    visualRequiredText: 0,
+    visualRequiredText: 2,
     designTokens: 1,
     apiStateRequirements: 1,
     reviewerNotes: 2
@@ -99,7 +99,10 @@ const manifest: DeliveryManifest = {
     acceptanceCriteria: [],
     verificationCommands: [{ command: "npm run check", exitCode: 0, durationMs: 1000 }],
     visualScreenshots: [],
-    visualRequiredText: [],
+    visualRequiredText: [
+      { text: "OpsBoard", found: true },
+      { text: "Deploy confidence", found: false }
+    ],
     visualLayoutIssues: [
       {
         viewport: "desktop",
@@ -233,6 +236,7 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Visual: failed/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
   assert.match(output, /Applied operations: 2/);
+  assert.match(output, /Visual required text: 2 \(1 missing\)/);
   assert.match(output, /Visual layout issues: 1/);
   assert.match(output, /Design tokens: 1/);
   assert.match(output, /API state requirements: 1/);
@@ -246,6 +250,8 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Latest run: dry-run T03-code-implementation, unit U07 \[frontend-route\] Route path \/dashboard/);
   assert.match(output, /Sampled: src\/App\.jsx \(file\)/);
   assert.match(output, /Omitted candidates: 1/);
+  assert.match(output, /Missing visual text/);
+  assert.match(output, /"Deploy confidence"/);
   assert.match(output, /Visual layout issues/);
   assert.match(output, /desktop overlap at button\.primary <-> span\.badge: Elements overlap by 120px\^2/);
   assert.match(output, /\[high\] requirements:12: Acceptance criterion needs review/);

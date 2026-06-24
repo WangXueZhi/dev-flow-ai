@@ -24,6 +24,7 @@ const manifest = {
     designTokens: 1,
     apiStateRequirements: 1,
     appliedOperations: 2,
+    visualRequiredText: 2,
     visualLayoutIssues: 1,
     touchedFiles: 2,
     reviewerNotes: 2
@@ -93,6 +94,10 @@ const manifest = {
           truncatedStderr: true
         }
       }
+    ],
+    visualRequiredText: [
+      { text: "OpsBoard", found: true },
+      { text: "Deploy confidence", found: false }
     ],
     visualLayoutIssues: [
       {
@@ -169,6 +174,7 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Design tokens: 1/);
   assert.match(summary, /API state requirements: 1/);
   assert.match(summary, /Applied operations: 2/);
+  assert.match(summary, /Visual required text: 2 \(1 missing\)/);
   assert.match(summary, /Visual layout issues: 1/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
   assert.match(summary, /Prompt artifacts: `\.devflow\/artifacts\/prompts` \(present\)/);
@@ -178,6 +184,8 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Latest run: `dry-run` `T03-code-implementation`, unit `U07` \[frontend-route\] Route path \/dashboard/);
   assert.match(summary, /`src\/App\.jsx` \(file\)/);
   assert.match(summary, /Omitted candidates: 1/);
+  assert.match(summary, /Missing visual text/);
+  assert.match(summary, /"Deploy confidence"/);
   assert.match(summary, /Visual layout issues/);
   assert.match(summary, /desktop overlap at button\.primary <-> span\.badge: Elements overlap by 120px\^2/);
   assert.match(summary, /Reviewer notes/);

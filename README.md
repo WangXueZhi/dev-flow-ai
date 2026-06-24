@@ -381,7 +381,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, visual-layout, source-change, applied-operation, source-context sampling, reviewer-note, artifact, verification-failure, remediation, risk, and open-question status without opening the Markdown report.
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, visual-text, visual-layout, source-change, applied-operation, source-context sampling, reviewer-note, artifact, verification-failure, remediation, risk, and open-question status without opening the Markdown report.
 
 When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also includes the AI provider smoke status, required-gate state, generated time, endpoint, model, key environment source, and smoke message. If `DEVFLOW_LIVE_SMOKE_REPORT=<path>` is set, `status` reads that custom smoke report path. `status --json` remains the raw delivery manifest for compatibility with existing automation.
 

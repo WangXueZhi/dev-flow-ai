@@ -14,6 +14,10 @@ export function formatDevFlowSummary(manifest) {
   const sourceContextEntries = Array.isArray(manifest.evidence?.sourceContext)
     ? manifest.evidence.sourceContext
     : [];
+  const visualRequiredText = Array.isArray(manifest.evidence?.visualRequiredText)
+    ? manifest.evidence.visualRequiredText
+    : [];
+  const missingVisualText = visualRequiredText.filter((check) => !check.found);
   const visualLayoutIssues = Array.isArray(manifest.evidence?.visualLayoutIssues)
     ? manifest.evidence.visualLayoutIssues
     : [];
@@ -41,6 +45,7 @@ export function formatDevFlowSummary(manifest) {
     `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
     `- Touched files: ${counts.touchedFiles ?? 0}`,
     `- Applied operations: ${counts.appliedOperations ?? 0}`,
+    `- Visual required text: ${counts.visualRequiredText ?? visualRequiredText.length} (${missingVisualText.length} missing)`,
     `- Visual layout issues: ${counts.visualLayoutIssues ?? 0}`,
     "",
     "Artifacts:",
@@ -54,6 +59,7 @@ export function formatDevFlowSummary(manifest) {
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
 
   lines.push(...formatSourceContextSampling(sourceContextEntries));
+  lines.push(...formatMissingVisualText(missingVisualText));
   lines.push(...formatVisualLayoutIssues(visualLayoutIssues));
   lines.push(...formatReviewerNotes(reviewerNotes));
 
@@ -119,6 +125,26 @@ function formatReviewerNotes(notes) {
 
   for (const note of shown) {
     lines.push(`- ${note}`);
+  }
+
+  return lines;
+}
+
+function formatMissingVisualText(missing) {
+  if (!Array.isArray(missing) || missing.length === 0) {
+    return [];
+  }
+
+  const shown = missing.slice(0, 3);
+  const lines = ["", "Missing visual text:"];
+
+  for (const check of shown) {
+    lines.push(`- "${formatOneLineExcerpt(check.text || "")}"`);
+  }
+
+  if (missing.length > shown.length) {
+    const hidden = missing.length - shown.length;
+    lines.push(`- ${hidden} more missing text check${hidden === 1 ? "" : "s"} not shown.`);
   }
 
   return lines;
