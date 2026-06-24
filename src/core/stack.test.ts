@@ -59,8 +59,13 @@ test("detectStack identifies framework conventions from config files and package
       {
         packageManager: "pnpm@9.12.0",
         devDependencies: {
+          "@biomejs/biome": "^latest",
           "@vitejs/plugin-react-swc": "^latest",
-          typescript: "^latest"
+          eslint: "^latest",
+          prettier: "^latest",
+          "svelte-check": "^latest",
+          typescript: "^latest",
+          "vue-tsc": "^latest"
         }
       },
       null,
@@ -79,6 +84,9 @@ test("detectStack identifies framework conventions from config files and package
   await writeFile(join(root, "playwright.config.js"), "module.exports = {}", "utf8");
   await writeFile(join(root, "cypress.config.ts"), "export default {}", "utf8");
   await writeFile(join(root, "jest.config.js"), "module.exports = {}", "utf8");
+  await writeFile(join(root, "eslint.config.js"), "export default []", "utf8");
+  await writeFile(join(root, ".prettierrc"), "{}", "utf8");
+  await writeFile(join(root, "biome.json"), "{}", "utf8");
 
   const stack = await detectStack(root);
 
@@ -86,6 +94,11 @@ test("detectStack identifies framework conventions from config files and package
   assert.ok(stack.runtimes.includes("TypeScript"));
   assert.deepEqual(stack.frameworks, ["Next.js", "React", "Vue", "Nuxt", "Svelte", "Angular", "Astro"]);
   assert.ok(stack.buildTools.includes("Angular CLI"));
+  assert.ok(stack.buildTools.includes("vue-tsc"));
+  assert.ok(stack.buildTools.includes("svelte-check"));
+  assert.ok(stack.buildTools.includes("Biome"));
+  assert.ok(stack.buildTools.includes("ESLint"));
+  assert.ok(stack.buildTools.includes("Prettier"));
   assert.ok(stack.styling.includes("Tailwind CSS"));
   assert.ok(stack.testing.includes("Vitest"));
   assert.ok(stack.testing.includes("Playwright"));
@@ -95,5 +108,8 @@ test("detectStack identifies framework conventions from config files and package
   assert.ok(stack.sourceDirectories.includes("src/routes"));
   assert.ok(stack.configFiles.includes("next.config.mjs"));
   assert.ok(stack.configFiles.includes("vue.config.js"));
+  assert.ok(stack.configFiles.includes("eslint.config.js"));
+  assert.ok(stack.configFiles.includes(".prettierrc"));
+  assert.ok(stack.configFiles.includes("biome.json"));
   assert.ok(!stack.notes.some((note) => /No lockfile/.test(note)));
 });

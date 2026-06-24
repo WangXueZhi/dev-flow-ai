@@ -302,6 +302,34 @@ test("createProjectBrief recognizes common verification script aliases", () => {
   ]);
 });
 
+test("createProjectBrief recognizes expanded verification script aliases", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "npm",
+    scripts: {
+      "lint:check": "eslint .",
+      "format:check": "prettier --check .",
+      "type:check": "tsc --noEmit",
+      unit: "vitest run",
+      "test:component": "vitest run --project component",
+      "test:integration": "vitest run integration",
+      "test:e2e": "playwright test",
+      "build:ci": "vite build"
+    }
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "npm run lint:check",
+    "npm run format:check",
+    "npm run type:check",
+    "npm run unit",
+    "npm run test:component",
+    "npm run test:integration",
+    "npm run test:e2e",
+    "npm run build:ci"
+  ]);
+});
+
 test("createProjectBrief infers verification commands from detected frontend tooling", () => {
   const brief = createProjectBrief(context, {
     ...stack,
@@ -318,6 +346,29 @@ test("createProjectBrief infers verification commands from detected frontend too
     "pnpm exec tsc --noEmit",
     "pnpm exec vitest run",
     "pnpm exec playwright test",
+    "pnpm exec vite build"
+  ]);
+});
+
+test("createProjectBrief infers quality and framework-specific verification commands", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "pnpm",
+    scripts: {},
+    runtimes: ["Node.js", "TypeScript"],
+    frameworks: ["Vue", "Svelte"],
+    buildTools: ["Vite", "tsc", "vue-tsc", "svelte-check", "Biome", "ESLint", "Prettier"],
+    testing: ["Cypress"],
+    configFiles: ["tsconfig.json", "vite.config.ts", "svelte.config.js", "biome.json", "eslint.config.js", ".prettierrc"]
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "pnpm exec biome check .",
+    "pnpm exec eslint .",
+    "pnpm exec prettier --check .",
+    "pnpm exec vue-tsc --noEmit",
+    "pnpm exec svelte-check --tsconfig ./tsconfig.json",
+    "pnpm exec cypress run",
     "pnpm exec vite build"
   ]);
 });

@@ -2492,9 +2492,13 @@ function buildPackageScriptVerificationCommands(
 ): string[] {
   const scriptGroups = [
     ["check", "verify", "validate", "ci"],
-    ["lint", "lint:ci", "lint:check", "eslint"],
-    ["typecheck", "type-check", "typecheck:ci", "type-check:ci"],
-    ["test", "test:ci", "test:unit", "test:run"],
+    ["lint", "lint:ci", "lint:check", "eslint", "biome:check"],
+    ["format:check", "check:format", "format:ci", "prettier:check"],
+    ["typecheck", "type-check", "type:check", "typecheck:ci", "type-check:ci", "check:types", "types", "tsc"],
+    ["test", "test:ci", "test:unit", "unit", "test:run", "vitest", "jest"],
+    ["test:component", "component:test"],
+    ["test:integration", "integration:test", "test:int"],
+    ["test:e2e", "e2e", "e2e:ci", "test:playwright", "playwright:test", "test:cypress", "cypress:run"],
     ["build", "build:ci", "build:prod", "compile"]
   ];
 
@@ -2505,15 +2509,35 @@ function buildPackageScriptVerificationCommands(
 }
 
 function buildInferredVerificationCommands(stack: StackProfile): string[] {
-  const commands = [
+  const hasTypeScriptSignal =
     hasStackSignal(stack, "runtimes", "TypeScript") ||
     hasStackSignal(stack, "buildTools", "tsc") ||
-    stack.configFiles.includes("tsconfig.json")
-      ? formatPackageExecCommand(stack.packageManager, "tsc", "--noEmit")
+    stack.configFiles.includes("tsconfig.json");
+  const hasVueTypeChecker = hasStackSignal(stack, "buildTools", "vue-tsc");
+  const hasSvelteTypeChecker = hasStackSignal(stack, "buildTools", "svelte-check");
+  const hasFrameworkTypeChecker = hasVueTypeChecker || hasSvelteTypeChecker;
+  const svelteCheckArgs = stack.configFiles.includes("tsconfig.json") ? "--tsconfig ./tsconfig.json" : "";
+  const commands = [
+    hasStackSignal(stack, "buildTools", "Biome")
+      ? formatPackageExecCommand(stack.packageManager, "biome", "check .")
       : undefined,
+    hasStackSignal(stack, "buildTools", "ESLint")
+      ? formatPackageExecCommand(stack.packageManager, "eslint", ".")
+      : undefined,
+    hasStackSignal(stack, "buildTools", "Prettier")
+      ? formatPackageExecCommand(stack.packageManager, "prettier", "--check .")
+      : undefined,
+    hasVueTypeChecker ? formatPackageExecCommand(stack.packageManager, "vue-tsc", "--noEmit") : undefined,
+    hasSvelteTypeChecker ? formatPackageExecCommand(stack.packageManager, "svelte-check", svelteCheckArgs) : undefined,
+    hasTypeScriptSignal && !hasFrameworkTypeChecker ? formatPackageExecCommand(stack.packageManager, "tsc", "--noEmit") : undefined,
     hasStackSignal(stack, "testing", "Vitest") ? formatPackageExecCommand(stack.packageManager, "vitest", "run") : undefined,
     !hasStackSignal(stack, "testing", "Vitest") && hasStackSignal(stack, "testing", "Jest")
       ? formatPackageExecCommand(stack.packageManager, "jest", "--runInBand")
+      : undefined,
+    !hasStackSignal(stack, "testing", "Vitest") &&
+    !hasStackSignal(stack, "testing", "Jest") &&
+    hasStackSignal(stack, "testing", "node:test")
+      ? "node --test"
       : undefined,
     hasStackSignal(stack, "testing", "Playwright") ? formatPackageExecCommand(stack.packageManager, "playwright", "test") : undefined,
     hasStackSignal(stack, "testing", "Cypress") ? formatPackageExecCommand(stack.packageManager, "cypress", "run") : undefined,

@@ -38,7 +38,7 @@
 - Human-readable task changelog generated after source-changing apply.
 - Task changelog review handoff notes with execution, verification, and delivery artifact links.
 - Aggregated recommended verification commands from detected package scripts.
-- Recommended verification command selection from common script aliases and dependency-aware TypeScript, test, and build tool fallbacks.
+- Recommended verification command selection from common script aliases and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
@@ -70,7 +70,7 @@
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Further enrich task changelogs with reviewer-authored notes and verification result summaries.
-- Further expand verification command selection with stack-specific framework aliases and dependency-aware checks.
+- Further expand verification command selection with provider, monorepo, and CI-specific checks.
 - Feed verification results into the delivery report after code changes.
 
 ## Milestone 3: UI And Visual Verification

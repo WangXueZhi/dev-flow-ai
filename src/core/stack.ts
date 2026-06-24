@@ -59,6 +59,8 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     "astro.config.js",
     "astro.config.mjs",
     "astro.config.ts",
+    "biome.json",
+    "biome.jsonc",
     "next.config.cjs",
     "next.config.js",
     "next.config.mjs",
@@ -69,6 +71,16 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     "cypress.config.js",
     "cypress.config.mjs",
     "cypress.config.ts",
+    "eslint.config.cjs",
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "eslint.config.ts",
+    ".eslintrc",
+    ".eslintrc.cjs",
+    ".eslintrc.js",
+    ".eslintrc.json",
+    ".eslintrc.yml",
+    ".eslintrc.yaml",
     "jest.config.js",
     "jest.config.mjs",
     "jest.config.ts",
@@ -78,6 +90,15 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     "postcss.config.cjs",
     "postcss.config.js",
     "postcss.config.mjs",
+    "prettier.config.cjs",
+    "prettier.config.js",
+    "prettier.config.mjs",
+    ".prettierrc",
+    ".prettierrc.cjs",
+    ".prettierrc.js",
+    ".prettierrc.json",
+    ".prettierrc.yml",
+    ".prettierrc.yaml",
     "svelte.config.js",
     "svelte.config.mjs",
     "tailwind.config.cjs",
@@ -106,6 +127,9 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   const hasAstroSignal = hasDependency("astro") || hasConfigFile(/^astro\.config\./);
   const hasNextSignal = hasDependency("next") || hasConfigFile(/^next\.config\./);
   const hasNuxtSignal = hasDependency("nuxt") || hasDependency("nuxt3") || hasConfigFile(/^nuxt\.config\./);
+  const hasBiomeSignal = hasDependency("@biomejs/biome") || hasDependency("biome") || hasConfigFile(/^biome\.jsonc?$/);
+  const hasEslintSignal = hasDependency("eslint") || hasConfigFile(/^(eslint\.config\.|\.eslintrc)/);
+  const hasPrettierSignal = hasDependency("prettier") || hasConfigFile(/^(\.prettierrc|prettier\.config\.)/);
 
   const runtimes = unique([
     "Node.js",
@@ -131,7 +155,12 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
     hasDependency("esbuild") ? "esbuild" : undefined,
     hasAngularSignal ? "Angular CLI" : undefined,
     hasDependency("tsx") ? "tsx" : undefined,
-    hasDependency("typescript") ? "tsc" : undefined
+    hasDependency("typescript") ? "tsc" : undefined,
+    hasDependency("vue-tsc") ? "vue-tsc" : undefined,
+    hasDependency("svelte-check") ? "svelte-check" : undefined,
+    hasBiomeSignal ? "Biome" : undefined,
+    hasEslintSignal ? "ESLint" : undefined,
+    hasPrettierSignal ? "Prettier" : undefined
   ]);
 
   const styling = unique([
