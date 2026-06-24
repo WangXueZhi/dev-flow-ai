@@ -75,6 +75,11 @@ const schema = JSON.parse(
     };
     remediationArtifactReference: unknown;
     verificationOutputExcerpt: unknown;
+    visualLayoutIssue: {
+      properties: {
+        type: { enum: string[] };
+      };
+    };
     visualRequiredText: unknown;
     visualScreenshot: unknown;
   };
@@ -109,6 +114,7 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
     "verificationCommands",
     "visualScreenshots",
     "visualRequiredText",
+    "visualLayoutIssues",
     "designTokens",
     "apiStateRequirements",
     "appliedChanges",
@@ -161,6 +167,8 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   );
   assert.ok(schema.$defs.remediationArtifactReference);
   assert.ok(schema.$defs.verificationOutputExcerpt);
+  assert.ok(schema.$defs.visualLayoutIssue);
+  assert.deepEqual(schema.$defs.visualLayoutIssue.properties.type.enum, ["clipped-text", "horizontal-overflow", "overlap"]);
   assert.ok(schema.$defs.visualRequiredText);
   assert.ok(schema.$defs.visualScreenshot);
 });

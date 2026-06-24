@@ -185,6 +185,7 @@
         "verificationCommands",
         "visualScreenshots",
         "visualRequiredText",
+        "visualLayoutIssues",
         "designTokens",
         "apiStateRequirements",
         "appliedChanges",
@@ -214,6 +215,12 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/visualRequiredText"
+          }
+        },
+        "visualLayoutIssues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/visualLayoutIssue"
           }
         },
         "designTokens": {
@@ -487,6 +494,36 @@
         },
         "found": {
           "type": "boolean"
+        }
+      }
+    },
+    "visualLayoutIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["viewport", "width", "height", "type", "selector", "message"],
+      "properties": {
+        "viewport": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "enum": ["clipped-text", "horizontal-overflow", "overlap"]
+        },
+        "selector": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "message": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "text": {
+          "type": "string"
         }
       }
     },

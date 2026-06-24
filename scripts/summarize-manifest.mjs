@@ -14,6 +14,9 @@ export function formatDevFlowSummary(manifest) {
   const sourceContextEntries = Array.isArray(manifest.evidence?.sourceContext)
     ? manifest.evidence.sourceContext
     : [];
+  const visualLayoutIssues = Array.isArray(manifest.evidence?.visualLayoutIssues)
+    ? manifest.evidence.visualLayoutIssues
+    : [];
   const reviewerNotes = Array.isArray(manifest.evidence?.taskChangelog?.reviewHandoff?.reviewerNotes)
     ? manifest.evidence.taskChangelog.reviewHandoff.reviewerNotes
     : [];
@@ -38,6 +41,7 @@ export function formatDevFlowSummary(manifest) {
     `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
     `- Touched files: ${counts.touchedFiles ?? 0}`,
     `- Applied operations: ${counts.appliedOperations ?? 0}`,
+    `- Visual layout issues: ${counts.visualLayoutIssues ?? 0}`,
     "",
     "Artifacts:",
     artifactLine("delivery-report"),
@@ -50,6 +54,7 @@ export function formatDevFlowSummary(manifest) {
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
 
   lines.push(...formatSourceContextSampling(sourceContextEntries));
+  lines.push(...formatVisualLayoutIssues(visualLayoutIssues));
   lines.push(...formatReviewerNotes(reviewerNotes));
 
   if (verificationFailures.length > 0) {
@@ -114,6 +119,29 @@ function formatReviewerNotes(notes) {
 
   for (const note of shown) {
     lines.push(`- ${note}`);
+  }
+
+  return lines;
+}
+
+function formatVisualLayoutIssues(issues) {
+  if (!Array.isArray(issues) || issues.length === 0) {
+    return [];
+  }
+
+  const shown = issues.slice(0, 3);
+  const lines = ["", "Visual layout issues:"];
+
+  for (const issue of shown) {
+    const text = issue.text ? ` Text: "${formatOneLineExcerpt(issue.text)}"` : "";
+    lines.push(
+      `- ${issue.viewport || "unknown"} ${issue.type || "layout-issue"} at ${issue.selector || "unknown"}: ${formatOneLineExcerpt(issue.message || "")}${text}`
+    );
+  }
+
+  if (issues.length > shown.length) {
+    const hidden = issues.length - shown.length;
+    lines.push(`- ${hidden} more issue${hidden === 1 ? "" : "s"} not shown.`);
   }
 
   return lines;

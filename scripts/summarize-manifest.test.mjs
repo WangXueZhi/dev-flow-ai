@@ -13,7 +13,7 @@ const manifest = {
   status: {
     readiness: "needs attention",
     verification: "passed",
-    visual: "not-run",
+    visual: "failed",
     sourceChanges: "applied"
   },
   counts: {
@@ -24,6 +24,7 @@ const manifest = {
     designTokens: 1,
     apiStateRequirements: 1,
     appliedOperations: 2,
+    visualLayoutIssues: 1,
     touchedFiles: 2,
     reviewerNotes: 2
   },
@@ -93,6 +94,17 @@ const manifest = {
         }
       }
     ],
+    visualLayoutIssues: [
+      {
+        viewport: "desktop",
+        width: 1440,
+        height: 1000,
+        type: "overlap",
+        selector: "button.primary <-> span.badge",
+        message: "Elements overlap by 120px^2 (30% of the smaller element).",
+        text: "Deploy / Blocked"
+      }
+    ],
     deliveryRisks: [
       {
         level: "high",
@@ -152,10 +164,12 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /### DevFlow Delivery/);
   assert.match(summary, /Readiness: \*\*needs attention\*\*/);
   assert.match(summary, /Verification: \*\*passed\*\*/);
+  assert.match(summary, /Visual: \*\*failed\*\*/);
   assert.match(summary, /Delivery risks: 2 \(1 high\)/);
   assert.match(summary, /Design tokens: 1/);
   assert.match(summary, /API state requirements: 1/);
   assert.match(summary, /Applied operations: 2/);
+  assert.match(summary, /Visual layout issues: 1/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
   assert.match(summary, /Prompt artifacts: `\.devflow\/artifacts\/prompts` \(present\)/);
   assert.match(summary, /Source context summary: `\.devflow\/artifacts\/source-context-summary\.json` \(present\)/);
@@ -164,6 +178,8 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Latest run: `dry-run` `T03-code-implementation`, unit `U07` \[frontend-route\] Route path \/dashboard/);
   assert.match(summary, /`src\/App\.jsx` \(file\)/);
   assert.match(summary, /Omitted candidates: 1/);
+  assert.match(summary, /Visual layout issues/);
+  assert.match(summary, /desktop overlap at button\.primary <-> span\.badge: Elements overlap by 120px\^2/);
   assert.match(summary, /Reviewer notes/);
   assert.match(summary, /Reviewer should check generated copy before merge/);
   assert.match(summary, /Verification failures/);

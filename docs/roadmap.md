@@ -49,6 +49,7 @@
 - Installed CLI live-provider smoke command for demos, release gates, and provider diagnostics.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
+- Machine-readable visual layout issue details in delivery manifests and status summaries.
 - Inferred delivery visual text checks from design asset snippets, visible acceptance-criteria text, and UI state labels.
 - Delivery report.
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
@@ -58,7 +59,7 @@
 - Embedded screenshots in delivery reports when visual artifacts are available.
 - Local delivery status summary command backed by the delivery manifest.
 - CI gate exits for delivery readiness attention and failed verification.
-- Machine-readable delivery manifest for artifact status, readiness, verification, visual, source-change, API-state, screenshot, touched-file, applied-operation, backup, open-question, and delivery-risk summaries.
+- Machine-readable delivery manifest for artifact status, readiness, verification, visual, visual-layout, source-change, API-state, screenshot, touched-file, applied-operation, backup, open-question, and delivery-risk summaries.
 - Published delivery manifest JSON schema for CI, editor, dashboard, and downstream-agent integrations.
 - Frontend delivery blueprint sections in implementation plans for routes, components, state, data fetching, styling, tests, and accessibility.
 - Planner guardrails that prevent patch-set JSON from replacing implementation-plan artifacts and append missing frontend blueprint sections to provider plans.

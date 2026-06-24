@@ -217,7 +217,7 @@ dev-flow deliver --apply --yes --patch-set path/to/reviewed-patch-set.json
 
 The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks with embedded screenshots when available, applied changes, task changelog review handoff notes, the latest changelog Verification Summary when available, design tokens, API state requirements, risk assessment, open questions, and delivery readiness.
 
-DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, prompt artifact status, readiness, verification status, source-change status, source-context sampling evidence, design tokens, API state requirements, screenshot paths, touched files, applied operation details, task changelog reviewer notes and verification summaries, backups, open questions, and delivery risks without parsing Markdown.
+DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, prompt artifact status, readiness, verification status, source-change status, source-context sampling evidence, design tokens, API state requirements, screenshot paths, visual layout issue details, touched files, applied operation details, task changelog reviewer notes and verification summaries, backups, open questions, and delivery risks without parsing Markdown.
 
 Validate the manifest with `schemas/delivery-manifest.schema.json` when building stricter CI or editor integrations.
 
@@ -230,7 +230,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-The status output includes applied operation counts, reviewer notes, verification remediation hints, structured next actions, and source-context sampling evidence from the delivery manifest when available, using only path-level metadata so CI logs do not expose sampled source snippets. When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also shows live provider smoke status, required-gate state, endpoint, model, key source, and message; `status --json` remains the raw delivery manifest for automation compatibility.
+The status output includes applied operation counts, visual layout issue counts, reviewer notes, verification remediation hints, structured next actions, and source-context sampling evidence from the delivery manifest when available, using only path-level metadata so CI logs do not expose sampled source snippets. When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also shows live provider smoke status, required-gate state, endpoint, model, key source, and message; `status --json` remains the raw delivery manifest for automation compatibility.
 
 Use `--fail-on-attention` as a CI gate when delivery readiness must be `ready for review`. Use `--fail-on-failed-verification` when the job should fail only if the manifest records failed verification.
 

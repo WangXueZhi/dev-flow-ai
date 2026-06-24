@@ -168,6 +168,15 @@ export interface DeliveryManifest {
       text: string;
       found: boolean;
     }>;
+    visualLayoutIssues: Array<{
+      viewport: string;
+      width: number;
+      height: number;
+      type: VisualReport["layoutIssues"][number]["type"];
+      selector: string;
+      message: string;
+      text?: string;
+    }>;
     designTokens: Array<{
       category: NonNullable<ProjectBrief["designTokens"]>[number]["category"];
       sourceLine: number;
@@ -406,6 +415,15 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       visualRequiredText: input.visualReport?.requiredText.map((check) => ({
         text: check.text,
         found: check.found
+      })) ?? [],
+      visualLayoutIssues: input.visualReport?.layoutIssues.map((issue) => ({
+        viewport: issue.viewport.name,
+        width: issue.viewport.width,
+        height: issue.viewport.height,
+        type: issue.type,
+        selector: issue.selector,
+        message: issue.message,
+        ...(issue.text === undefined ? {} : { text: issue.text })
       })) ?? [],
       designTokens: brief?.designTokens?.map((token) => ({
         category: token.category,

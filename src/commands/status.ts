@@ -75,6 +75,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, 
     `- Applied operations: ${counts.appliedOperations}`,
     `- Verification commands: ${counts.verificationCommands}`,
     `- Visual screenshots: ${counts.visualScreenshots}`,
+    `- Visual layout issues: ${counts.visualLayoutIssues}`,
     `- Design tokens: ${counts.designTokens ?? 0}`,
     `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
     "",
@@ -83,6 +84,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, 
     ...formatSmokeProviderReport(smokeReport),
     ...formatReviewerNotes(manifest),
     ...formatSourceContextSampling(manifest),
+    ...formatVisualLayoutIssues(manifest),
     ...formatVerificationFailures(manifest),
     ...formatTopRisks(manifest),
     ...formatOpenQuestions(manifest)
@@ -228,6 +230,29 @@ function formatSourceContextSampling(manifest: DeliveryManifest): string[] {
     `- Omitted candidates: ${latest.omitted.length}`,
     ...sampledLines
   ];
+}
+
+function formatVisualLayoutIssues(manifest: DeliveryManifest): string[] {
+  const issues = manifest.evidence.visualLayoutIssues.slice(0, 3);
+
+  if (issues.length === 0) {
+    return [];
+  }
+
+  const hidden = manifest.evidence.visualLayoutIssues.length - issues.length;
+  const lines = ["", "Visual layout issues:"];
+
+  lines.push(...issues.map((issue) => {
+    const text = issue.text ? ` Text: "${formatOneLineExcerpt(issue.text)}"` : "";
+
+    return `- ${issue.viewport} ${issue.type} at ${issue.selector}: ${formatOneLineExcerpt(issue.message)}${text}`;
+  }));
+
+  if (hidden > 0) {
+    lines.push(`- ${hidden} more issue${hidden === 1 ? "" : "s"} not shown.`);
+  }
+
+  return lines;
 }
 
 function formatVerificationFailures(manifest: DeliveryManifest): string[] {

@@ -564,7 +564,7 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
       startedAt: "2026-01-01T00:00:00.000Z",
       finishedAt: "2026-01-01T00:00:01.000Z",
       url: "http://127.0.0.1:5173",
-      status: "passed",
+      status: "failed",
       screenshots: [
         {
           viewport: { name: "desktop", width: 1440, height: 1000 },
@@ -581,7 +581,15 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
           }
         }
       ],
-      layoutIssues: [],
+      layoutIssues: [
+        {
+          viewport: { name: "desktop", width: 1440, height: 1000 },
+          type: "overlap",
+          selector: "button.primary <-> span.badge",
+          message: "Elements overlap by 120px^2 (30% of the smaller element).",
+          text: "Deploy / Blocked"
+        }
+      ],
       requiredText: [{ text: "OpsBoard", found: true }]
     },
     artifacts: [
@@ -610,7 +618,7 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.generatedAt, "2026-01-01T00:00:02.000Z");
   assert.equal(manifest.status.readiness, "needs attention");
   assert.equal(manifest.status.verification, "passed");
-  assert.equal(manifest.status.visual, "passed");
+  assert.equal(manifest.status.visual, "failed");
   assert.equal(manifest.status.sourceChanges, "applied");
   assert.equal(manifest.sourceDocuments?.requirementsPath, "docs/requirements.md");
   assert.equal(manifest.artifacts.length, 2);
@@ -620,6 +628,7 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.counts.appliedOperations, 2);
   assert.equal(manifest.counts.touchedFiles, 2);
   assert.equal(manifest.counts.visualScreenshots, 1);
+  assert.equal(manifest.counts.visualLayoutIssues, 1);
   assert.equal(manifest.counts.designTokens, 1);
   assert.equal(manifest.counts.apiStateRequirements, 1);
   assert.equal(manifest.counts.reviewerNotes, 2);
@@ -673,6 +682,15 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   ]);
   assert.equal(manifest.evidence.visualScreenshots[0]?.blank, false);
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
+  assert.deepEqual(manifest.evidence.visualLayoutIssues[0], {
+    viewport: "desktop",
+    width: 1440,
+    height: 1000,
+    type: "overlap",
+    selector: "button.primary <-> span.badge",
+    message: "Elements overlap by 120px^2 (30% of the smaller element).",
+    text: "Deploy / Blocked"
+  });
   assert.equal(manifest.evidence.designTokens[0]?.name, "Primary color");
   assert.equal(manifest.evidence.designTokens[0]?.value, "#2563eb");
   assert.deepEqual(manifest.evidence.apiStateRequirements, [

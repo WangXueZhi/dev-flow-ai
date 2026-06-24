@@ -14,7 +14,7 @@ const manifest: DeliveryManifest = {
   status: {
     readiness: "needs attention",
     verification: "passed",
-    visual: "not-run",
+    visual: "failed",
     sourceChanges: "applied"
   },
   sourceDocuments: {
@@ -89,7 +89,7 @@ const manifest: DeliveryManifest = {
     touchedFiles: 2,
     verificationCommands: 1,
     visualScreenshots: 0,
-    visualLayoutIssues: 0,
+    visualLayoutIssues: 1,
     visualRequiredText: 0,
     designTokens: 1,
     apiStateRequirements: 1,
@@ -100,6 +100,17 @@ const manifest: DeliveryManifest = {
     verificationCommands: [{ command: "npm run check", exitCode: 0, durationMs: 1000 }],
     visualScreenshots: [],
     visualRequiredText: [],
+    visualLayoutIssues: [
+      {
+        viewport: "desktop",
+        width: 1440,
+        height: 1000,
+        type: "overlap",
+        selector: "button.primary <-> span.badge",
+        message: "Elements overlap by 120px^2 (30% of the smaller element).",
+        text: "Deploy / Blocked"
+      }
+    ],
     designTokens: [
       {
         category: "color",
@@ -219,9 +230,10 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /DevFlow delivery status/);
   assert.match(output, /Readiness: needs attention/);
   assert.match(output, /Verification: passed/);
-  assert.match(output, /Visual: not-run/);
+  assert.match(output, /Visual: failed/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
   assert.match(output, /Applied operations: 2/);
+  assert.match(output, /Visual layout issues: 1/);
   assert.match(output, /Design tokens: 1/);
   assert.match(output, /API state requirements: 1/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
@@ -234,6 +246,8 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Latest run: dry-run T03-code-implementation, unit U07 \[frontend-route\] Route path \/dashboard/);
   assert.match(output, /Sampled: src\/App\.jsx \(file\)/);
   assert.match(output, /Omitted candidates: 1/);
+  assert.match(output, /Visual layout issues/);
+  assert.match(output, /desktop overlap at button\.primary <-> span\.badge: Elements overlap by 120px\^2/);
   assert.match(output, /\[high\] requirements:12: Acceptance criterion needs review/);
   assert.match(output, /Confirm empty state copy/);
 });
