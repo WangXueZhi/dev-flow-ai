@@ -330,6 +330,40 @@ test("createProjectBrief recognizes expanded verification script aliases", () =>
   ]);
 });
 
+test("createProjectBrief recognizes CI-specific verification script aliases", () => {
+  const brief = createProjectBrief(context, {
+    ...stack,
+    packageManager: "npm",
+    scripts: {
+      "verify:ci": "npm run lint && npm run test:ci",
+      "ci:lint": "eslint . --max-warnings=0",
+      "ci:format": "prettier --check .",
+      "ci:typecheck": "tsc --noEmit",
+      "ci:test": "vitest run --coverage=false",
+      "test:coverage": "vitest run --coverage",
+      "ci:component": "vitest run --project component",
+      "ci:integration": "vitest run integration",
+      "ci:e2e": "playwright test",
+      "ci:build": "vite build",
+      "audit:ci": "npm audit --audit-level=high"
+    }
+  });
+
+  assert.deepEqual(brief.recommendedVerification, [
+    "npm run verify:ci",
+    "npm run ci:lint",
+    "npm run ci:format",
+    "npm run ci:typecheck",
+    "npm run ci:test",
+    "npm run test:coverage",
+    "npm run ci:component",
+    "npm run ci:integration",
+    "npm run ci:e2e",
+    "npm run ci:build",
+    "npm run audit:ci"
+  ]);
+});
+
 test("createProjectBrief recommends workspace package verification scripts", () => {
   const brief = createProjectBrief(context, {
     ...stack,

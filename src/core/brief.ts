@@ -2511,15 +2511,17 @@ function buildWorkspacePackageVerificationCommands(
 
 function selectVerificationScriptNames(scripts: Record<string, string>): string[] {
   const scriptGroups = [
-    ["check", "verify", "validate", "ci"],
-    ["lint", "lint:ci", "lint:check", "eslint", "biome:check"],
-    ["format:check", "check:format", "format:ci", "prettier:check"],
-    ["typecheck", "type-check", "type:check", "typecheck:ci", "type-check:ci", "check:types", "types", "tsc"],
-    ["test", "test:ci", "test:unit", "unit", "test:run", "vitest", "jest"],
-    ["test:component", "component:test"],
-    ["test:integration", "integration:test", "test:int"],
-    ["test:e2e", "e2e", "e2e:ci", "test:playwright", "playwright:test", "test:cypress", "cypress:run"],
-    ["build", "build:ci", "build:prod", "compile"]
+    ["check", "check:ci", "verify", "verify:ci", "validate", "validate:ci", "ci", "ci:check", "ci:verify", "ci:validate"],
+    ["lint", "lint:ci", "ci:lint", "lint:check", "eslint", "eslint:ci", "biome:check", "biome:ci"],
+    ["format:check", "check:format", "format:ci", "ci:format", "prettier:check", "prettier:ci"],
+    ["typecheck", "type-check", "type:check", "typecheck:ci", "type-check:ci", "type:ci", "ci:typecheck", "ci:types", "check:types", "types", "tsc"],
+    ["test", "test:ci", "ci:test", "test:unit", "test:unit:ci", "unit", "unit:ci", "test:run", "vitest", "vitest:ci", "jest", "jest:ci"],
+    ["coverage", "coverage:ci", "ci:coverage", "test:coverage", "test:coverage:ci"],
+    ["test:component", "component:test", "test:component:ci", "component:test:ci", "ci:component"],
+    ["test:integration", "integration:test", "test:int", "test:integration:ci", "integration:test:ci", "ci:integration"],
+    ["test:e2e", "e2e", "e2e:ci", "ci:e2e", "test:playwright", "playwright:test", "playwright:ci", "test:cypress", "cypress:run", "cypress:ci"],
+    ["build", "build:ci", "ci:build", "build:prod", "compile", "compile:ci"],
+    ["audit", "audit:ci", "ci:audit", "security:audit"]
   ];
 
   return scriptGroups

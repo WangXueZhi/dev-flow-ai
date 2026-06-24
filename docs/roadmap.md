@@ -40,7 +40,7 @@
 - Reviewer-authored task changelog notes from source-changing apply.
 - Task changelog verification summary refreshes after `dev-flow verify` runs.
 - Aggregated recommended verification commands from detected root and workspace package scripts.
-- Recommended verification command selection from common script aliases and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
+- Recommended verification command selection from common local/CI script aliases, coverage/audit scripts, and dependency-aware quality, framework type-checking, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
 - Default desktop, tablet, and mobile screenshot capture for local preview URLs.
 - Visual screenshot report with basic blank-screen, layout-overflow, clipped-text, and visible-element overlap detection.
@@ -72,7 +72,7 @@
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
 - Further enrich task changelogs with deeper review metadata.
-- Further expand verification command selection with provider and CI-specific checks.
+- Further expand verification command selection with provider-aware smoke checks and richer CI artifact gates.
 - Feed richer remediation guidance from verification results into delivery reports after code changes.
 
 ## Milestone 3: UI And Visual Verification
