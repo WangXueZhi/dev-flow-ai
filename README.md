@@ -106,6 +106,17 @@ export DEVFLOW_SOURCE_CONTEXT=none
 
 Requirements, UI notes, API docs, project brief, task plan, and target profile context are still included; only sampled repository source snippets are omitted.
 
+For prompt review before or during AI usage, save the exact prompt artifacts locally:
+
+```bash
+dev-flow plan --save-prompt .devflow/artifacts/prompts/plan.prompt.md
+dev-flow execute --dry-run --save-prompt .devflow/artifacts/prompts/dry-run
+dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
+dev-flow deliver --save-prompts .devflow/artifacts/prompts
+```
+
+Prompt artifacts may include requirements, UI notes, API docs, project brief data, target profiles, and any sampled source snippets that source-context policy allows. Treat saved prompts as local review artifacts and avoid uploading them unless your team is comfortable with that context being shared.
+
 For reproducible tests or CI without a live model, point `DEVFLOW_AI_FIXTURE_PATH` at a file containing the model response to replay:
 
 ```bash
@@ -164,6 +175,7 @@ Useful flags:
 
 ```bash
 dev-flow plan --requirements docs/requirements.md --ui docs/ui.md --api docs/api.md --out .devflow/artifacts/implementation-plan.md
+dev-flow plan --save-prompt .devflow/artifacts/prompts/plan.prompt.md
 ```
 
 ### `dev-flow brief`
@@ -217,6 +229,7 @@ The safest path is dry-run first:
 dev-flow execute --dry-run
 dev-flow execute --dry-run --task T03-code-implementation
 dev-flow execute --dry-run --unit U18
+dev-flow execute --dry-run --save-prompt .devflow/artifacts/prompts/dry-run
 dev-flow execute --dry-run --no-source-context
 ```
 
@@ -235,6 +248,7 @@ dev-flow execute --validate --patch-set path/to/patch-set.json
 dev-flow execute --apply --patch-set path/to/patch-set.json
 dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --task T03-code-implementation --unit U18
+dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
 dev-flow execute --apply --task T03-code-implementation --no-source-context
 dev-flow execute --rollback --backup .devflow/artifacts/backups/<id>/manifest.json
 ```
@@ -242,6 +256,8 @@ dev-flow execute --rollback --backup .devflow/artifacts/backups/<id>/manifest.js
 When an AI provider is configured, `dev-flow execute --apply --task <id>` can ask the provider for a strict JSON patch set grounded in sampled repository source context and apply it after path validation. Without a provider, `--apply` requires `--patch-set`.
 
 AI-generated patch sets are saved to `.devflow/artifacts/patch-sets/<task>.json` by default. Use `--save-patch-set <path>` to choose a different location.
+
+Use `--save-prompt` to save the AI prompt for review. For dry-runs the value is a directory and DevFlow writes one prompt file per selected task. For AI apply the value is a file path for the patch-set prompt. Prompt saving is explicit because saved prompts can include sampled source snippets when source context is enabled.
 
 Patch sets support `write`, `replace`, and guarded `delete` operations. Applied patch sets are recorded in `.devflow/artifacts/execution-log.json` and summarized for handoff in `.devflow/artifacts/task-changelog.md`.
 
@@ -259,6 +275,7 @@ Runs the safe delivery flow:
 
 ```bash
 dev-flow deliver --requirements docs/requirements.md --ui docs/ui.md --api docs/api.md
+dev-flow deliver --save-prompts .devflow/artifacts/prompts
 ```
 
 With a running preview server, include visual checks. When `--visual-text` is omitted, `deliver` infers short required text checks from design asset text snippets and UI state labels in the project brief:
@@ -287,6 +304,8 @@ dev-flow deliver --apply --yes --task T03-code-implementation --no-source-contex
 ```
 
 `deliver --apply` runs the same plan, tasks, and dry-run proposal steps first, then applies either an AI-generated task/unit patch set or a reviewed local patch set before verification, visual checks, and the final report. The `--yes` flag is required so CI and local scripts cannot modify source files by accident.
+
+Use `--save-prompts <dir>` during delivery to write planner, dry-run, and AI apply prompt artifacts under one directory for local review.
 
 ### `dev-flow verify`
 
@@ -420,6 +439,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
+- Explicit prompt audit artifacts through `--save-prompt` and `deliver --save-prompts`.
 - Validated patch-set application with write, replace, delete, execution logs, task changelogs, and rollback.
 - Validate-only patch-set checks for reviewed or AI-generated patch sets before source-changing apply.
 - Patch-set size limits for operation count, write content, and replace payloads.

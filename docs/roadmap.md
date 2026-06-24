@@ -29,6 +29,7 @@
 - Svelte/SvelteKit, Astro, and Angular-aware route, data/API, service, style, and spec target profile candidates.
 - Normalized frontend target summaries in AI execution target profiles.
 - Bounded repository source-context sampling for AI dry-run and patch-set prompts.
+- Explicit local prompt audit artifacts for planner, dry-run, patch-set, and delivery flows.
 - Validated patch-set application.
 - Human-readable task changelog generated after source-changing apply.
 - Aggregated recommended verification commands from detected package scripts.

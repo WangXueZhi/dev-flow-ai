@@ -6,10 +6,9 @@ import { extractMarkdownSignals } from "./signals.js";
 export async function createImplementationPlan(
   context: ProjectContext,
   provider: AiProvider | undefined,
-  brief?: ProjectBrief
+  brief?: ProjectBrief,
+  prompt = buildPlannerPrompt(context, brief)
 ): Promise<string> {
-  const prompt = buildPlannerPrompt(context, brief);
-
   if (provider) {
     const providerPlan = await provider.completePlan(context, prompt);
 

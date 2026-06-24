@@ -41,6 +41,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates, with selected frontend unit candidates sampled before broader repository candidates when `--unit` is used.
 - [ ] AI dry-run and AI patch-set source-context sampling writes `.devflow/artifacts/source-context-summary.json` with path-level sampling evidence for delivery reports and manifests.
 - [ ] AI dry-run and AI patch-set prompts can omit sampled repository source snippets with `--no-source-context` or `DEVFLOW_SOURCE_CONTEXT=none`.
+- [ ] `dev-flow plan --save-prompt`, `dev-flow execute --dry-run --save-prompt`, `dev-flow execute --apply --save-prompt`, and `dev-flow deliver --save-prompts` write explicit prompt audit artifacts for local review.
 - [ ] `dev-flow execute --dry-run --unit <id>` scopes patch proposals to one implementation unit.
 - [ ] `dev-flow execute --dry-run` uses the AI provider for patch proposals when a provider key or fixture is configured.
 - [ ] `dev-flow execute --validate --patch-set <path>` validates patch sets without changing source files.

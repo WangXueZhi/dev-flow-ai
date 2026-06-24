@@ -69,13 +69,13 @@ function printHelp(): void {
 Usage:
   dev-flow init
   dev-flow brief [--requirements <path>] [--ui <path>] [--api <path>] [--out <path>]
-  dev-flow plan [--requirements <path>] [--ui <path>] [--api <path>] [--out <path>]
+  dev-flow plan [--requirements <path>] [--ui <path>] [--api <path>] [--out <path>] [--save-prompt <path>]
   dev-flow tasks [--out <path>] [--markdown-out <path>]
-  dev-flow execute --dry-run [--task <id>] [--unit <id>] [--out <dir>] [--no-source-context]
-  dev-flow execute --apply [--task <id>] [--unit <id>] [--patch-set <path>] [--save-patch-set <path>] [--no-source-context]
+  dev-flow execute --dry-run [--task <id>] [--unit <id>] [--out <dir>] [--save-prompt <dir>] [--no-source-context]
+  dev-flow execute --apply [--task <id>] [--unit <id>] [--patch-set <path>] [--save-patch-set <path>] [--save-prompt <path>] [--no-source-context]
   dev-flow execute --validate --patch-set <path>
   dev-flow execute --rollback --backup <manifest-path> [--out <path>]
-  dev-flow deliver [--requirements <path>] [--ui <path>] [--api <path>] [--task <id>] [--unit <id>] [--apply --yes] [--patch-set <path>] [--preview-url <url>] [--visual-text <a,b>] [--no-source-context]
+  dev-flow deliver [--requirements <path>] [--ui <path>] [--api <path>] [--task <id>] [--unit <id>] [--apply --yes] [--patch-set <path>] [--preview-url <url>] [--visual-text <a,b>] [--save-prompts <dir>] [--no-source-context]
   dev-flow verify [--command <shell-command>] [--out <path>]
   dev-flow visual --url <preview-url> [--text <a,b>] [--viewport <name:widthxheight>] [--out <dir>]
   dev-flow report [--out <path>] [--manifest-out <path>] [--visual-report <path|none>]

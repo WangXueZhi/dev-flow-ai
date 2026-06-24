@@ -14,25 +14,31 @@ import { runVisual } from "./visual.js";
 
 export async function runDeliver(flags: FlagMap): Promise<void> {
   const executionPlan = createDeliveryExecutionPlan(flags);
+  const promptDir = flags["save-prompts"];
 
   console.log("DevFlow delivery started.");
 
   await runPlan({
     requirements: flags.requirements,
     ui: flags.ui,
-    api: flags.api
+    api: flags.api,
+    "save-prompt": promptDir ? join(promptDir, "plan.prompt.md") : undefined
   });
   await runTasks({});
   await runExecute({
     "dry-run": "true",
     task: flags.task,
     unit: flags.unit,
-    "no-source-context": flags["no-source-context"]
+    "no-source-context": flags["no-source-context"],
+    "save-prompt": promptDir ? join(promptDir, "dry-run") : undefined
   });
 
   if (executionPlan.mode === "apply") {
     console.log("Source-changing execution approved for delivery.");
-    await runExecute(executionPlan.applyFlags ?? {});
+    await runExecute({
+      ...(executionPlan.applyFlags ?? {}),
+      "save-prompt": promptDir ? join(promptDir, "apply.prompt.md") : executionPlan.applyFlags?.["save-prompt"]
+    });
   }
 
   await runVerify({

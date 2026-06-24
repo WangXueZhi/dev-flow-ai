@@ -121,6 +121,59 @@ test("runExecute can disable sampled source context for AI dry-run providers", a
   assert.equal(existsSync(join(workspace, ".devflow", "artifacts", "source-context-summary.json")), false);
 });
 
+test("runExecute can save dry-run AI prompts for review", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-save-prompt-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const originalEnv = {
+    DEVFLOW_AI_API_KEY: process.env.DEVFLOW_AI_API_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    DEVFLOW_AI_BASE_URL: process.env.DEVFLOW_AI_BASE_URL,
+    DEVFLOW_AI_MODEL: process.env.DEVFLOW_AI_MODEL,
+    DEVFLOW_AI_FIXTURE_PATH: process.env.DEVFLOW_AI_FIXTURE_PATH,
+    DEVFLOW_SOURCE_CONTEXT: process.env.DEVFLOW_SOURCE_CONTEXT
+  };
+  const logs: string[] = [];
+
+  t.after(() => {
+    console.log = originalLog;
+    restoreEnv(originalEnv);
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = (message?: unknown) => {
+    logs.push(String(message));
+  };
+  process.chdir(workspace);
+  writeProject(workspace);
+  delete process.env.DEVFLOW_AI_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  delete process.env.DEVFLOW_AI_BASE_URL;
+  delete process.env.DEVFLOW_AI_MODEL;
+  delete process.env.DEVFLOW_AI_FIXTURE_PATH;
+  delete process.env.DEVFLOW_SOURCE_CONTEXT;
+
+  await runExecute({
+    "dry-run": "true",
+    task: "T03-code-implementation",
+    "save-prompt": ".devflow/artifacts/prompts/dry-run"
+  });
+
+  const prompt = readFileSync(
+    join(workspace, ".devflow", "artifacts", "prompts", "dry-run", "T03-code-implementation.prompt.md"),
+    "utf8"
+  );
+
+  assert.match(prompt, /Create a dry-run patch proposal/);
+  assert.match(prompt, /Existing Repository Source Context/);
+  assert.match(prompt, /src\/App\.tsx/);
+  assert.match(prompt, /Existing App Shell/);
+  assert.match(prompt, /Project Brief/);
+  assert.match(logs.join("\n"), /Dry-run AI prompts written to \.devflow\/artifacts\/prompts\/dry-run/);
+  assert.equal(existsSync(join(workspace, ".devflow", "artifacts", "source-context-summary.json")), true);
+});
+
 test("runExecute restores the backup when apply fails after partial writes", async (t) => {
   const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-rollback-"));
   const originalCwd = process.cwd();
@@ -266,6 +319,76 @@ test("runExecute writes a task changelog after successful apply", async (t) => {
   assert.match(changelog, /src\/generated\.txt/);
   assert.match(changelog, /src\/deleted\.txt/);
   assert.match(logs.join("\n"), /Task changelog written to \.devflow\/artifacts\/task-changelog\.md/);
+});
+
+test("runExecute can save AI patch-set prompts before apply", async (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-execute-apply-save-prompt-"));
+  const originalCwd = process.cwd();
+  const originalLog = console.log;
+  const originalEnv = {
+    DEVFLOW_AI_API_KEY: process.env.DEVFLOW_AI_API_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    DEVFLOW_AI_BASE_URL: process.env.DEVFLOW_AI_BASE_URL,
+    DEVFLOW_AI_MODEL: process.env.DEVFLOW_AI_MODEL,
+    DEVFLOW_AI_FIXTURE_PATH: process.env.DEVFLOW_AI_FIXTURE_PATH,
+    DEVFLOW_SOURCE_CONTEXT: process.env.DEVFLOW_SOURCE_CONTEXT
+  };
+  const logs: string[] = [];
+
+  t.after(() => {
+    console.log = originalLog;
+    restoreEnv(originalEnv);
+    process.chdir(originalCwd);
+    rmSync(workspace, { recursive: true, force: true });
+  });
+
+  console.log = (message?: unknown) => {
+    logs.push(String(message));
+  };
+  process.chdir(workspace);
+  writeProject(workspace);
+  writeFileSync(
+    join(workspace, "fixture-patch-set.json"),
+    `${JSON.stringify(
+      {
+        version: 1,
+        taskId: "T03-code-implementation",
+        summary: "Fixture apply.",
+        operations: [
+          {
+            type: "replace",
+            path: "src/App.tsx",
+            search: "Existing App Shell",
+            replace: "Prompt-reviewed App Shell",
+            expectedReplacements: 1
+          }
+        ]
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+  process.env.DEVFLOW_AI_FIXTURE_PATH = join(workspace, "fixture-patch-set.json");
+  delete process.env.DEVFLOW_AI_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  delete process.env.DEVFLOW_SOURCE_CONTEXT;
+
+  await runExecute({
+    apply: "true",
+    task: "T03-code-implementation",
+    "save-prompt": ".devflow/artifacts/prompts/apply.prompt.md"
+  });
+
+  const prompt = readFileSync(join(workspace, ".devflow", "artifacts", "prompts", "apply.prompt.md"), "utf8");
+
+  assert.match(prompt, /Create a minimal PatchSet JSON/);
+  assert.match(prompt, /PatchSet schema example/);
+  assert.match(prompt, /Return JSON only/);
+  assert.match(prompt, /Existing Repository Source Context/);
+  assert.match(prompt, /src\/App\.tsx/);
+  assert.match(logs.join("\n"), /Patch-set AI prompt written to \.devflow\/artifacts\/prompts\/apply\.prompt\.md/);
+  assert.equal(readFileSync(join(workspace, "src", "App.tsx"), "utf8").includes("Prompt-reviewed App Shell"), true);
 });
 
 test("runExecute validates patch sets without changing source files", async (t) => {

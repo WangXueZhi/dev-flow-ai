@@ -16,6 +16,7 @@ import { CliError } from "../core/errors.js";
 import { fileExists } from "../core/fs.js";
 import { createPatchBackup, restorePatchBackup } from "../core/patch-backup.js";
 import { applyPatchSet, parsePatchSet, type PatchSet } from "../core/patch-set.js";
+import { writePromptArtifact } from "../core/prompt-artifact.js";
 import { createAiProviderFromEnv } from "../core/provider.js";
 import {
   collectSourceContext,
@@ -62,6 +63,7 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   const projectBriefPath = join(config.artifactsDir, "project-brief.json");
   const taskPlanPath = flags.tasks ?? join(config.artifactsDir, "tasks.json");
   const outDir = flags.out ?? join(config.artifactsDir, "patch-proposals");
+  const promptOutDir = flags["save-prompt"];
   const sourceContextSummaryPath = join(config.artifactsDir, "source-context-summary.json");
   const brief = await readRequiredJson<ProjectBrief>(projectBriefPath, "Run dev-flow brief or dev-flow plan first.");
   const taskPlan = await readRequiredJson<TaskPlan>(taskPlanPath, "Run dev-flow tasks first.");
@@ -72,7 +74,8 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   await mkdir(outDir, { recursive: true });
 
   for (const task of selectedTasks) {
-    const sourceContext = provider
+    const shouldBuildAiPrompt = Boolean(provider || promptOutDir);
+    const sourceContext = shouldBuildAiPrompt
       ? await collectExecutionSourceContext({
           flags,
           brief,
@@ -82,10 +85,16 @@ async function runDryRun(flags: FlagMap): Promise<void> {
           summaryPath: sourceContextSummaryPath
         })
       : undefined;
+    const prompt = shouldBuildAiPrompt ? buildDryRunPrompt(task, brief, selectedUnit, sourceContext) : undefined;
+
+    if (promptOutDir && prompt) {
+      await writePromptArtifact(join(promptOutDir, formatPromptFilename(task, selectedUnit)), prompt);
+    }
+
     const proposalMarkdown = provider
       ? await provider.complete({
           system: dryRunSystemPrompt,
-          prompt: buildDryRunPrompt(task, brief, selectedUnit, sourceContext),
+          prompt: prompt ?? buildDryRunPrompt(task, brief, selectedUnit, sourceContext),
           temperature: 0.2,
           emptyResponseMessage: "AI provider returned an empty patch proposal."
         })
@@ -95,6 +104,9 @@ async function runDryRun(flags: FlagMap): Promise<void> {
   }
 
   console.log(`Dry-run patch proposals written to ${outDir}`);
+  if (promptOutDir) {
+    console.log(`Dry-run AI prompts written to ${promptOutDir}`);
+  }
   console.log(`Tasks proposed: ${selectedTasks.length}`);
   if (selectedUnit) {
     console.log(`Target unit: ${selectedUnit.id}`);
@@ -211,9 +223,16 @@ async function generateAiPatchSet(flags: FlagMap): Promise<PatchSet> {
     mode: "apply",
     summaryPath: sourceContextSummaryPath
   });
+  const prompt = buildPatchSetPrompt(task, brief, selectedUnit, sourceContext);
+
+  if (flags["save-prompt"]) {
+    await writePromptArtifact(flags["save-prompt"], prompt);
+    console.log(`Patch-set AI prompt written to ${flags["save-prompt"]}`);
+  }
+
   const response = await provider.complete({
     system: patchSetSystemPrompt,
-    prompt: buildPatchSetPrompt(task, brief, selectedUnit, sourceContext),
+    prompt,
     temperature: 0.1,
     emptyResponseMessage: "AI provider returned an empty patch set."
   });
@@ -295,6 +314,10 @@ function selectUnit(taskPlan: TaskPlan, unitId: string): ImplementationUnit {
 
 function formatProposalFilename(task: ImplementationTask, unit: ImplementationUnit | undefined): string {
   return unit ? `${task.id}-${unit.id}.md` : `${task.id}.md`;
+}
+
+function formatPromptFilename(task: ImplementationTask, unit: ImplementationUnit | undefined): string {
+  return unit ? `${task.id}-${unit.id}.prompt.md` : `${task.id}.prompt.md`;
 }
 
 async function readRequiredJson<T>(path: string, hint: string): Promise<T> {

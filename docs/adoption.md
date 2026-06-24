@@ -114,6 +114,16 @@ DEVFLOW_SOURCE_CONTEXT=none dev-flow execute --dry-run
 dev-flow deliver --no-source-context
 ```
 
+For teams that want to inspect AI context before use, save prompt artifacts locally:
+
+```bash
+dev-flow plan --save-prompt .devflow/artifacts/prompts/plan.prompt.md
+dev-flow execute --dry-run --save-prompt .devflow/artifacts/prompts/dry-run
+dev-flow deliver --save-prompts .devflow/artifacts/prompts
+```
+
+Saved prompts may include requirements, UI notes, API docs, project brief data, target profiles, and sampled source snippets when source context is enabled. Treat them as local review artifacts unless your team explicitly approves sharing that context.
+
 ## 5. Propose Changes Before Applying Them
 
 Start with a non-destructive dry run:
@@ -141,6 +151,7 @@ Or, with an AI provider configured, ask DevFlow for a task-scoped patch set:
 ```bash
 dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --unit U18
+dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
 ```
 
 Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. If an apply fails after partial writes, DevFlow restores the backup automatically.
@@ -175,7 +186,8 @@ For a non-destructive delivery pass:
 dev-flow deliver \
   --requirements docs/requirements.md \
   --ui docs/ui.md \
-  --api docs/api.md
+  --api docs/api.md \
+  --save-prompts .devflow/artifacts/prompts
 ```
 
 With visual evidence:
