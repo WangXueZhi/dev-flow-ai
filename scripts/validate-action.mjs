@@ -23,7 +23,7 @@ const requiredSnippets = [
   "MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
   "node \"$GITHUB_ACTION_PATH/scripts/summarize-manifest.mjs\"",
   "if: ${{ inputs.upload-artifacts == 'true' && always() }}",
-  "uses: actions/upload-artifact@v4",
+  "uses: actions/upload-artifact@v7",
   "Gate DevFlow delivery status",
   "STATUS_MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
   "args=(status --manifest \"$STATUS_MANIFEST_PATH\")",

@@ -10,6 +10,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `dev-flow doctor --json` for machine-readable diagnostics.
 - Updated the bug report template to collect sanitized `dev-flow doctor --json` diagnostics.
 - Added optional artifact uploads to the composite GitHub Action.
+- Updated bundled GitHub workflow actions to Node 24-runtime major versions.
 - Added manifest-backed GitHub Actions job summaries for delivery readiness, verification, visual status, source changes, artifact paths, risks, and open questions.
 - Extracted the GitHub Actions delivery summary formatter into a tested script.
 - Added GitHub Action inputs for manifest-backed readiness and failed-verification gates.
