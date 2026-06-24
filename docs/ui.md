@@ -19,6 +19,7 @@ UI notes may reference local screenshots, wireframes, or design exports with Mar
 - `dev-flow visual`: captures desktop, tablet, and mobile screenshots, checks for blank screenshots and layout overflow, and prints visual status.
 - `dev-flow report`: writes a delivery report.
 - `dev-flow report --visual-report none`: writes a delivery report without reusing an existing visual report artifact.
+- `dev-flow status`: prints delivery readiness and includes live provider smoke evidence when the smoke report exists.
 - `dev-flow deliver`: runs the safe end-to-end delivery flow and prints each stage.
 - `dev-flow deliver --unit <id>`: scopes the delivery dry-run proposal to one implementation unit.
 - `dev-flow deliver --apply --yes`: runs dry-run proposals first, then approved source-changing execution before verification.

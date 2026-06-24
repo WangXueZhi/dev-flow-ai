@@ -208,6 +208,97 @@ test("runStatus prints raw manifest JSON", async (t) => {
   assert.equal(parsed.counts.designTokens, 1);
 });
 
+test("runStatus includes live provider smoke evidence when a smoke report exists", async (t) => {
+  const workspace = createWorkspace(t);
+  writeFileSync(
+    join(workspace, ".devflow", "artifacts", "live-provider-smoke.json"),
+    `${JSON.stringify(
+      {
+        version: 1,
+        generatedAt: "2026-01-01T00:00:02.000Z",
+        startedAt: "2026-01-01T00:00:01.000Z",
+        finishedAt: "2026-01-01T00:00:02.000Z",
+        status: "passed",
+        required: true,
+        apiKeyEnvName: "DEVFLOW_AI_API_KEY",
+        provider: {
+          mode: "live",
+          ready: true,
+          apiKeyEnvName: "DEVFLOW_AI_API_KEY",
+          liveApiKeyEnvName: "DEVFLOW_AI_API_KEY",
+          fixtureOverridesLive: false,
+          baseUrl: "https://api.example.com/v1",
+          baseUrlSource: "env",
+          chatCompletionsUrl: "https://api.example.com/v1/chat/completions",
+          model: "example-model",
+          modelSource: "env"
+        },
+        responseExcerpt: "ok",
+        message: "AI provider smoke passed with DEVFLOW_AI_API_KEY."
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+  const output = await captureStatusOutput(workspace, {});
+
+  assert.match(output, /AI provider smoke/);
+  assert.match(output, /Report: \.devflow\/artifacts\/live-provider-smoke\.json/);
+  assert.match(output, /Status: passed/);
+  assert.match(output, /Required: yes/);
+  assert.match(output, /Provider: live, model example-model, endpoint https:\/\/api\.example\.com\/v1\/chat\/completions/);
+  assert.match(output, /Key source: DEVFLOW_AI_API_KEY/);
+  assert.match(output, /Message: AI provider smoke passed with DEVFLOW_AI_API_KEY\./);
+});
+
+test("runStatus can read a smoke report from DEVFLOW_LIVE_SMOKE_REPORT", async (t) => {
+  const workspace = createWorkspace(t);
+  const customReportPath = join(workspace, ".devflow", "artifacts", "release", "live-provider-smoke.json");
+
+  mkdirSync(join(workspace, ".devflow", "artifacts", "release"), { recursive: true });
+  writeFileSync(
+    customReportPath,
+    `${JSON.stringify({
+      version: 1,
+      generatedAt: "2026-01-01T00:00:02.000Z",
+      startedAt: "2026-01-01T00:00:01.000Z",
+      finishedAt: "2026-01-01T00:00:02.000Z",
+      status: "skipped",
+      required: false,
+      provider: {
+        mode: "fallback",
+        ready: false,
+        fixtureOverridesLive: false,
+        baseUrl: "https://api.openai.com/v1",
+        baseUrlSource: "default",
+        chatCompletionsUrl: "https://api.openai.com/v1/chat/completions",
+        model: "gpt-4.1",
+        modelSource: "default"
+      },
+      message: "AI provider smoke skipped: set DEVFLOW_AI_API_KEY or OPENAI_API_KEY to run against a real provider."
+    })}\n`,
+    "utf8"
+  );
+  const output = await captureStatusOutput(workspace, {}, { DEVFLOW_LIVE_SMOKE_REPORT: customReportPath });
+
+  assert.match(output, new RegExp(`Report: ${escapeRegExp(customReportPath)}`));
+  assert.match(output, /Status: skipped/);
+  assert.match(output, /Required: no/);
+  assert.match(output, /Key source: none/);
+});
+
+test("runStatus reports invalid live provider smoke evidence", async (t) => {
+  const workspace = createWorkspace(t);
+
+  writeFileSync(join(workspace, ".devflow", "artifacts", "live-provider-smoke.json"), "{", "utf8");
+  const output = await captureStatusOutput(workspace, {});
+
+  assert.match(output, /AI provider smoke/);
+  assert.match(output, /Report: \.devflow\/artifacts\/live-provider-smoke\.json \(invalid\)/);
+  assert.match(output, /Error:/);
+});
+
 test("runStatus can fail CI gates when readiness needs attention", async (t) => {
   const workspace = createWorkspace(t);
 
@@ -324,7 +415,11 @@ function createWorkspace(t: TestContext, deliveryManifest: DeliveryManifest = ma
   return workspace;
 }
 
-async function captureStatusOutput(workspace: string, flags: Record<string, string | undefined>): Promise<string> {
+async function captureStatusOutput(
+  workspace: string,
+  flags: Record<string, string | undefined>,
+  env: NodeJS.ProcessEnv = {}
+): Promise<string> {
   const originalCwd = process.cwd();
   const originalLog = console.log;
   const lines: string[] = [];
@@ -335,11 +430,15 @@ async function captureStatusOutput(workspace: string, flags: Record<string, stri
 
   try {
     process.chdir(workspace);
-    await runStatus(flags);
+    await runStatus(flags, env);
   } finally {
     console.log = originalLog;
     process.chdir(originalCwd);
   }
 
   return lines.join("\n");
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

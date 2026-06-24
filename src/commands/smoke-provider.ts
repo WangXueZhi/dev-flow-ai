@@ -5,9 +5,9 @@ import { loadConfig } from "../core/config.js";
 import { CliError } from "../core/errors.js";
 import { createAiProviderFromEnv, getAiProviderStatus, type AiProviderStatus } from "../core/provider.js";
 
-type SmokeProviderStatus = "failed" | "passed" | "skipped";
+export type SmokeProviderStatus = "failed" | "passed" | "skipped";
 
-interface SmokeProviderReport {
+export interface SmokeProviderReport {
   version: 1;
   generatedAt: string;
   startedAt: string;

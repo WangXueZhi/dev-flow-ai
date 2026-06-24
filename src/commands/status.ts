@@ -5,16 +5,24 @@ import { loadConfig } from "../core/config.js";
 import { CliError } from "../core/errors.js";
 import { fileExists } from "../core/fs.js";
 import type { DeliveryManifest } from "../core/report.js";
+import type { SmokeProviderReport } from "./smoke-provider.js";
 
-export async function runStatus(flags: FlagMap): Promise<void> {
+type SmokeProviderReportSummary =
+  | { state: "missing"; path: string }
+  | { state: "present"; path: string; report: SmokeProviderReport }
+  | { state: "invalid"; path: string; message: string };
+
+export async function runStatus(flags: FlagMap, env: NodeJS.ProcessEnv = process.env): Promise<void> {
   const config = await loadConfig();
   const manifestPath = flags.manifest ?? join(config.artifactsDir, "delivery-manifest.json");
+  const smokeReportPath = env.DEVFLOW_LIVE_SMOKE_REPORT ?? join(config.artifactsDir, "live-provider-smoke.json");
 
   if (!(await fileExists(manifestPath))) {
     throw new CliError(`Missing ${manifestPath}. Run dev-flow deliver or dev-flow report first.`);
   }
 
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as DeliveryManifest;
+  const smokeReport = await readSmokeProviderReport(smokeReportPath);
   const gateFailures = deliveryStatusGateFailures(manifest, flags);
 
   if (flags.json === "true") {
@@ -23,7 +31,7 @@ export async function runStatus(flags: FlagMap): Promise<void> {
     return;
   }
 
-  console.log(formatDeliveryStatus(manifest, manifestPath));
+  console.log(formatDeliveryStatus(manifest, manifestPath, smokeReport));
   failIfNeeded(gateFailures);
 }
 
@@ -47,7 +55,7 @@ function failIfNeeded(failures: string[]): void {
   }
 }
 
-function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string): string {
+function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, smokeReport: SmokeProviderReportSummary): string {
   const counts = manifest.counts;
   const lines = [
     "DevFlow delivery status",
@@ -70,6 +78,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),
+    ...formatSmokeProviderReport(smokeReport),
     ...formatReviewerNotes(manifest),
     ...formatSourceContextSampling(manifest),
     ...formatVerificationFailures(manifest),
@@ -91,6 +100,81 @@ function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
   }
 
   return artifacts.map((artifact) => `- ${artifact.label}: ${artifact.path} (${artifact.status})`);
+}
+
+async function readSmokeProviderReport(path: string): Promise<SmokeProviderReportSummary> {
+  if (!(await fileExists(path))) {
+    return { state: "missing", path };
+  }
+
+  try {
+    const report = JSON.parse(await readFile(path, "utf8")) as SmokeProviderReport;
+
+    if (!isSmokeProviderReport(report)) {
+      return { state: "invalid", path, message: "report does not match the expected live provider smoke shape" };
+    }
+
+    return { state: "present", path, report };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+
+    return { state: "invalid", path, message };
+  }
+}
+
+function isSmokeProviderReport(value: unknown): value is SmokeProviderReport {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const report = value as Partial<SmokeProviderReport>;
+
+  return (
+    report.version === 1 &&
+    typeof report.generatedAt === "string" &&
+    typeof report.startedAt === "string" &&
+    typeof report.finishedAt === "string" &&
+    (report.status === "passed" || report.status === "failed" || report.status === "skipped") &&
+    typeof report.required === "boolean" &&
+    Boolean(report.provider) &&
+    typeof report.provider === "object" &&
+    typeof report.provider.mode === "string" &&
+    typeof report.provider.chatCompletionsUrl === "string" &&
+    typeof report.provider.model === "string" &&
+    typeof report.message === "string"
+  );
+}
+
+function formatSmokeProviderReport(summary: SmokeProviderReportSummary): string[] {
+  if (summary.state === "missing") {
+    return [];
+  }
+
+  if (summary.state === "invalid") {
+    return [
+      "",
+      "AI provider smoke:",
+      `- Report: ${summary.path} (invalid)`,
+      `- Error: ${formatOneLineExcerpt(summary.message)}`
+    ];
+  }
+
+  const report = summary.report;
+  const provider = report.provider;
+  const keySource = report.apiKeyEnvName ?? provider.apiKeyEnvName ?? provider.liveApiKeyEnvName ?? "none";
+  const required = report.required ? "yes" : "no";
+
+  return [
+    "",
+    "AI provider smoke:",
+    `- Report: ${summary.path}`,
+    `- Status: ${report.status}`,
+    `- Required: ${required}`,
+    `- Generated: ${report.generatedAt}`,
+    `- Provider: ${provider.mode}, model ${provider.model}, endpoint ${provider.chatCompletionsUrl}`,
+    `- Key source: ${keySource}`,
+    `- Message: ${formatOneLineExcerpt(report.message)}`
+  ];
 }
 
 function formatReviewerNotes(manifest: DeliveryManifest): string[] {
