@@ -70,6 +70,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.
 - Added repository stack detection for package manager, runtime, framework, build, styling, testing, scripts, source directories, and config files.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
+- Added React Router stack detection plus route configuration target candidates for React/Vite source-context sampling.
 - Added structured project brief generation.
 - Added aggregated recommended verification commands from detected `check`, `lint`, `typecheck`, `test`, and `build` package scripts.
 - Added recommended verification command detection for common package script aliases and dependency-aware TypeScript, test, and build tool fallbacks when explicit verification scripts are missing.

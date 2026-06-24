@@ -89,6 +89,10 @@ function buildComponentCandidates(
     candidates.push(`${root}/App.${jsxExtension}`, `${root}/main.${jsxExtension}`, `${root}/components/`, `${root}/features/`);
   }
 
+  if (hasClientSideReactRouting(brief)) {
+    candidates.push(...reactRouteConfigCandidates(root, jsxExtension, moduleExtension), `${root}/router/`, `${root}/routes/`);
+  }
+
   if (hasFramework(brief, "Vue")) {
     candidates.push(`${root}/App.vue`, `${root}/main.${moduleExtension}`, `${root}/components/`);
   }
@@ -169,6 +173,10 @@ function routeCandidatesForPath(
     candidates.push(`${root}/pages/${componentName}.${jsxExtension}`, `${root}/routes/${componentName}.${jsxExtension}`, `${root}/features/${kebabName}/`);
   }
 
+  if (hasClientSideReactRouting(brief)) {
+    candidates.push(...reactRouteConfigCandidates(root, jsxExtension, moduleExtension));
+  }
+
   return candidates;
 }
 
@@ -206,6 +214,16 @@ function componentCandidatesForName(
   }
 
   return candidates;
+}
+
+function reactRouteConfigCandidates(root: string, jsxExtension: string, moduleExtension: string): string[] {
+  return unique([
+    `${root}/router/index.${jsxExtension}`,
+    `${root}/router/index.${moduleExtension}`,
+    `${root}/routes.${jsxExtension}`,
+    `${root}/routes.${moduleExtension}`,
+    `${root}/AppRoutes.${jsxExtension}`
+  ]);
 }
 
 function explicitRoutePaths(brief: ProjectBrief): string[] {
@@ -569,6 +587,20 @@ function buildTargetNotes(
 
 function hasFramework(brief: ProjectBrief, framework: string): boolean {
   return brief.stack.frameworks.includes(framework);
+}
+
+function hasClientSideReactRouting(brief: ProjectBrief): boolean {
+  if (hasFramework(brief, "Next.js")) {
+    return false;
+  }
+
+  return (
+    hasFramework(brief, "React Router") ||
+    (hasFramework(brief, "React") && (
+      brief.stack.buildTools.includes("Vite") ||
+      brief.stack.sourceDirectories.some((directory) => /(^|\/)(routes|router)$/.test(directory))
+    ))
+  );
 }
 
 function hasConfigFile(brief: ProjectBrief, pattern: RegExp): boolean {

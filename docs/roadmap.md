@@ -27,7 +27,7 @@
 - Dry-run patch proposal generation.
 - Dry-run proposal UI checklist and delivery risk surfacing.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.
-- Explicit route/component-derived file candidates in target profiles and source-context sampling.
+- Explicit route/component-derived file candidates in target profiles and source-context sampling, including React Router route configuration candidates for React/Vite projects.
 - Explicit API endpoint-derived data/API file candidates in target profiles and source-context sampling.
 - Nuxt-aware route, layout, composable, server API, Playwright, and Cypress target profile candidates.
 - Svelte/SvelteKit, Astro, and Angular-aware route, data/API, service, style, and spec target profile candidates.

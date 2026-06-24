@@ -8,6 +8,7 @@ import { detectStack } from "./stack.js";
 test("detectStack identifies common frontend repository signals", async () => {
   const root = await mkdtemp(join(tmpdir(), "dev-flow-stack-"));
   await mkdir(join(root, "src"));
+  await mkdir(join(root, "src", "router"), { recursive: true });
   await writeFile(join(root, "package-lock.json"), "{}", "utf8");
   await writeFile(
     join(root, "package.json"),
@@ -21,6 +22,7 @@ test("detectStack identifies common frontend repository signals", async () => {
         dependencies: {
           "@vitejs/plugin-react": "^latest",
           react: "^latest",
+          "react-router-dom": "^latest",
           vite: "^latest"
         },
         devDependencies: {
@@ -42,10 +44,12 @@ test("detectStack identifies common frontend repository signals", async () => {
   assert.equal(stack.packageManager, "npm");
   assert.ok(stack.runtimes.includes("TypeScript"));
   assert.ok(stack.frameworks.includes("React"));
+  assert.ok(stack.frameworks.includes("React Router"));
   assert.ok(stack.buildTools.includes("Vite"));
   assert.ok(stack.styling.includes("Tailwind CSS"));
   assert.ok(stack.testing.includes("Vitest"));
   assert.ok(stack.sourceDirectories.includes("src"));
+  assert.ok(stack.sourceDirectories.includes("src/router"));
   assert.ok(stack.configFiles.includes("vite.config.ts"));
 });
 

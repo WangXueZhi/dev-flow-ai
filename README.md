@@ -202,7 +202,7 @@ The brief includes:
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
 - Fenced or locally linked OpenAPI/Swagger JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
-- Detected package manager, runtime, frameworks, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
+- Detected package manager, runtime, frameworks and routing conventions, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
 - Recommended verification commands from root and workspace package scripts, common script aliases, or inferred quality, framework type-checking, test, and build tooling.
 
@@ -471,7 +471,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
 - Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, design tokens, and API docs, and structured implementation units for explicit route/view, component, frontend data, frontend state, design asset, and design token targets, with dependency hints and type-specific review checklists.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
-- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
+- Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with React Router, Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
 - Explicit prompt audit artifacts through `--save-prompt` and `deliver --save-prompts`.
 - Validated patch-set application with write, replace, delete, execution logs, task changelogs with review handoff links, reviewer-authored notes, verification summaries, and rollback.

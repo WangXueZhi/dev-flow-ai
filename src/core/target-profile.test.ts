@@ -101,7 +101,7 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
     stack: {
       packageManager: "npm",
       runtimes: ["Node.js", "TypeScript"],
-      frameworks: ["React"],
+      frameworks: ["React", "React Router"],
       buildTools: ["Vite"],
       styling: [],
       testing: ["Vitest"],
@@ -163,10 +163,13 @@ test("createImplementationTargetProfile derives candidates from explicit fronten
     "src/pages/SettingsProfile.tsx",
     "src/routes/SettingsProfile.tsx",
     "src/features/settings-profile/",
-    "src/components/RetryBanner.tsx",
-    "src/features/retry-banner/RetryBanner.tsx",
-    "src/App.tsx"
+    "src/router/index.tsx",
+    "src/router/index.ts",
+    "src/routes.tsx"
   ]);
+  assert.ok(profile.componentCandidates.includes("src/routes.ts"));
+  assert.ok(profile.componentCandidates.includes("src/AppRoutes.tsx"));
+  assert.ok(profile.componentCandidates.includes("src/components/RetryBanner.tsx"));
   assert.deepEqual(profile.dataCandidates.slice(0, 3), [
     "src/lib/api/release-summary.ts",
     "src/services/release-summary.ts",
@@ -185,7 +188,7 @@ test("createImplementationTargetProfile prioritizes candidates from selected fro
     stack: {
       packageManager: "npm",
       runtimes: ["Node.js", "TypeScript"],
-      frameworks: ["React"],
+      frameworks: ["React", "React Router"],
       buildTools: ["Vite"],
       styling: [],
       testing: ["Vitest"],
@@ -288,6 +291,8 @@ test("createImplementationTargetProfile prioritizes candidates from selected fro
     "src/routes/SettingsSecurity.tsx",
     "src/features/settings-security/"
   ]);
+  assert.ok(routeProfile.componentCandidates.includes("src/router/index.tsx"));
+  assert.ok(routeProfile.componentCandidates.includes("src/AppRoutes.tsx"));
   assert.ok(
     routeProfile.componentCandidates.indexOf("src/pages/SettingsSecurity.tsx") <
       routeProfile.componentCandidates.indexOf("src/pages/SettingsProfile.tsx")

@@ -10,11 +10,13 @@ const sourceDirectoryCandidates = [
   "src/app",
   "src/pages",
   "src/routes",
+  "src/router",
   "src/views",
   "src/components",
   "src/lib",
   "components",
   "lib",
+  "router",
   "test",
   "tests",
   "e2e"
@@ -158,6 +160,7 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   const hasAstroSignal = hasDependency("astro") || hasConfigFile(/^astro\.config\./);
   const hasNextSignal = hasDependency("next") || hasConfigFile(/^next\.config\./);
   const hasNuxtSignal = hasDependency("nuxt") || hasDependency("nuxt3") || hasConfigFile(/^nuxt\.config\./);
+  const hasReactRouterSignal = hasDependency("react-router") || hasDependency("react-router-dom");
   const hasBiomeSignal = hasDependency("@biomejs/biome") || hasDependency("biome") || hasConfigFile(/^biome\.jsonc?$/);
   const hasEslintSignal = hasDependency("eslint") || hasConfigFile(/^(eslint\.config\.|\.eslintrc)/);
   const hasPrettierSignal = hasDependency("prettier") || hasConfigFile(/^(\.prettierrc|prettier\.config\.)/);
@@ -172,6 +175,7 @@ export async function detectStack(rootDir = "."): Promise<StackProfile> {
   const frameworks = unique([
     hasNextSignal ? "Next.js" : undefined,
     hasReactSignal ? "React" : undefined,
+    hasReactRouterSignal ? "React Router" : undefined,
     hasVueSignal ? "Vue" : undefined,
     hasNuxtSignal ? "Nuxt" : undefined,
     hasSvelteSignal ? "Svelte" : undefined,
