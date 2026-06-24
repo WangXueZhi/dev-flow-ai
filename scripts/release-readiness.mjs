@@ -76,6 +76,15 @@ export function evaluateReleaseReadiness(input) {
       "npm publish --provenance --access public"
     ),
     check(
+      "release-workflow-live-smoke",
+      "Release workflow can require live provider smoke with provider secrets",
+      /Required live provider smoke/.test(input.releaseWorkflow) &&
+        /DEVFLOW_REQUIRE_LIVE_SMOKE:\s*"true"/.test(input.releaseWorkflow) &&
+        /DEVFLOW_AI_API_KEY:\s*\$\{\{\s*secrets\.DEVFLOW_AI_API_KEY\s*\}\}/.test(input.releaseWorkflow) &&
+        /OPENAI_API_KEY:\s*\$\{\{\s*secrets\.OPENAI_API_KEY\s*\}\}/.test(input.releaseWorkflow),
+      "required live smoke with provider secrets"
+    ),
+    check(
       "live-smoke-gate",
       "Release docs describe the optional required live-provider smoke gate",
       /DEVFLOW_REQUIRE_LIVE_SMOKE=true/.test(input.releaseGuide) &&

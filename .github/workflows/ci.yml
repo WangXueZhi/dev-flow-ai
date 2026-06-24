@@ -42,6 +42,9 @@ jobs:
         run: npm run example:smoke
 
       - name: Optional live provider smoke
+        env:
+          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npm run smoke:live
 
       - name: Install example dependencies

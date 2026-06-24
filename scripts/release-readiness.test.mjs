@@ -47,6 +47,12 @@ const validInput = {
     "jobs:",
     "  publish:",
     "    steps:",
+    "      - name: Required live provider smoke",
+    "        env:",
+    "          DEVFLOW_REQUIRE_LIVE_SMOKE: \"true\"",
+    "          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}",
+    "          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}",
+    "        run: npm run smoke:live",
     "      - run: npm publish --provenance --access public",
     "        env:",
     "          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}"
@@ -99,5 +105,6 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.ok(failedIds.includes("release-notes"));
   assert.ok(failedIds.includes("release-workflow-trigger"));
   assert.ok(failedIds.includes("release-workflow-provenance"));
+  assert.ok(failedIds.includes("release-workflow-live-smoke"));
   assert.ok(failedIds.includes("live-smoke-gate"));
 });

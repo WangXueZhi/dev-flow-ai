@@ -9,6 +9,10 @@ on:
         description: npm dist-tag to publish.
         required: true
         default: latest
+      require_live_smoke:
+        description: Require a real provider smoke before publishing from manual dispatch.
+        required: true
+        default: "false"
 
 permissions:
   contents: read
@@ -50,6 +54,18 @@ jobs:
         run: npm run example:smoke
 
       - name: Optional live provider smoke
+        if: ${{ github.event_name != 'release' && github.event.inputs.require_live_smoke != 'true' }}
+        env:
+          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: npm run smoke:live
+
+      - name: Required live provider smoke
+        if: ${{ github.event_name == 'release' || github.event.inputs.require_live_smoke == 'true' }}
+        env:
+          DEVFLOW_REQUIRE_LIVE_SMOKE: "true"
+          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npm run smoke:live
 
       - name: Check npm token

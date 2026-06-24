@@ -59,6 +59,7 @@ node ../../dist/cli.js deliver \
 - Confirm `README.md` matches the current CLI behavior.
 - Confirm `docs/github-action.md` and `action.yml` match the current safe delivery behavior.
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
+- Confirm the repository has `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured before publishing a GitHub Release.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run release:readiness` passes.
 - Confirm `npm run release:preflight` passes.
@@ -83,15 +84,18 @@ The workflow:
 - Runs `npm run pack:smoke`.
 - Runs `npm run github:smoke`.
 - Runs `npm run example:smoke`, including manifest-backed `dev-flow status` checks.
-- Runs optional `npm run smoke:live`.
+- Runs optional `npm run smoke:live` for manual dispatch unless `require_live_smoke` is `"true"`.
+- Requires `npm run smoke:live` with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a GitHub Release is published.
 - Checks that the `NPM_TOKEN` repository secret is configured before publish.
 - Publishes with `npm publish --provenance --access public`.
 
 Required repository setup:
 
 - Add an `NPM_TOKEN` repository secret with publish rights.
+- Add `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` as a repository secret before publishing a GitHub Release so the required live provider smoke can pass.
 - Keep workflow permissions `contents: read` and `id-token: write` so npm provenance can be attached.
 - Use the manual `npm_tag` input only when publishing a non-`latest` dist-tag.
+- Use the manual `require_live_smoke` input when testing the release workflow before publishing the GitHub Release.
 
 ## Current Release Boundary
 
