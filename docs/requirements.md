@@ -51,7 +51,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow execute --apply --patch-set <path>` validates and applies patch set write, replace, and delete operations.
 - [ ] Patch-set validation rejects oversized operation counts, write payloads, search strings, and replacement payloads.
 - [ ] Applied patch sets are recorded in `.devflow/artifacts/execution-log.json`.
-- [ ] Applied patch sets are summarized in `.devflow/artifacts/task-changelog.md` with reviewer notes and links to execution, verification, and delivery artifacts.
+- [ ] Applied patch sets are summarized in `.devflow/artifacts/task-changelog.md` with default and reviewer-authored notes plus links to execution, verification, and delivery artifacts.
 - [ ] Failed patch-set application restores the apply backup automatically and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow execute --rollback --backup <manifest>` restores files and writes `.devflow/artifacts/rollback-report.json`.
 - [ ] `dev-flow verify` writes `.devflow/artifacts/verification-report.json`.

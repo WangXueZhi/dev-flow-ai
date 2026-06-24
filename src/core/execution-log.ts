@@ -15,6 +15,12 @@ export interface TaskChangelogOptions {
   reviewerNotes?: string[];
 }
 
+const defaultReviewerNotes = [
+  "Review the operation list before merging or continuing source-changing work.",
+  "Run `dev-flow verify` or `dev-flow deliver` after apply to refresh verification evidence.",
+  "Regenerate the delivery report after verification so reviewers can inspect final readiness."
+];
+
 export async function appendExecutionLog(path: string, entry: AppliedPatchReport): Promise<ExecutionLog> {
   const log = await readExecutionLog(path);
   const next: ExecutionLog = {
@@ -62,13 +68,7 @@ ${log.entries.length ? log.entries.map(formatTaskChangelogEntry).join("\n\n") : 
 }
 
 function formatReviewHandoff(options: Required<Pick<TaskChangelogOptions, "deliveryReportPath" | "executionLogPath" | "verificationReportPath">> & Pick<TaskChangelogOptions, "reviewerNotes">): string {
-  const notes = options.reviewerNotes?.length
-    ? options.reviewerNotes
-    : [
-      "Review the operation list before merging or continuing source-changing work.",
-      "Run `dev-flow verify` or `dev-flow deliver` after apply to refresh verification evidence.",
-      "Regenerate the delivery report after verification so reviewers can inspect final readiness."
-    ];
+  const notes = [...defaultReviewerNotes, ...(options.reviewerNotes ?? [])];
 
   return [
     `- Execution log: \`${options.executionLogPath}\``,

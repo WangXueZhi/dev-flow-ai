@@ -121,6 +121,7 @@ async function runApply(flags: FlagMap): Promise<void> {
   const verificationReportPath = join(config.artifactsDir, "verification-report.json");
   const deliveryReportPath = join(config.artifactsDir, "delivery-report.md");
   const patchSet = flags["patch-set"] ? await readPatchSet(flags["patch-set"]) : await generateAiPatchSet(flags);
+  const reviewerNotes = collectReviewerNotes(flags);
 
   if (!flags["patch-set"]) {
     const patchSetPath = flags["save-patch-set"] ?? join(config.artifactsDir, "patch-sets", `${patchSet.taskId}.json`);
@@ -160,7 +161,8 @@ async function runApply(flags: FlagMap): Promise<void> {
     formatTaskChangelog(executionLog, {
       executionLogPath,
       verificationReportPath,
-      deliveryReportPath
+      deliveryReportPath,
+      reviewerNotes
     }),
     "utf8"
   );
@@ -170,6 +172,17 @@ async function runApply(flags: FlagMap): Promise<void> {
   console.log(`Execution log written to ${executionLogPath}`);
   console.log(`Task changelog written to ${taskChangelogPath}`);
   console.log(`Apply status: ${report.status}`);
+}
+
+function collectReviewerNotes(flags: FlagMap): string[] | undefined {
+  const rawNotes = [flags["review-note"], flags["review-notes"]].filter((note): note is string => Boolean(note));
+  const notes = rawNotes
+    .flatMap((note) => note.split(/\r?\n/))
+    .map((note) => note.trim().replace(/\s+/g, " "))
+    .filter((note) => note.length > 0)
+    .slice(0, 5);
+
+  return notes.length ? notes : undefined;
 }
 
 async function runRollback(flags: FlagMap): Promise<void> {

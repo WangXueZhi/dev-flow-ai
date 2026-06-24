@@ -152,9 +152,10 @@ Or, with an AI provider configured, ask DevFlow for a task-scoped patch set:
 dev-flow execute --apply --task T03-code-implementation
 dev-flow execute --apply --unit U18
 dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/artifacts/prompts/apply.prompt.md
+dev-flow execute --apply --task T03-code-implementation --review-note "Reviewer should check generated copy before merge."
 ```
 
-Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. The changelog includes reviewer notes plus links to the execution log, verification report, and delivery report so review can continue after verification runs. Later `dev-flow verify` runs refresh the existing changelog with a Verification Summary block. If an apply fails after partial writes, DevFlow restores the backup automatically.
+Every apply creates a backup under `.devflow/artifacts/backups/`, records structured execution history in `.devflow/artifacts/execution-log.json`, and writes a reviewer-friendly `.devflow/artifacts/task-changelog.md`. The changelog includes default and reviewer-authored notes plus links to the execution log, verification report, and delivery report so review can continue after verification runs. Later `dev-flow verify` runs refresh the existing changelog with a Verification Summary block. If an apply fails after partial writes, DevFlow restores the backup automatically.
 
 Manual rollback is also available:
 

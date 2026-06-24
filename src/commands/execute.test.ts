@@ -301,7 +301,11 @@ test("runExecute writes a task changelog after successful apply", async (t) => {
     "utf8"
   );
 
-  await runExecute({ apply: "true", "patch-set": "patch.json" });
+  await runExecute({
+    apply: "true",
+    "patch-set": "patch.json",
+    "review-note": "Reviewer should check generated copy before merge."
+  });
 
   assert.equal(readFileSync(join(workspace, "src", "existing.txt"), "utf8"), "after\n");
   assert.equal(readFileSync(join(workspace, "src", "generated.txt"), "utf8"), "generated\n");
@@ -320,6 +324,7 @@ test("runExecute writes a task changelog after successful apply", async (t) => {
   assert.match(changelog, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md`/);
   assert.match(changelog, /Reviewer notes/);
   assert.match(changelog, /Run `dev-flow verify` or `dev-flow deliver` after apply/);
+  assert.match(changelog, /Reviewer should check generated copy before merge/);
   assert.match(changelog, /src\/existing\.txt/);
   assert.match(changelog, /src\/generated\.txt/);
   assert.match(changelog, /src\/deleted\.txt/);
