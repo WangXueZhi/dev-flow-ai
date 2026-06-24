@@ -200,7 +200,7 @@ The brief includes:
 
 ### `dev-flow doctor`
 
-Checks installed DevFlow version, local runtime, config, document presence, Playwright Chromium readiness, and AI provider environment variables.
+Checks installed DevFlow version, local runtime, config, document presence, prompt artifact status, Playwright Chromium readiness, and AI provider environment variables.
 
 For machine-readable diagnostics:
 
@@ -208,7 +208,7 @@ For machine-readable diagnostics:
 dev-flow doctor --json
 ```
 
-Doctor output also reports whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
+Doctor output also reports whether prompt artifacts have been saved for local review and whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
 
 ### `dev-flow tasks`
 

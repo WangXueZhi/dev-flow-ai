@@ -1,3 +1,6 @@
+import type { Dirent, Stats } from "node:fs";
+import { readdir, stat } from "node:fs/promises";
+import { join } from "node:path";
 import type { FlagMap } from "../core/args.js";
 import { loadConfig } from "../core/config.js";
 import { fileExists } from "../core/fs.js";
@@ -11,11 +14,23 @@ interface DoctorCheck {
   ok: boolean;
 }
 
+type PromptArtifactStatus = "empty" | "invalid" | "missing" | "present";
+
+interface PromptArtifactsDiagnostics {
+  path: string;
+  status: PromptArtifactStatus;
+  fileCount: number;
+  latestFile?: string;
+  latestModifiedAt?: string;
+  truncated: boolean;
+}
+
 interface DoctorReport {
   version: string;
   checks: DoctorCheck[];
   aiProvider: ReturnType<typeof getAiProviderStatus>;
   sourceContext: SourceContextPolicy;
+  promptArtifacts: PromptArtifactsDiagnostics;
   chromium: ChromiumRuntimeStatus;
   messages: string[];
 }
@@ -43,6 +58,7 @@ async function createDoctorReport(flags: FlagMap): Promise<DoctorReport> {
   const sourceContext = getSourceContextPolicy(flags);
   const aiLabel = formatAiStatusLabel(aiStatus);
   const chromiumStatus = await getChromiumRuntimeStatus();
+  const promptArtifacts = await collectPromptArtifactsDiagnostics(join(config.artifactsDir, "prompts"));
   const version = await formatCliVersion();
   const checks: DoctorCheck[] = ([
     [version, true],
@@ -53,6 +69,7 @@ async function createDoctorReport(flags: FlagMap): Promise<DoctorReport> {
     [config.apiPath, await fileExists(config.apiPath)],
     ["Playwright Chromium", chromiumStatus.available],
     [aiLabel, aiStatus.ready],
+    [formatPromptArtifactsCheck(promptArtifacts), promptArtifacts.status === "present"],
     [`AI source context: ${sourceContext.enabled ? "enabled" : "disabled"}`, true]
   ] as Array<[string, boolean]>).map(([label, ok]) => ({ label, ok }));
 
@@ -69,6 +86,8 @@ async function createDoctorReport(flags: FlagMap): Promise<DoctorReport> {
     messages.push(formatChromiumInstallHint(chromiumStatus));
   }
 
+  messages.push(formatPromptArtifactsMessage(promptArtifacts));
+
   if (sourceContext.enabled) {
     messages.push("AI prompts may include bounded repository source snippets. Set DEVFLOW_SOURCE_CONTEXT=none or pass --no-source-context to omit them.");
   } else if (sourceContext.source === "flag") {
@@ -82,9 +101,127 @@ async function createDoctorReport(flags: FlagMap): Promise<DoctorReport> {
     checks,
     aiProvider: aiStatus,
     sourceContext,
+    promptArtifacts,
     chromium: chromiumStatus,
     messages
   };
+}
+
+async function collectPromptArtifactsDiagnostics(path: string, limit = 1000): Promise<PromptArtifactsDiagnostics> {
+  let root: Stats;
+  try {
+    root = await stat(path);
+  } catch {
+    return {
+      path,
+      status: "missing",
+      fileCount: 0,
+      truncated: false
+    };
+  }
+
+  if (!root.isDirectory()) {
+    return {
+      path,
+      status: "invalid",
+      fileCount: 0,
+      truncated: false
+    };
+  }
+
+  let fileCount = 0;
+  let latestFile: string | undefined;
+  let latestMtimeMs = 0;
+  let truncated = false;
+
+  async function walk(currentDir: string): Promise<void> {
+    if (fileCount >= limit) {
+      truncated = true;
+      return;
+    }
+
+    let entries: Dirent[];
+    try {
+      entries = await readdir(currentDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      if (fileCount >= limit) {
+        truncated = true;
+        return;
+      }
+
+      const entryPath = join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(entryPath);
+        continue;
+      }
+
+      if (!entry.isFile()) {
+        continue;
+      }
+
+      fileCount += 1;
+
+      try {
+        const entryStats = await stat(entryPath);
+        if (entryStats.mtimeMs >= latestMtimeMs) {
+          latestMtimeMs = entryStats.mtimeMs;
+          latestFile = entryPath;
+        }
+      } catch {
+        // Ignore files that disappear during the scan; doctor should stay read-only and best-effort.
+      }
+    }
+  }
+
+  await walk(path);
+
+  return {
+    path,
+    status: fileCount > 0 ? "present" : "empty",
+    fileCount,
+    latestFile,
+    latestModifiedAt: latestMtimeMs > 0 ? new Date(latestMtimeMs).toISOString() : undefined,
+    truncated
+  };
+}
+
+function formatPromptArtifactsCheck(promptArtifacts: PromptArtifactsDiagnostics): string {
+  if (promptArtifacts.status === "present") {
+    return `Prompt artifacts: ${promptArtifacts.fileCount} file${promptArtifacts.fileCount === 1 ? "" : "s"}`;
+  }
+
+  if (promptArtifacts.status === "empty") {
+    return "Prompt artifacts: empty directory";
+  }
+
+  if (promptArtifacts.status === "invalid") {
+    return "Prompt artifacts: path is not a directory";
+  }
+
+  return "Prompt artifacts: not saved";
+}
+
+function formatPromptArtifactsMessage(promptArtifacts: PromptArtifactsDiagnostics): string {
+  if (promptArtifacts.status === "present") {
+    const latest = promptArtifacts.latestFile ? ` Latest: ${promptArtifacts.latestFile}.` : "";
+    const truncated = promptArtifacts.truncated ? " File count was truncated during scan." : "";
+
+    return `Prompt artifacts available in ${promptArtifacts.path} (${promptArtifacts.fileCount} file${promptArtifacts.fileCount === 1 ? "" : "s"}).${latest}${truncated}`;
+  }
+
+  if (promptArtifacts.status === "empty") {
+    return `Prompt artifact directory is empty: ${promptArtifacts.path}. Use --save-prompt or deliver --save-prompts to create reviewable AI prompts.`;
+  }
+
+  if (promptArtifacts.status === "invalid") {
+    return `Prompt artifact path is not a directory: ${promptArtifacts.path}.`;
+  }
+
+  return `Prompt artifacts are not saved yet. Use --save-prompt or deliver --save-prompts to write them under ${promptArtifacts.path}.`;
 }
 
 function formatAiStatusLabel(status: ReturnType<typeof getAiProviderStatus>): string {

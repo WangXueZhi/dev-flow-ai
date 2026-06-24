@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -48,6 +50,7 @@ test("dev-flow doctor --json prints structured diagnostics", () => {
     checks: Array<{ label: string; ok: boolean }>;
     aiProvider: { mode: string };
     sourceContext: { enabled: boolean; source: string };
+    promptArtifacts: { path: string; status: string; fileCount: number; truncated: boolean };
   };
 
   assert.equal(report.version, `dev-flow ${packageJson.version}`);
@@ -55,6 +58,47 @@ test("dev-flow doctor --json prints structured diagnostics", () => {
   assert.ok(report.aiProvider.mode);
   assert.equal(report.sourceContext.enabled, true);
   assert.ok(report.sourceContext.source);
+  assert.equal(report.promptArtifacts.path, ".devflow/artifacts/prompts");
+  assert.equal(typeof report.promptArtifacts.fileCount, "number");
+  assert.equal(report.promptArtifacts.truncated, false);
+});
+
+test("dev-flow doctor --json reports saved prompt artifacts", () => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-doctor-"));
+
+  try {
+    const promptDir = join(workspace, ".devflow", "artifacts", "prompts", "dry-run");
+    mkdirSync(promptDir, { recursive: true });
+    writeFileSync(join(promptDir, "T03-code-implementation.prompt.md"), "Dry-run prompt\n", "utf8");
+
+    const result = spawnSync(process.execPath, [cliPath, "doctor", "--json"], {
+      cwd: workspace,
+      encoding: "utf8"
+    });
+
+    assert.equal(result.status, 0);
+    const report = JSON.parse(result.stdout) as {
+      checks: Array<{ label: string; ok: boolean }>;
+      messages: string[];
+      promptArtifacts: {
+        path: string;
+        status: string;
+        fileCount: number;
+        latestFile?: string;
+        latestModifiedAt?: string;
+      };
+    };
+
+    assert.equal(report.promptArtifacts.path, ".devflow/artifacts/prompts");
+    assert.equal(report.promptArtifacts.status, "present");
+    assert.equal(report.promptArtifacts.fileCount, 1);
+    assert.equal(report.promptArtifacts.latestFile, ".devflow/artifacts/prompts/dry-run/T03-code-implementation.prompt.md");
+    assert.ok(report.promptArtifacts.latestModifiedAt);
+    assert.ok(report.checks.some((check) => check.label === "Prompt artifacts: 1 file" && check.ok));
+    assert.ok(report.messages.some((message) => message.includes("Prompt artifacts available")));
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
 });
 
 test("dev-flow doctor reports disabled source context diagnostics", () => {
