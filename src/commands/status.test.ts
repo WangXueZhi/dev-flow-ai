@@ -92,6 +92,7 @@ const manifest: DeliveryManifest = {
     visualLayoutIssues: 0,
     visualRequiredText: 0,
     designTokens: 1,
+    apiStateRequirements: 1,
     reviewerNotes: 2
   },
   evidence: {
@@ -106,6 +107,12 @@ const manifest: DeliveryManifest = {
         name: "Primary color",
         value: "#2563eb",
         summary: "Primary color: #2563eb"
+      }
+    ],
+    apiStateRequirements: [
+      {
+        sourceLine: 38,
+        summary: "Keep last known dashboard values during background refresh."
       }
     ],
     appliedChanges: {
@@ -184,6 +191,7 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Visual: not-run/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
   assert.match(output, /Design tokens: 1/);
+  assert.match(output, /API state requirements: 1/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
   assert.match(output, /Prompt artifacts: \.devflow\/artifacts\/prompts \(present\)/);
   assert.match(output, /Source context summary: \.devflow\/artifacts\/source-context-summary\.json \(present\)/);
@@ -206,6 +214,7 @@ test("runStatus prints raw manifest JSON", async (t) => {
   assert.equal(parsed.status.readiness, "needs attention");
   assert.equal(parsed.counts.touchedFiles, 2);
   assert.equal(parsed.counts.designTokens, 1);
+  assert.equal(parsed.counts.apiStateRequirements, 1);
 });
 
 test("runStatus includes live provider smoke evidence when a smoke report exists", async (t) => {

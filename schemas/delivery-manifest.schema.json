@@ -125,6 +125,7 @@
         "visualLayoutIssues",
         "visualRequiredText",
         "designTokens",
+        "apiStateRequirements",
         "reviewerNotes"
       ],
       "properties": {
@@ -164,6 +165,9 @@
         "designTokens": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "apiStateRequirements": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "reviewerNotes": {
           "$ref": "#/$defs/nonNegativeInteger"
         }
@@ -182,6 +186,7 @@
         "visualScreenshots",
         "visualRequiredText",
         "designTokens",
+        "apiStateRequirements",
         "appliedChanges",
         "deliveryRisks",
         "openQuestions"
@@ -215,6 +220,12 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/designToken"
+          }
+        },
+        "apiStateRequirements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/apiStateRequirement"
           }
         },
         "appliedChanges": {
@@ -313,6 +324,19 @@
         },
         "value": {
           "$ref": "#/$defs/nonEmptyString"
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "apiStateRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceLine", "summary"],
+      "properties": {
+        "sourceLine": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
         "summary": {
           "$ref": "#/$defs/nonEmptyString"

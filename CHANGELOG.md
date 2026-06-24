@@ -19,6 +19,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added manifest-backed `dev-flow status` assertions to the example delivery smoke flow.
 - Added a `npm run github:smoke` command to verify the pre-release GitHub install path.
 - Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
+- Added API state requirement counts and evidence to delivery manifests, local status output, and GitHub Actions job summaries.
 - Added `dev-flow status` and `dev-flow status --json` for local delivery manifest summaries.
 - Added `dev-flow status --fail-on-attention` and `--fail-on-failed-verification` for CI delivery gates backed by the manifest.
 - Added live provider smoke report summaries to text `dev-flow status` output when `.devflow/artifacts/live-provider-smoke.json` exists.

@@ -22,6 +22,7 @@ const manifest = {
     deliveryRisks: 2,
     highDeliveryRisks: 1,
     designTokens: 1,
+    apiStateRequirements: 1,
     touchedFiles: 2,
     reviewerNotes: 2
   },
@@ -152,6 +153,7 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Verification: \*\*passed\*\*/);
   assert.match(summary, /Delivery risks: 2 \(1 high\)/);
   assert.match(summary, /Design tokens: 1/);
+  assert.match(summary, /API state requirements: 1/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
   assert.match(summary, /Prompt artifacts: `\.devflow\/artifacts\/prompts` \(present\)/);
   assert.match(summary, /Source context summary: `\.devflow\/artifacts\/source-context-summary\.json` \(present\)/);

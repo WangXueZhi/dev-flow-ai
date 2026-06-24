@@ -23,9 +23,10 @@ The manifest schema describes:
 - Overall delivery status: readiness, verification, visual verification, and source-change state.
 - Source document paths when a project brief is available.
 - Artifact entries with path, kind, required flag, status, role, and optional count.
-- Delivery counts for acceptance criteria, open questions, delivery risks, design tokens, changed files, verification commands, visual evidence, and applied operations.
+- Delivery counts for acceptance criteria, open questions, delivery risks, design tokens, API state requirements, changed files, verification commands, visual evidence, and applied operations.
 - Acceptance evidence with status, evidence, known gaps, assumptions, and manual QA prompts.
 - Design token evidence extracted from UI notes for color, typography, spacing, radius, shadows, motion, and iconography.
+- API state requirement evidence extracted from API docs for loading, empty, cache, refresh, and data freshness behavior.
 - Verification command summaries with optional bounded stdout/stderr excerpts, remediation hints, and structured remediation plans for failed commands.
 - Visual screenshots and required text checks.
 - Applied-change summaries with touched files, operation counts, line delta, task changelog artifact, and backup manifests.

@@ -122,6 +122,7 @@ export interface DeliveryManifest {
     visualLayoutIssues: number;
     visualRequiredText: number;
     designTokens: number;
+    apiStateRequirements: number;
     reviewerNotes: number;
   };
   evidence: {
@@ -156,6 +157,10 @@ export interface DeliveryManifest {
       sourceLine: number;
       name: string;
       value: string;
+      summary: string;
+    }>;
+    apiStateRequirements: Array<{
+      sourceLine: number;
       summary: string;
     }>;
     appliedChanges: {
@@ -355,6 +360,7 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       visualLayoutIssues: input.visualReport?.layoutIssues?.length ?? 0,
       visualRequiredText: input.visualReport?.requiredText.length ?? 0,
       designTokens: brief?.designTokens?.length ?? 0,
+      apiStateRequirements: brief?.apiStateRequirements?.length ?? 0,
       reviewerNotes: input.taskChangelog?.reviewHandoff.reviewerNotes.length ?? 0
     },
     evidence: {
@@ -389,6 +395,10 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
         name: token.name,
         value: token.value,
         summary: token.summary
+      })) ?? [],
+      apiStateRequirements: brief?.apiStateRequirements?.map((item) => ({
+        sourceLine: item.sourceLine,
+        summary: item.summary
       })) ?? [],
       appliedChanges: {
         entries: input.executionLog?.entries.length ?? 0,

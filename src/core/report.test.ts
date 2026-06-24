@@ -616,6 +616,7 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.counts.touchedFiles, 2);
   assert.equal(manifest.counts.visualScreenshots, 1);
   assert.equal(manifest.counts.designTokens, 1);
+  assert.equal(manifest.counts.apiStateRequirements, 1);
   assert.equal(manifest.counts.reviewerNotes, 2);
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.id, "AC1");
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.status, "needs attention");
@@ -633,6 +634,12 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
   assert.equal(manifest.evidence.designTokens[0]?.name, "Primary color");
   assert.equal(manifest.evidence.designTokens[0]?.value, "#2563eb");
+  assert.deepEqual(manifest.evidence.apiStateRequirements, [
+    {
+      sourceLine: 38,
+      summary: "Keep last known dashboard values during background refresh."
+    }
+  ]);
   assert.equal(manifest.evidence.sourceContext?.[0]?.mode, "apply");
   assert.equal(manifest.evidence.sourceContext?.[0]?.entries[0]?.path, "src/App.tsx");
   assert.equal(manifest.evidence.taskChangelog?.reviewHandoff.reviewerNotes[1], "Reviewer should check generated copy before merge.");

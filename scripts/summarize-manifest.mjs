@@ -35,6 +35,7 @@ export function formatDevFlowSummary(manifest) {
     `- Open questions: ${counts.openQuestions ?? 0}`,
     `- Delivery risks: ${counts.deliveryRisks ?? 0} (${counts.highDeliveryRisks ?? 0} high)`,
     `- Design tokens: ${counts.designTokens ?? 0}`,
+    `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
     `- Touched files: ${counts.touchedFiles ?? 0}`,
     "",
     "Artifacts:",
