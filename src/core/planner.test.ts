@@ -59,10 +59,21 @@ test("createImplementationPlan uses fallback when provider is absent", async () 
 test("createImplementationPlan includes UI state checklist from the brief", async () => {
   const brief = {
     ...createProjectBrief(context, stack),
-    acceptanceCriteria: ["Orders can be filtered by open status."]
+    acceptanceCriteria: ["Orders can be filtered by open status."],
+    designTokens: [
+      {
+        category: "color" as const,
+        sourceLine: 4,
+        name: "Primary color",
+        value: "#2563eb",
+        summary: "Primary color: #2563eb"
+      }
+    ]
   };
   const plan = await createImplementationPlan(context, undefined, brief);
 
+  assert.match(plan, /Design Tokens/);
+  assert.match(plan, /Primary color = #2563eb/);
   assert.match(plan, /UI State Checklist/);
   assert.match(plan, /\[state\] Line 3: Orders table includes loading and empty states/);
   assert.match(plan, /Route or view for requirement: Users can filter orders by status/);
@@ -71,6 +82,7 @@ test("createImplementationPlan includes UI state checklist from the brief", asyn
   assert.match(plan, /Implement documented UI state from line 3: Orders table includes loading and empty states/);
   assert.match(plan, /Integrate `GET \/orders\?status=open`/);
   assert.match(plan, /Cover acceptance criterion with automated test or documented manual QA/);
+  assert.match(plan, /Use color token from UI note line 4: Primary color = #2563eb/);
 });
 
 test("createImplementationPlan falls back when provider returns patch-set JSON", async () => {

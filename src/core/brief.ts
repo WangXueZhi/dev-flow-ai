@@ -25,6 +25,16 @@ export interface DesignAssetMetadata {
   textSnippets?: string[];
 }
 
+export type DesignTokenCategory = "color" | "iconography" | "motion" | "other" | "radius" | "shadow" | "spacing" | "typography";
+
+export interface DesignToken {
+  category: DesignTokenCategory;
+  sourceLine: number;
+  name: string;
+  value: string;
+  summary: string;
+}
+
 export type UiStateChecklistKind = "screen" | "component" | "state" | "interaction" | "responsive" | "accessibility";
 
 export interface UiStateChecklistItem {
@@ -103,6 +113,7 @@ export interface ProjectBrief {
     api: string[];
   };
   designAssets: DesignAsset[];
+  designTokens?: DesignToken[];
   uiStateChecklist: UiStateChecklistItem[];
   apiContracts: ApiContract[];
   apiDataModels: ApiDataModel[];
@@ -137,6 +148,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
     api: extractMarkdownSignals(context.api)
   };
   const designAssets = extractDesignAssets(context.ui, context.uiPath);
+  const designTokens = extractDesignTokens(context.ui);
   const uiStateChecklist = extractUiStateChecklist(context.ui);
   const apiContracts = extractApiContracts(context.api);
   const apiErrorCases = extractApiErrorCases(context.api);
@@ -151,6 +163,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
     stack,
     signals,
     designAssets,
+    designTokens,
     uiStateChecklist,
     apiContracts,
     apiDataModels: apiDataModelResult.models,
@@ -765,6 +778,171 @@ export function extractApiAuthRequirements(apiMarkdown: string): ApiAuthRequirem
 
 export function formatBriefForPrompt(brief: ProjectBrief): string {
   return JSON.stringify(brief, null, 2);
+}
+
+export function extractDesignTokens(uiMarkdown: string): DesignToken[] {
+  const tokens: DesignToken[] = [];
+  const seen = new Set<string>();
+  const lines = uiMarkdown.split(/\r?\n/);
+  let sectionCategory: DesignTokenCategory | undefined;
+
+  for (const [index, line] of lines.entries()) {
+    const trimmed = line.trim();
+    const heading = /^#{1,6}\s+(.+)$/.exec(trimmed);
+
+    if (heading) {
+      sectionCategory = designTokenCategoryFromText(heading[1] ?? "");
+      continue;
+    }
+
+    const item = normalizeMarkdownListItem(trimmed) ?? normalizeCssTokenLine(trimmed);
+
+    if (!item) {
+      continue;
+    }
+
+    const lineCategory = designTokenCategoryFromText(item);
+    const valueCategory = designTokenCategoryFromValue(item);
+    const category = lineCategory ?? (sectionCategory && sectionCategory !== "other" ? sectionCategory : valueCategory ?? sectionCategory);
+
+    if (!category || !hasDesignTokenValue(item, category)) {
+      continue;
+    }
+
+    const token = parseDesignTokenLine(item, category, index + 1);
+
+    if (!token) {
+      continue;
+    }
+
+    const key = `${token.category}:${token.name.toLowerCase()}:${token.value.toLowerCase()}`;
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    tokens.push(token);
+
+    if (tokens.length >= 24) {
+      break;
+    }
+  }
+
+  return tokens;
+}
+
+function normalizeCssTokenLine(line: string): string | undefined {
+  return /^--[-_a-z0-9]+\s*:/i.test(line) ? line : undefined;
+}
+
+function designTokenCategoryFromText(text: string): DesignTokenCategory | undefined {
+  if (/\b(colors?|palette|brand|background|foreground|surface|semantic colors?)\b/i.test(text)) {
+    return "color";
+  }
+
+  if (/\b(typography|font|fonts|type scale|line height|letter spacing|text style)\b/i.test(text)) {
+    return "typography";
+  }
+
+  if (/\b(spacing|space|gap|padding|margin|density)\b/i.test(text)) {
+    return "spacing";
+  }
+
+  if (/\b(radius|radii|rounded|corner)\b/i.test(text)) {
+    return "radius";
+  }
+
+  if (/\b(shadow|shadows|elevation)\b/i.test(text)) {
+    return "shadow";
+  }
+
+  if (/\b(motion|animation|duration|easing|transition)\b/i.test(text)) {
+    return "motion";
+  }
+
+  if (/\b(iconography|icons?)\b/i.test(text)) {
+    return "iconography";
+  }
+
+  if (/\b(visual tokens?|design tokens?|tokens?)\b/i.test(text)) {
+    return "other";
+  }
+
+  return undefined;
+}
+
+function designTokenCategoryFromValue(text: string): DesignTokenCategory | undefined {
+  if (/(#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\()/i.test(text)) {
+    return "color";
+  }
+
+  if (/\b\d+(?:\.\d+)?(?:px|rem|em|%)\b/i.test(text)) {
+    return "spacing";
+  }
+
+  if (/\b\d+(?:\.\d+)?(?:ms|s)\b/i.test(text)) {
+    return "motion";
+  }
+
+  return undefined;
+}
+
+function hasDesignTokenValue(text: string, category: DesignTokenCategory): boolean {
+  if (/(#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\()/i.test(text)) {
+    return true;
+  }
+
+  if (/\b\d+(?:\.\d+)?(?:px|rem|em|%|ms|s)\b/i.test(text)) {
+    return true;
+  }
+
+  if (/^\s*[^:=]+[:=]\s*\S+/.test(text)) {
+    return category !== "other" || /(?:color|font|spacing|radius|shadow|icon|motion|duration|easing)/i.test(text);
+  }
+
+  return false;
+}
+
+function parseDesignTokenLine(text: string, category: DesignTokenCategory, sourceLine: number): DesignToken | undefined {
+  const split = /^`?([^`:=]+?)`?\s*[:=]\s*(.+)$/.exec(text);
+  const name = split ? cleanDesignTokenName(split[1] ?? "") : cleanDesignTokenName(text);
+  const value = split ? cleanDesignTokenValue(split[2] ?? "") : extractDesignTokenValue(text);
+
+  if (!name || !value || isPlaceholderDesignTokenValue(value)) {
+    return undefined;
+  }
+
+  return {
+    category,
+    sourceLine,
+    name,
+    value,
+    summary: `${name}: ${value}`
+  };
+}
+
+function cleanDesignTokenName(value: string): string {
+  return value
+    .replace(/^`|`$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanDesignTokenValue(value: string): string {
+  return value
+    .replace(/`/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractDesignTokenValue(text: string): string | undefined {
+  const value = /(#[0-9a-f]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\([^)]+\)|\b\d+(?:\.\d+)?(?:px|rem|em|%|ms|s)\b)/i.exec(text)?.[0];
+
+  return value ? cleanDesignTokenValue(value) : undefined;
+}
+
+function isPlaceholderDesignTokenValue(value: string): boolean {
+  return /^(?:-|n\/a|none|tbd|todo|unknown|to be confirmed)$/i.test(value.trim());
 }
 
 export function extractDesignAssets(uiMarkdown: string, uiPath: string): DesignAsset[] {

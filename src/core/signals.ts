@@ -7,6 +7,8 @@ const ignoredHeadings = new Set([
   "data models",
   "design asset",
   "design assets",
+  "design token",
+  "design tokens",
   "endpoint",
   "endpoints",
   "environment variables",
@@ -22,7 +24,9 @@ const ignoredHeadings = new Set([
   "screens",
   "states",
   "ui notes",
-  "user stories"
+  "user stories",
+  "visual token",
+  "visual tokens"
 ]);
 
 export function extractMarkdownSignals(markdown: string, limit = 8): string[] {

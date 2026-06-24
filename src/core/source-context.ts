@@ -273,6 +273,15 @@ function profilePathsForUnit(profile: ImplementationTargetProfile, unit: Impleme
     ];
   }
 
+  if (unit?.kind === "design-token") {
+    return [
+      ...profile.styleCandidates,
+      ...profile.componentCandidates,
+      ...profile.configCandidates,
+      ...profile.testCandidates
+    ];
+  }
+
   return [
     ...profile.componentCandidates,
     ...profile.dataCandidates,

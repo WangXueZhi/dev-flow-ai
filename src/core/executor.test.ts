@@ -127,6 +127,14 @@ const frontendDataUnit: ImplementationUnit = {
   ]
 };
 
+const designTokenUnit: ImplementationUnit = {
+  id: "U20",
+  kind: "design-token",
+  title: "Primary color: #2563eb",
+  source: "docs/ui.md:22",
+  details: ["Category: color", "Value: #2563eb"]
+};
+
 test("createDryRunProposal creates reviewable proposal without source changes", () => {
   const proposal = createDryRunProposal(task, brief);
   const markdown = formatDryRunProposal(proposal);
@@ -173,6 +181,17 @@ test("createDryRunProposal can target a frontend data implementation unit", () =
   assert.match(markdown, /frontend-data/);
   assert.match(markdown, /Scope this unit to frontend data integration/);
   assert.match(markdown, /loading, empty, error, success, and auth-aware states/);
+});
+
+test("createDryRunProposal can target a design token implementation unit", () => {
+  const proposal = createDryRunProposal(task, brief, designTokenUnit);
+  const markdown = formatDryRunProposal(proposal);
+
+  assert.equal(proposal.targetUnit?.kind, "design-token");
+  assert.equal(proposal.suggestedFiles[0], "src/styles.css");
+  assert.ok(proposal.suggestedFiles.includes("src/App.tsx"));
+  assert.match(markdown, /design-token/);
+  assert.match(markdown, /Primary color: #2563eb/);
 });
 
 test("buildDryRunPrompt includes task and project brief context", () => {

@@ -49,6 +49,15 @@ const brief: ProjectBrief = {
       }
     }
   ],
+  designTokens: [
+    {
+      category: "color",
+      sourceLine: 18,
+      name: "Primary color",
+      value: "#2563eb",
+      summary: "Primary color: #2563eb"
+    }
+  ],
   uiStateChecklist: [
     {
       kind: "state",
@@ -263,6 +272,8 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /ViewBox: 0 0 960 640/);
   assert.match(report, /Colors: #f8fafc, #0f172a, rgb\(34, 197, 94\)/);
   assert.match(report, /Text snippets: Release health; Deploy confidence/);
+  assert.match(report, /Design Tokens/);
+  assert.match(report, /\[color\] Primary color: #2563eb \(ui:18\)/);
   assert.match(report, /API Contracts/);
   assert.match(report, /GET \/api\/dashboard/);
   assert.match(report, /API Data Models/);
@@ -511,6 +522,7 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.counts.appliedOperations, 2);
   assert.equal(manifest.counts.touchedFiles, 2);
   assert.equal(manifest.counts.visualScreenshots, 1);
+  assert.equal(manifest.counts.designTokens, 1);
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.id, "AC1");
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.status, "needs attention");
   assert.match(manifest.evidence.acceptanceCriteria[0]?.evidence.join("\n") ?? "", /Verification passed/);
@@ -525,6 +537,8 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.deepEqual(manifest.evidence.appliedChanges.backupManifestPaths, [".devflow/artifacts/backups/backup/manifest.json"]);
   assert.equal(manifest.evidence.visualScreenshots[0]?.blank, false);
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
+  assert.equal(manifest.evidence.designTokens[0]?.name, "Primary color");
+  assert.equal(manifest.evidence.designTokens[0]?.value, "#2563eb");
   assert.equal(manifest.evidence.sourceContext?.[0]?.mode, "apply");
   assert.equal(manifest.evidence.sourceContext?.[0]?.entries[0]?.path, "src/App.tsx");
   assert.equal(manifest.evidence.deliveryRisks.length, 2);

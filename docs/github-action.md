@@ -66,7 +66,7 @@ Set `upload-artifacts: "true"` to upload `.devflow/artifacts` from the selected 
 
 Use `artifacts-path` when your project writes artifacts somewhere other than `.devflow/artifacts`.
 
-Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, source-context sampling evidence, screenshots, touched files, backups, open questions, and delivery risks.
+Uploaded artifacts include `.devflow/artifacts/delivery-manifest.json`, a machine-readable index of artifact paths, delivery readiness, verification and visual status, source-change status, source-context sampling evidence, design tokens, screenshots, touched files, backups, open questions, and delivery risks.
 
 Tools that inspect the uploaded manifest can validate it with `schemas/delivery-manifest.schema.json`.
 

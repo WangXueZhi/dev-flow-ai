@@ -31,6 +31,7 @@ export function formatDevFlowSummary(manifest) {
     `- Acceptance criteria: ${counts.acceptanceCriteria ?? 0}`,
     `- Open questions: ${counts.openQuestions ?? 0}`,
     `- Delivery risks: ${counts.deliveryRisks ?? 0} (${counts.highDeliveryRisks ?? 0} high)`,
+    `- Design tokens: ${counts.designTokens ?? 0}`,
     `- Touched files: ${counts.touchedFiles ?? 0}`,
     "",
     "Artifacts:",

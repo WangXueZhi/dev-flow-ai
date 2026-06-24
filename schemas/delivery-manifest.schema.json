@@ -123,7 +123,8 @@
         "verificationCommands",
         "visualScreenshots",
         "visualLayoutIssues",
-        "visualRequiredText"
+        "visualRequiredText",
+        "designTokens"
       ],
       "properties": {
         "acceptanceCriteria": {
@@ -158,6 +159,9 @@
         },
         "visualRequiredText": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "designTokens": {
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },
@@ -173,6 +177,7 @@
         "verificationCommands",
         "visualScreenshots",
         "visualRequiredText",
+        "designTokens",
         "appliedChanges",
         "deliveryRisks",
         "openQuestions"
@@ -202,6 +207,12 @@
             "$ref": "#/$defs/visualRequiredText"
           }
         },
+        "designTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/designToken"
+          }
+        },
         "appliedChanges": {
           "$ref": "#/$defs/appliedChanges"
         },
@@ -222,6 +233,28 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "designToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "sourceLine", "name", "value", "summary"],
+      "properties": {
+        "category": {
+          "enum": ["color", "iconography", "motion", "other", "radius", "shadow", "spacing", "typography"]
+        },
+        "sourceLine": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "value": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },

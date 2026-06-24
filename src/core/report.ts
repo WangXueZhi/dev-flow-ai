@@ -83,6 +83,7 @@ export interface DeliveryManifest {
     visualScreenshots: number;
     visualLayoutIssues: number;
     visualRequiredText: number;
+    designTokens: number;
   };
   evidence: {
     acceptanceCriteria: DeliveryAcceptanceEvidence[];
@@ -108,6 +109,13 @@ export interface DeliveryManifest {
     visualRequiredText: Array<{
       text: string;
       found: boolean;
+    }>;
+    designTokens: Array<{
+      category: NonNullable<ProjectBrief["designTokens"]>[number]["category"];
+      sourceLine: number;
+      name: string;
+      value: string;
+      summary: string;
     }>;
     appliedChanges: {
       entries: number;
@@ -188,6 +196,10 @@ ${brief ? formatUiStateChecklist(brief) : "- Project brief was not available."}
 ## Design Assets
 
 ${brief ? formatDesignAssets(brief) : "- Project brief was not available."}
+
+## Design Tokens
+
+${brief ? formatDesignTokens(brief) : "- Project brief was not available."}
 
 ## API Contracts
 
@@ -291,7 +303,8 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       verificationCommands: input.verification?.results.length ?? 0,
       visualScreenshots: input.visualReport?.screenshots.length ?? 0,
       visualLayoutIssues: input.visualReport?.layoutIssues?.length ?? 0,
-      visualRequiredText: input.visualReport?.requiredText.length ?? 0
+      visualRequiredText: input.visualReport?.requiredText.length ?? 0,
+      designTokens: brief?.designTokens?.length ?? 0
     },
     evidence: {
       acceptanceCriteria,
@@ -312,6 +325,13 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       visualRequiredText: input.visualReport?.requiredText.map((check) => ({
         text: check.text,
         found: check.found
+      })) ?? [],
+      designTokens: brief?.designTokens?.map((token) => ({
+        category: token.category,
+        sourceLine: token.sourceLine,
+        name: token.name,
+        value: token.value,
+        summary: token.summary
       })) ?? [],
       appliedChanges: {
         entries: input.executionLog?.entries.length ?? 0,
@@ -666,6 +686,16 @@ function formatDesignAssets(brief: ProjectBrief): string {
       ...metadata.map((line) => `  - ${line}`)
     ].join("\n");
   }).join("\n");
+}
+
+function formatDesignTokens(brief: ProjectBrief): string {
+  const tokens = brief.designTokens ?? [];
+
+  if (tokens.length === 0) {
+    return "- No structured design tokens were extracted from the UI notes.";
+  }
+
+  return tokens.map((token) => `- [${token.category}] ${token.name}: ${token.value} (ui:${token.sourceLine})`).join("\n");
 }
 
 function formatDesignAssetMetadata(metadata: ProjectBrief["designAssets"][number]["metadata"]): string[] {

@@ -66,6 +66,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
     `- Touched files: ${counts.touchedFiles}`,
     `- Verification commands: ${counts.verificationCommands}`,
     `- Visual screenshots: ${counts.visualScreenshots}`,
+    `- Design tokens: ${counts.designTokens ?? 0}`,
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),

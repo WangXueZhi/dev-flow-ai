@@ -52,6 +52,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
+- Added UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography in briefs, plans, task units, and delivery reports.
 - Added API error case and auth requirement extraction for planning, task units, and delivery reports.
 - Added fenced OpenAPI JSON/YAML extraction for paths, component schemas, request/response schemas, error responses, and security requirements.
 - Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.

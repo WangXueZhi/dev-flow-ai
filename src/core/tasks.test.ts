@@ -51,6 +51,15 @@ const brief: ProjectBrief = {
       }
     }
   ],
+  designTokens: [
+    {
+      category: "color",
+      sourceLine: 22,
+      name: "Primary color",
+      value: "#2563eb",
+      summary: "Primary color: #2563eb"
+    }
+  ],
   uiStateChecklist: [
     {
       kind: "state",
@@ -160,6 +169,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-error" && unit.title.includes("unavailable")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "api-auth" && unit.title.includes("Bearer")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "design-asset"));
+  assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "design-token" && unit.title === "Primary color: #2563eb"));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "ui-state" && unit.title.includes("Empty state")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "requirement" && unit.title.includes("filter orders")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "constraint" && unit.title.includes("existing table")));
@@ -192,6 +202,8 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /Dimensions: 960x640/);
   assert.match(markdown, /ViewBox: 0 0 960 640/);
   assert.match(markdown, /Text snippets: Orders; Status filter; Empty state/);
+  assert.match(markdown, /\[design-token\] Primary color: #2563eb/);
+  assert.match(markdown, /Category: color/);
   assert.match(markdown, /\[ui-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /Kind: responsive/);
   assert.match(markdown, /Use existing table components/);

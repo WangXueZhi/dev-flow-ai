@@ -63,6 +63,13 @@ test("sourceContextCandidatePaths includes target profile and resolved design as
     source: "assets/dashboard.svg",
     details: ["Kind: local", "Resolved path: docs/assets/dashboard.svg"]
   };
+  const tokenUnit: ImplementationUnit = {
+    id: "U18",
+    kind: "design-token",
+    title: "Primary color: #2563eb",
+    source: "docs/ui.md:22",
+    details: ["Category: color", "Value: #2563eb"]
+  };
 
   assert.deepEqual(sourceContextCandidatePaths(profile, unit), [
     "assets/dashboard.svg",
@@ -70,6 +77,12 @@ test("sourceContextCandidatePaths includes target profile and resolved design as
     "src/App.tsx",
     "src/lib/api.ts",
     "src/index.css",
+    "package.json",
+    "src/**/*.test.tsx"
+  ]);
+  assert.deepEqual(sourceContextCandidatePaths(profile, tokenUnit).slice(0, 4), [
+    "src/index.css",
+    "src/App.tsx",
     "package.json",
     "src/**/*.test.tsx"
   ]);

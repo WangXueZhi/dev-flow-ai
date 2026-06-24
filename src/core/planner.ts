@@ -75,6 +75,8 @@ ${brief ? formatRequirementDetailsSection(brief) : ""}
 
 ${brief ? formatDesignAssetsSection(brief) : ""}
 
+${brief ? formatDesignTokensSection(brief) : ""}
+
 ${brief ? formatUiStateChecklistSection(brief) : ""}
 
 ${brief ? formatApiContractsSection(brief) : ""}
@@ -241,6 +243,20 @@ function formatDesignAssetsSection(brief: ProjectBrief): string {
   }
 
   return `## Design Assets\n\n${brief.designAssets.map(formatDesignAsset).join("\n")}\n`;
+}
+
+function formatDesignTokensSection(brief: ProjectBrief): string {
+  const tokens = brief.designTokens ?? [];
+
+  if (tokens.length === 0) {
+    return "## Design Tokens\n\n- No structured design tokens were extracted from the UI notes.\n";
+  }
+
+  return `## Design Tokens\n\n${tokens.map(formatDesignToken).join("\n")}\n`;
+}
+
+function formatDesignToken(token: NonNullable<ProjectBrief["designTokens"]>[number]): string {
+  return `- [${token.category}] Line ${token.sourceLine}: ${token.name} = ${token.value}`;
 }
 
 function formatDesignAsset(asset: ProjectBrief["designAssets"][number]): string {
@@ -432,7 +448,10 @@ function formatStylingBlueprint(brief: ProjectBrief | undefined, uiSignals: stri
 
     return [colors, dimensions].filter((item): item is string => Boolean(item));
   }).slice(0, 4);
-  const fallbackItems = responsiveItems.length || stylingItems.length || assetItems.length
+  const tokenItems = (brief?.designTokens ?? []).slice(0, 6).map(
+    (token) => `Use ${token.category} token from UI note line ${token.sourceLine}: ${token.name} = ${token.value}.`
+  );
+  const fallbackItems = responsiveItems.length || stylingItems.length || assetItems.length || tokenItems.length
     ? []
     : uiSignals.slice(0, 3).map((signal) => `Derive spacing, density, and responsive treatment from UI signal: ${signal}`);
 
@@ -441,6 +460,7 @@ function formatStylingBlueprint(brief: ProjectBrief | undefined, uiSignals: stri
       ...stylingItems,
       ...responsiveItems,
       ...assetItems,
+      ...tokenItems,
       ...fallbackItems,
       "Check text fit and layout stability across desktop, tablet, and mobile widths."
     ]).slice(0, 10),

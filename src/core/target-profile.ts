@@ -550,6 +550,10 @@ function buildTargetNotes(
     notes.push("Use the referenced design asset as visual evidence, then reflect layout, spacing, and state decisions in source changes.");
   }
 
+  if (unit?.kind === "design-token") {
+    notes.push("Treat this design token as a styling-system constraint; update styles, theme tokens, components, and responsive checks consistently.");
+  }
+
   if (unit?.kind === "constraint") {
     notes.push("Treat this requirement constraint as a non-negotiable implementation boundary and call out any tradeoffs in the delivery report.");
   }

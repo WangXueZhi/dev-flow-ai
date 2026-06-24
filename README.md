@@ -188,6 +188,7 @@ The brief includes:
 - Extracted requirement, UI, and API signals.
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
+- UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
 - Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
 - API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations.
@@ -219,7 +220,7 @@ Reads the project brief and implementation plan, then writes:
 
 The task plan splits delivery into discovery, planning, implementation, verification, and delivery phases.
 
-It also includes normalized frontend targets plus implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
+It also includes normalized frontend targets plus implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirement signals, UI signals, UI state checklist items, design assets, design tokens, API endpoints, API data models, API error cases, and API auth requirements so coding agents can target smaller pieces of work.
 
 ### `dev-flow execute`
 
@@ -323,9 +324,9 @@ Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus 
 
 When `.devflow/artifacts/source-context-summary.json` exists, the delivery report and manifest include path-level source-context sampling evidence so reviewers can see which files were sampled for AI prompts without exposing duplicated source snippets.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, prompt artifact directory status, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
-The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
 ```bash
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
@@ -421,6 +422,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Local CLI that works in any frontend repository.
 - Document ingestion for requirements, UI notes, and API docs.
 - UI design asset references extracted from Markdown image links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
+- UI design tokens extracted from visual token notes and surfaced in plans, task units, and delivery reports.
 - API endpoint contracts extracted from API docs, including HTTP method/path references and GraphQL operations.
 - API data model summaries extracted from fenced `json` examples.
 - API error and auth requirement summaries extracted from API docs.
@@ -435,7 +437,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Deterministic fallback planner for offline use.
 - Planner guardrails that keep patch-set JSON out of implementation-plan artifacts and add missing frontend blueprint sections to provider plans.
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
-- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, and API docs, and structured implementation units for explicit route/view, component, frontend data, and frontend state targets.
+- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, design tokens, and API docs, and structured implementation units for explicit route/view, component, frontend data, frontend state, design asset, and design token targets.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.
@@ -446,7 +448,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands.
 - Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
-- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, design tokens, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.

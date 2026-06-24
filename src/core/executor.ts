@@ -228,6 +228,15 @@ function suggestFiles(
     ]);
   }
 
+  if (unit?.kind === "design-token") {
+    return unique([
+      ...targetProfile.styleCandidates,
+      ...targetProfile.componentCandidates,
+      ...targetProfile.configCandidates,
+      ...targetProfile.testCandidates
+    ]);
+  }
+
   if (unit?.kind === "frontend-route") {
     return unique([
       ...targetProfile.componentCandidates,

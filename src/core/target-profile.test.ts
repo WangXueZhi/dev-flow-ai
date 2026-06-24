@@ -270,10 +270,18 @@ test("createImplementationTargetProfile prioritizes candidates from selected fro
     source: "docs/api.md",
     details: ["Target source: api", "Evidence: GET /api/release/summary"]
   };
+  const tokenUnit: ImplementationUnit = {
+    id: "U04",
+    kind: "design-token",
+    title: "Primary color: #2563eb",
+    source: "docs/ui.md:22",
+    details: ["Category: color", "Value: #2563eb"]
+  };
 
   const routeProfile = createImplementationTargetProfile(task, brief, routeUnit);
   const componentProfile = createImplementationTargetProfile(task, brief, componentUnit);
   const dataProfile = createImplementationTargetProfile(task, brief, dataUnit);
+  const tokenProfile = createImplementationTargetProfile(task, brief, tokenUnit);
 
   assert.deepEqual(routeProfile.componentCandidates.slice(0, 3), [
     "src/pages/SettingsSecurity.tsx",
@@ -297,6 +305,7 @@ test("createImplementationTargetProfile prioritizes candidates from selected fro
     "src/services/release-summary.ts",
     "src/api/release-summary.ts"
   ]);
+  assert.ok(tokenProfile.notes.some((note) => note.includes("design token")));
 });
 
 test("createImplementationTargetProfile includes Svelte, Astro, and Angular target candidates", () => {

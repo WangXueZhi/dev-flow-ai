@@ -90,13 +90,23 @@ const manifest: DeliveryManifest = {
     verificationCommands: 1,
     visualScreenshots: 0,
     visualLayoutIssues: 0,
-    visualRequiredText: 0
+    visualRequiredText: 0,
+    designTokens: 1
   },
   evidence: {
     acceptanceCriteria: [],
     verificationCommands: [{ command: "npm run check", exitCode: 0, durationMs: 1000 }],
     visualScreenshots: [],
     visualRequiredText: [],
+    designTokens: [
+      {
+        category: "color",
+        sourceLine: 22,
+        name: "Primary color",
+        value: "#2563eb",
+        summary: "Primary color: #2563eb"
+      }
+    ],
     appliedChanges: {
       entries: 1,
       touchedFiles: ["src/App.jsx", "src/styles.css"],
@@ -154,6 +164,7 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Verification: passed/);
   assert.match(output, /Visual: not-run/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
+  assert.match(output, /Design tokens: 1/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
   assert.match(output, /Prompt artifacts: \.devflow\/artifacts\/prompts \(present\)/);
   assert.match(output, /Source context summary: \.devflow\/artifacts\/source-context-summary\.json \(present\)/);
@@ -173,6 +184,7 @@ test("runStatus prints raw manifest JSON", async (t) => {
 
   assert.equal(parsed.status.readiness, "needs attention");
   assert.equal(parsed.counts.touchedFiles, 2);
+  assert.equal(parsed.counts.designTokens, 1);
 });
 
 test("runStatus can fail CI gates when readiness needs attention", async (t) => {

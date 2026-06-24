@@ -29,6 +29,7 @@ const schema = JSON.parse(
     };
     acceptanceEvidence: unknown;
     appliedChanges: unknown;
+    designToken: unknown;
     deliveryRisk: unknown;
     sourceContextEntry: unknown;
     sourceContextLimits: unknown;
@@ -68,19 +69,22 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
     "verificationCommands",
     "visualScreenshots",
     "visualLayoutIssues",
-    "visualRequiredText"
+    "visualRequiredText",
+    "designTokens"
   ]);
   assert.deepEqual(schema.$defs.evidence.required, [
     "acceptanceCriteria",
     "verificationCommands",
     "visualScreenshots",
     "visualRequiredText",
+    "designTokens",
     "appliedChanges",
     "deliveryRisks",
     "openQuestions"
   ]);
   assert.ok(schema.$defs.acceptanceEvidence);
   assert.ok(schema.$defs.appliedChanges);
+  assert.ok(schema.$defs.designToken);
   assert.ok(schema.$defs.deliveryRisk);
   assert.ok(schema.$defs.sourceContextEntry);
   assert.ok(schema.$defs.sourceContextLimits);

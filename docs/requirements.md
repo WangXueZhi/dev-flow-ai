@@ -26,6 +26,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow brief` writes `.devflow/artifacts/project-brief.json`.
 - [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, delivery risks, open questions, normalized frontend targets with explicit route paths and component names, and verification commands derived from detected package scripts, common aliases, or inferred TypeScript, test, and build tooling.
 - [ ] The project brief includes UI design assets referenced by Markdown image links, local file existence, lightweight SVG metadata including color swatches, and PNG/JPEG dimensions when available.
+- [ ] The project brief includes UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations.
 - [ ] The project brief includes API data model summaries extracted from fenced `json` examples.
 - [ ] The project brief includes API error cases and authentication requirements extracted from API docs.
@@ -35,7 +36,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] Implementation plans include a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections.
 - [ ] Provider-generated implementation plans do not write patch-set JSON into `.devflow/artifacts/implementation-plan.md`; invalid plan-slot patch-set responses fall back to the local planner.
 - [ ] `dev-flow tasks` writes `.devflow/artifacts/tasks.json` and `.devflow/artifacts/tasks.md`.
-- [ ] Task plans include normalized frontend targets and implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirements, UI signals, design assets, API endpoints, API data models, API error cases, and API auth requirements.
+- [ ] Task plans include normalized frontend targets and implementation units derived from explicit route/view targets, component targets, frontend data needs, frontend state targets, user stories, acceptance criteria, requirement constraints, requirements, UI signals, design assets, design tokens, API endpoints, API data models, API error cases, and API auth requirements.
 - [ ] `dev-flow execute --dry-run` writes patch proposals without changing source files.
 - [ ] Dry-run patch proposals include a stack-specific target profile with normalized frontend targets and candidate explicit route/component/API, data, style, test, config, and verification targets, prioritizing the selected frontend unit's route path, component name, or endpoint when `--unit` is used.
 - [ ] AI dry-run and AI patch-set prompts include bounded repository source context sampled from target profile candidates, with selected frontend unit candidates sampled before broader repository candidates when `--unit` is used.
@@ -55,8 +56,8 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow verify` writes `.devflow/artifacts/verification-report.json`.
 - [ ] Failed verification commands include bounded stdout/stderr excerpts for reports, manifests, status summaries, and GitHub Action job summaries.
 - [ ] `dev-flow visual --url <preview-url>` writes desktop, tablet, and mobile screenshots, blank-screen analysis, layout issue checks, and `.devflow/artifacts/visual/visual-report.json`.
-- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-report.md` with source context, user stories, requirement constraints, acceptance criteria, stack, API contracts, API data models, API error cases, API auth requirements, applied changes, touched files, operation counts, line-count deltas, verification, visual checks, delivery readiness, and next actions.
-- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact statuses, prompt-artifact status, readiness, verification, visual, source-change, source-context, acceptance-evidence, touched-file, backup, screenshot, verification-failure, open-question, and delivery-risk summaries.
+- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-report.md` with source context, user stories, requirement constraints, acceptance criteria, stack, design tokens, API contracts, API data models, API error cases, API auth requirements, applied changes, touched files, operation counts, line-count deltas, verification, visual checks, delivery readiness, and next actions.
+- [ ] `dev-flow report` writes `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact statuses, prompt-artifact status, readiness, verification, visual, source-change, source-context, design-token, acceptance-evidence, touched-file, backup, screenshot, verification-failure, open-question, and delivery-risk summaries.
 - [ ] The published package includes `schemas/delivery-manifest.schema.json` so external tools can validate delivery manifests.
 - [ ] `dev-flow status` reads a delivery manifest and prints readiness, verification, visual, source-change, artifact, verification-failure, risk, and open-question summaries.
 - [ ] `dev-flow status --json` prints the raw delivery manifest JSON.

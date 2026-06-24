@@ -13,6 +13,7 @@
 - OpenAPI JSON/YAML path, component schema, request/response schema, error response, and security extraction.
 - GraphQL operation extraction for `query`, `mutation`, and `subscription` API docs.
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
+- UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography.
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
 - Normalized frontend targets for routes/views, components, data needs, and UI states.

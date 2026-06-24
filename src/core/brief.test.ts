@@ -11,6 +11,7 @@ import {
   extractApiDataModels,
   extractApiErrorCases,
   extractDesignAssets,
+  extractDesignTokens,
   extractUiStateChecklist
 } from "./brief.js";
 import type { ProjectContext } from "./context.js";
@@ -30,7 +31,18 @@ const context: ProjectContext = {
     "- Must support offline fallback data."
   ].join("\n"),
   uiPath: "docs/ui.md",
-  ui: "# UI Notes\n\n![Filter table wireframe](assets/filter-table.png)\n\n- Desktop and mobile responsive table.",
+  ui: [
+    "# UI Notes",
+    "",
+    "![Filter table wireframe](assets/filter-table.png)",
+    "",
+    "- Desktop and mobile responsive table.",
+    "",
+    "## Visual Tokens",
+    "- Primary color: #2563eb",
+    "- Body font: Inter, 16px",
+    "- Spacing scale: 8px"
+  ].join("\n"),
   apiPath: "docs/api.md",
   api: "# API Docs\n\n- `GET /filters`\n- Error responses include message.\n\n```json\n{\"filter\":{\"id\":\"open\",\"label\":\"Open\"}}\n```"
 };
@@ -68,6 +80,29 @@ test("createProjectBrief extracts document signals and stack context", () => {
       reference: "assets/filter-table.png",
       resolvedPath: "docs/assets/filter-table.png",
       exists: false
+    }
+  ]);
+  assert.deepEqual(brief.designTokens, [
+    {
+      category: "color",
+      sourceLine: 8,
+      name: "Primary color",
+      value: "#2563eb",
+      summary: "Primary color: #2563eb"
+    },
+    {
+      category: "typography",
+      sourceLine: 9,
+      name: "Body font",
+      value: "Inter, 16px",
+      summary: "Body font: Inter, 16px"
+    },
+    {
+      category: "spacing",
+      sourceLine: 10,
+      name: "Spacing scale",
+      value: "8px",
+      summary: "Spacing scale: 8px"
     }
   ]);
   assert.deepEqual(brief.uiStateChecklist, [
@@ -116,6 +151,64 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /Referenced UI design asset was not found/);
   assert.match(brief.deliveryRisks.map((risk) => risk.summary).join("\n"), /authentication or authorization/);
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
+});
+
+test("extractDesignTokens captures visual token sections and CSS variables", () => {
+  assert.deepEqual(
+    extractDesignTokens(
+      [
+        "# UI",
+        "",
+        "## Design Tokens",
+        "- Primary: #0f766e",
+        "- Radius sm: 6px",
+        "- Motion duration: 180ms",
+        "- Empty placeholder:",
+        "",
+        "## Typography",
+        "- Body: Inter",
+        "",
+        "--color-danger: #dc2626"
+      ].join("\n")
+    ),
+    [
+      {
+        category: "color",
+        sourceLine: 4,
+        name: "Primary",
+        value: "#0f766e",
+        summary: "Primary: #0f766e"
+      },
+      {
+        category: "radius",
+        sourceLine: 5,
+        name: "Radius sm",
+        value: "6px",
+        summary: "Radius sm: 6px"
+      },
+      {
+        category: "motion",
+        sourceLine: 6,
+        name: "Motion duration",
+        value: "180ms",
+        summary: "Motion duration: 180ms"
+      },
+      {
+        category: "typography",
+        sourceLine: 10,
+        name: "Body",
+        value: "Inter",
+        summary: "Body: Inter"
+      },
+      {
+        category: "color",
+        sourceLine: 12,
+        name: "--color-danger",
+        value: "#dc2626",
+        summary: "--color-danger: #dc2626"
+      }
+    ]
+  );
 });
 
 test("createProjectBrief derives explicit route paths and component names", () => {

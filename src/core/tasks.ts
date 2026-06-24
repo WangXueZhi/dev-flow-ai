@@ -24,6 +24,7 @@ export interface ImplementationUnit {
     | "ui"
     | "ui-state"
     | "design-asset"
+    | "design-token"
     | "api-endpoint"
     | "api-model"
     | "api-error"
@@ -347,6 +348,20 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
         asset.exists === undefined ? undefined : `Exists: ${asset.exists ? "yes" : "no"}`,
         ...formatDesignAssetMetadata(asset.metadata)
       ].filter((detail): detail is string => Boolean(detail))
+    });
+  }
+
+  for (const token of brief.designTokens ?? []) {
+    units.push({
+      id: nextId(),
+      kind: "design-token",
+      title: `${token.name}: ${token.value}`,
+      source: `${brief.sourceDocuments.uiPath}:${token.sourceLine}`,
+      details: [
+        `Category: ${token.category}`,
+        `Value: ${token.value}`,
+        token.summary
+      ]
     });
   }
 
