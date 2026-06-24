@@ -80,12 +80,14 @@ async function ensureCli() {
 async function withPreviewServer(workspaceDir, callback) {
   const port = await getFreePort();
   const previewUrl = `http://127.0.0.1:${port}`;
+  const useProcessGroup = process.platform !== "win32";
   const server = spawn(
     npmCommand,
     ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"],
     {
       cwd: workspaceDir,
       env: process.env,
+      detached: useProcessGroup,
       stdio: ["ignore", "pipe", "pipe"]
     }
   );
@@ -136,12 +138,12 @@ async function stopServer(server) {
     server.once("exit", resolve);
   });
 
-  server.kill("SIGTERM");
+  killPreviewServer(server, "SIGTERM");
   await Promise.race([
     exited,
     delay(3_000).then(() => {
       if (server.exitCode === null) {
-        server.kill("SIGKILL");
+        killPreviewServer(server, "SIGKILL");
       }
     })
   ]);
@@ -149,6 +151,19 @@ async function stopServer(server) {
   if (server.exitCode === null) {
     await Promise.race([exited, delay(1_000)]);
   }
+}
+
+function killPreviewServer(server, signal) {
+  if (process.platform !== "win32" && server.pid) {
+    try {
+      process.kill(-server.pid, signal);
+      return;
+    } catch {
+      // Fall back to killing the npm process below.
+    }
+  }
+
+  server.kill(signal);
 }
 
 async function getFreePort() {
