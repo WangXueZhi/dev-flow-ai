@@ -54,6 +54,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added implementation units for normalized frontend route/view, component, data, and state targets so `--unit` execution can focus on concrete frontend delivery slices.
 - Added explicit frontend route path and component name extraction from requirements, UI notes, user stories, and acceptance criteria.
 - Added acceptance-criterion-derived route, component, and UI-state frontend targets.
+- Added acceptance criteria extraction from checkbox items plus bullets, numbered lists, Gherkin lines, tables, and localized acceptance sections.
 - Added normalized frontend target summaries to AI execution target profiles.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added acceptance-criterion status, known gaps, assumptions, and manual QA prompts to generated delivery reports.

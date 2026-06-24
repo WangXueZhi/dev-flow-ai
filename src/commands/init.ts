@@ -8,7 +8,7 @@ function createStarterDocs(config: DevFlowConfig): Record<string, string> {
   return {
     [config.requirementsPath]: `# Requirements
 
-Describe the product goal, users, scope, constraints, and acceptance criteria. Keep this concrete enough for an AI coding agent to map requirements to files and verification.
+Describe the product goal, users, scope, constraints, and acceptance criteria. Acceptance criteria can be checkboxes, bullets, numbered items, Given/When/Then lines, or table rows under this section. Keep this concrete enough for an AI coding agent to map requirements to files and verification.
 
 ## Goal
 

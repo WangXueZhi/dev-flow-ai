@@ -57,7 +57,7 @@ Existing handoff documents are preserved. DevFlow creates only missing starter f
 
 Fill those documents with the project handoff:
 
-- Requirements: goals, users, scope, constraints, acceptance criteria, verification notes.
+- Requirements: goals, users, scope, constraints, acceptance criteria as checkboxes or structured acceptance sections, verification notes.
 - UI: screens, components, states, interactions, responsive behavior, design tokens, design asset links.
 - API: auth, HTTP endpoints, query/path parameters, GraphQL operations and schema links, data models, error cases, loading/cache notes, fenced or linked local GraphQL/OpenAPI/Swagger files when available.
 

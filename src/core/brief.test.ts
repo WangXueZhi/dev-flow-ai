@@ -161,6 +161,35 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.recommendedVerification, ["npm run check"]);
 });
 
+test("createProjectBrief extracts non-checkbox acceptance criteria sections", () => {
+  const brief = createProjectBrief(
+    {
+      ...context,
+      requirements: [
+        "# Requirements",
+        "",
+        "## Acceptance Criteria",
+        "- Release health is visible.",
+        "1. Filters persist after refresh.",
+        "Then the retry banner announces failed refreshes.",
+        "| ID | Criterion |",
+        "| -- | -- |",
+        "| AC-3 | Admin can export release CSV. |"
+      ].join("\n")
+    },
+    stack
+  );
+
+  assert.deepEqual(brief.acceptanceCriteria, [
+    "Release health is visible.",
+    "Filters persist after refresh.",
+    "Then the retry banner announces failed refreshes.",
+    "Admin can export release CSV."
+  ]);
+  assert.ok(!brief.openQuestions.some((question) => /acceptance criteria/.test(question)));
+  assert.ok(!brief.deliveryRisks.some((risk) => /acceptance criteria/.test(risk.summary)));
+});
+
 test("extractDesignTokens captures visual token sections and CSS variables", () => {
   assert.deepEqual(
     extractDesignTokens(

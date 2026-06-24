@@ -20,6 +20,7 @@
 - Normalized frontend targets for routes/views, components, data needs, and UI states.
 - Explicit frontend route path and component name extraction from requirements, UI notes, user stories, and acceptance criteria.
 - Acceptance-criterion-derived frontend targets.
+- Acceptance criteria extraction from checkbox items, acceptance sections, Gherkin lines, tables, and localized headings.
 - Risk scoring for ambiguous requirements.
 - Expanded stack detection from package manager metadata, workspace packages, nested source directories, and common frontend framework/tool config files.
 - Task plan generation.

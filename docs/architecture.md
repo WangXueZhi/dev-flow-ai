@@ -74,7 +74,7 @@ The brief contains:
 
 - Source document paths.
 - Extracted requirement, UI, and API signals.
-- User stories, requirement constraints, and acceptance criteria extracted from requirements.
+- User stories, requirement constraints, and acceptance criteria extracted from requirements, including checkbox items plus bullets, numbered lists, Given/When/Then lines, and simple table rows under acceptance sections.
 - UI design assets referenced from Markdown image links or recognized design handoff links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions when available.
 - UI design tokens extracted from visual token notes for color, typography, spacing, radius, shadows, motion, and iconography.
 - API endpoint contracts extracted from HTTP method/path references, GraphQL operations, and linked local GraphQL schema root fields, with inline query/path parameters and OpenAPI query, path, header, and cookie parameters when available.

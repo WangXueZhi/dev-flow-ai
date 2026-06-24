@@ -193,7 +193,7 @@ The brief includes:
 
 - Source document paths.
 - Extracted requirement, UI, and API signals.
-- User stories, requirement constraints, and acceptance criteria extracted from requirements.
+- User stories, requirement constraints, and acceptance criteria extracted from requirements, including checkbox items plus bullets, numbered lists, Given/When/Then lines, and simple table rows under acceptance sections.
 - UI design assets referenced from Markdown image links or recognized design handoff links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
 - UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
@@ -460,7 +460,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - API error and auth requirement summaries extracted from API docs.
 - OpenAPI/Swagger JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks and local Markdown links.
 - Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
-- Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
+- Structured project brief output with user stories, constraints, acceptance criteria from checkbox and acceptance sections, and downstream planning context.
 - Aggregated recommended verification commands from detected root/workspace `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, coverage, `build`, and audit package scripts, common local/CI aliases, or inferred quality, framework type-checking, test, and build tooling.
 - UI state checklist extraction from UI notes for screens, components, visual states, interactions, responsive behavior, and accessibility checks.
 - Normalized frontend target extraction for routes/views, explicit route paths, component names, data needs, UI states, and acceptance criteria.

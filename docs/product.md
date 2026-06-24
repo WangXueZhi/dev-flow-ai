@@ -13,7 +13,7 @@ DevFlow helps frontend teams move from project context to delivered code with an
 
 Developers should be able to run DevFlow inside a frontend repository, provide three kinds of context, and receive a practical implementation plan:
 
-- Requirements: goals, scope, user stories, acceptance criteria, constraints.
+- Requirements: goals, scope, user stories, acceptance criteria as checkboxes or structured acceptance sections, constraints.
 - UI: screens, components, states, interactions, responsive behavior, design tokens.
 - API: endpoints, parameters, schemas, auth, errors, loading states, integration notes.
 
