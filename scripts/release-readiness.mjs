@@ -37,16 +37,19 @@ export function evaluateReleaseReadiness(input) {
     ),
     check(
       "release-script",
-      "Package exposes release readiness and preflight scripts",
+      "Package exposes release readiness, preflight, and live-smoke report scripts",
       input.packageJson.scripts?.["release:readiness"] === "node scripts/release-readiness.mjs" &&
-        input.packageJson.scripts?.["release:preflight"] === "node scripts/release-preflight.mjs",
+        input.packageJson.scripts?.["release:preflight"] === "node scripts/release-preflight.mjs" &&
+        input.packageJson.scripts?.["smoke:live:report"] === "node scripts/verify-live-smoke-report.mjs",
       "release scripts in package.json"
     ),
     check(
       "release-script-packaged",
-      "Release readiness script is included in the package file allowlist",
-      Array.isArray(input.packageJson.files) && input.packageJson.files.includes("scripts/release-readiness.mjs"),
-      "scripts/release-readiness.mjs"
+      "Release support scripts are included in the package file allowlist",
+      Array.isArray(input.packageJson.files) &&
+        input.packageJson.files.includes("scripts/release-readiness.mjs") &&
+        input.packageJson.files.includes("scripts/verify-live-smoke-report.mjs"),
+      "scripts/release-readiness.mjs and scripts/verify-live-smoke-report.mjs"
     ),
     check(
       "changelog-entry",
@@ -102,11 +105,21 @@ export function evaluateReleaseReadiness(input) {
       ".devflow/artifacts/live-provider-smoke.json artifact upload"
     ),
     check(
+      "release-workflow-live-smoke-report-gate",
+      "Release workflow validates live provider smoke report status before publish",
+      /Verify optional live provider smoke report/.test(input.releaseWorkflow) &&
+        /run:\s*npm run smoke:live:report/.test(input.releaseWorkflow) &&
+        /Verify required live provider smoke report/.test(input.releaseWorkflow) &&
+        /run:\s*npm run smoke:live:report -- --require-passed/.test(input.releaseWorkflow),
+      "smoke:live:report with --require-passed for required release gates"
+    ),
+    check(
       "live-smoke-gate",
       "Release docs describe the required live-provider smoke gate and JSON evidence",
       /DEVFLOW_REQUIRE_LIVE_SMOKE=true/.test(input.releaseGuide) &&
         /DEVFLOW_AI_API_KEY|OPENAI_API_KEY/.test(input.releaseGuide) &&
         /live-provider-smoke\.json/.test(input.releaseGuide) &&
+        /smoke:live:report/.test(input.releaseGuide) &&
         /Upload live provider smoke report|workflow artifact/i.test(input.releaseGuide),
       "docs/release.md live provider gate and JSON artifact evidence"
     )

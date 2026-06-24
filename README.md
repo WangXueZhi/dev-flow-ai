@@ -132,9 +132,10 @@ To verify a real provider before a release or demo, run the optional live smoke 
 ```bash
 npm run build
 DEVFLOW_AI_API_KEY="..." npm run smoke:live
+npm run smoke:live:report -- --require-passed
 ```
 
-Without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, the live smoke command prints a skip message and exits successfully. Each run writes `.devflow/artifacts/live-provider-smoke.json` with status, required-gate state, provider endpoint/model diagnostics, and whether a workspace was retained. Set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a release process should fail if live credentials are missing, or set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` to write the report somewhere else.
+Without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, the live smoke command prints a skip message and exits successfully. Each run writes `.devflow/artifacts/live-provider-smoke.json` with status, required-gate state, provider endpoint/model diagnostics, and whether a workspace was retained. Set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a release process should fail if live credentials are missing, or set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` to write the report somewhere else. Use `npm run smoke:live:report` to validate the report shape and fail on `status: "failed"`; add `-- --require-passed` when a release gate must prove a real provider smoke passed.
 
 ## CLI Commands
 
@@ -416,6 +417,7 @@ npm run pack:smoke
 npm run github:smoke
 npm run example:smoke
 npm run smoke:live
+npm run smoke:live:report
 npm run release:readiness
 npm run release:preflight
 cd examples/react-vite-dashboard
@@ -424,9 +426,9 @@ npm audit --audit-level=low
 npm run build
 ```
 
-The live smoke command is optional, writes `.devflow/artifacts/live-provider-smoke.json`, and skips without provider credentials unless `DEVFLOW_REQUIRE_LIVE_SMOKE=true` is set. The CI workflow also verifies the npm package dry-run, runs fixture-backed source-changing delivery on the React/Vite example, starts the example preview, runs `dev-flow deliver` with visual text, blank-screen, and layout checks, and uploads DevFlow artifacts for review.
+The live smoke command is optional, writes `.devflow/artifacts/live-provider-smoke.json`, and skips without provider credentials unless `DEVFLOW_REQUIRE_LIVE_SMOKE=true` is set. `npm run smoke:live:report` validates that JSON evidence. The CI workflow also verifies the npm package dry-run, runs fixture-backed source-changing delivery on the React/Vite example, starts the example preview, runs `dev-flow deliver` with visual text, blank-screen, and layout checks, and uploads DevFlow artifacts for review.
 
-Publishing is handled by the Release workflow in `.github/workflows/release.yml`. Run `npm run release:readiness` for static checks of version metadata, release notes, changelog coverage, npm provenance workflow configuration, and required live-smoke wiring before the full preflight. The Release workflow runs release readiness, the package checks and smoke tests, requires live provider smoke for GitHub Release publication, uploads `.devflow/artifacts/live-provider-smoke.json` as the `live-provider-smoke-report` artifact for skipped, failed, or passed runs, then publishes to npm with provenance when `NPM_TOKEN` and a provider key are configured.
+Publishing is handled by the Release workflow in `.github/workflows/release.yml`. Run `npm run release:readiness` for static checks of version metadata, release notes, changelog coverage, npm provenance workflow configuration, and required live-smoke wiring before the full preflight. The Release workflow runs release readiness, the package checks and smoke tests, requires live provider smoke for GitHub Release publication, validates `.devflow/artifacts/live-provider-smoke.json` with `--require-passed`, uploads it as the `live-provider-smoke-report` artifact for skipped, failed, or passed runs, then publishes to npm with provenance when `NPM_TOKEN` and a provider key are configured.
 
 ## MVP Scope
 

@@ -15,10 +15,11 @@ const validInput = {
     publishConfig: {
       access: "public"
     },
-    files: ["dist", "scripts/release-readiness.mjs"],
+    files: ["dist", "scripts/release-readiness.mjs", "scripts/verify-live-smoke-report.mjs"],
     scripts: {
       "release:readiness": "node scripts/release-readiness.mjs",
-      "release:preflight": "node scripts/release-preflight.mjs"
+      "release:preflight": "node scripts/release-preflight.mjs",
+      "smoke:live:report": "node scripts/verify-live-smoke-report.mjs"
     }
   },
   packageLock: {
@@ -57,6 +58,10 @@ const validInput = {
     "          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}",
     "          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}",
     "        run: npm run smoke:live",
+    "      - name: Verify optional live provider smoke report",
+    "        run: npm run smoke:live:report",
+    "      - name: Verify required live provider smoke report",
+    "        run: npm run smoke:live:report -- --require-passed",
     "      - name: Upload live provider smoke report",
     "        uses: actions/upload-artifact@v7",
     "        if: ${{ always() }}",
@@ -69,7 +74,7 @@ const validInput = {
     "          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}"
   ].join("\n"),
   releaseGuide:
-    "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY and archive live-provider-smoke.json. The live-provider-smoke-report workflow artifact stores the JSON evidence."
+    "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY, validate it with npm run smoke:live:report -- --require-passed, and archive live-provider-smoke.json. The live-provider-smoke-report workflow artifact stores the JSON evidence."
 };
 
 test("evaluateReleaseReadiness passes for complete release metadata", () => {
@@ -90,7 +95,10 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
     packageJson: {
       ...validInput.packageJson,
       version: "1.2",
-      files: ["dist"]
+      files: ["dist"],
+      scripts: {
+        "release:readiness": "node scripts/release-readiness.mjs"
+      }
     },
     packageLock: {
       ...validInput.packageLock,
@@ -112,6 +120,7 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.equal(report.passed, false);
   assert.ok(failedIds.includes("package-version"));
   assert.ok(failedIds.includes("package-lock-version"));
+  assert.ok(failedIds.includes("release-script"));
   assert.ok(failedIds.includes("release-script-packaged"));
   assert.ok(failedIds.includes("changelog-entry"));
   assert.ok(failedIds.includes("release-notes"));
@@ -120,5 +129,6 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.ok(failedIds.includes("release-workflow-readiness"));
   assert.ok(failedIds.includes("release-workflow-live-smoke"));
   assert.ok(failedIds.includes("release-workflow-live-smoke-artifact"));
+  assert.ok(failedIds.includes("release-workflow-live-smoke-report-gate"));
   assert.ok(failedIds.includes("live-smoke-gate"));
 });

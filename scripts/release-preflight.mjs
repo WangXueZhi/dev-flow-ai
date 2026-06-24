@@ -12,7 +12,8 @@ const commands = [
   [npmCommand, ["run", "pack:smoke"]],
   [npmCommand, ["run", "github:smoke"]],
   [npmCommand, ["run", "example:smoke"]],
-  [npmCommand, ["run", "smoke:live"]]
+  [npmCommand, ["run", "smoke:live"]],
+  [npmCommand, ["run", "smoke:live:report"]]
 ];
 
 for (const [command, args] of commands) {
