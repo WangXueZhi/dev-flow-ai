@@ -34,37 +34,43 @@ const manifest = {
       id: "delivery-report",
       label: "Delivery report",
       path: ".devflow/artifacts/delivery-report.md",
-      status: "present"
+      status: "present",
+      required: true
     },
     {
       id: "delivery-manifest",
       label: "Delivery manifest",
       path: ".devflow/artifacts/delivery-manifest.json",
-      status: "present"
+      status: "present",
+      required: true
     },
     {
       id: "verification-report",
       label: "Verification report",
       path: ".devflow/artifacts/verification-report.json",
-      status: "present"
+      status: "present",
+      required: true
     },
     {
       id: "visual-report",
       label: "Visual report",
       path: ".devflow/artifacts/visual/visual-report.json",
-      status: "not-applicable"
+      status: "not-applicable",
+      required: false
     },
     {
       id: "prompt-artifacts",
       label: "Prompt artifacts",
       path: ".devflow/artifacts/prompts",
-      status: "present"
+      status: "present",
+      required: false
     },
     {
       id: "source-context-summary",
       label: "Source context summary",
       path: ".devflow/artifacts/source-context-summary.json",
-      status: "present"
+      status: "present",
+      required: false
     }
   ],
   evidence: {
@@ -199,6 +205,19 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Output excerpt was truncated/);
   assert.match(summary, /\[high\] requirements:12: Acceptance criterion needs review/);
   assert.match(summary, /Confirm empty state copy/);
+});
+
+test("formatDevFlowSummary renders missing required artifacts", () => {
+  const missingArtifactManifest = {
+    ...manifest,
+    artifacts: manifest.artifacts.map((artifact) =>
+      artifact.id === "delivery-report" ? { ...artifact, status: "missing" } : artifact
+    )
+  };
+  const summary = formatDevFlowSummary(missingArtifactManifest);
+
+  assert.match(summary, /Missing required artifacts/);
+  assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md`/);
 });
 
 test("formatMissingManifestSummary renders a missing manifest notice", () => {

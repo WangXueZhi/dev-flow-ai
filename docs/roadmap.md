@@ -59,7 +59,7 @@
 - Criterion-specific delivery evidence matching from visual text, UI state, API state, API error, and API auth signals.
 - Embedded screenshots in delivery reports when visual artifacts are available.
 - Local delivery status summary command backed by the delivery manifest.
-- CI gate exits for delivery readiness attention, failed verification, and failed visual checks.
+- CI gate exits for delivery readiness attention, failed verification, failed visual checks, and missing required artifacts.
 - Machine-readable delivery manifest for artifact status, readiness, verification, visual, visual-text, visual-layout, source-change, API-state, screenshot, touched-file, applied-operation, backup, open-question, and delivery-risk summaries.
 - Published delivery manifest JSON schema for CI, editor, dashboard, and downstream-agent integrations.
 - Frontend delivery blueprint sections in implementation plans for routes, components, state, data fetching, styling, tests, and accessibility.

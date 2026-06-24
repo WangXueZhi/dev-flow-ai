@@ -102,6 +102,10 @@ inputs:
     description: Fail the action when the delivery manifest visual status is failed.
     required: false
     default: "false"
+  fail-on-missing-artifacts:
+    description: Fail the action when required delivery artifacts are missing from the manifest.
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -195,7 +199,7 @@ runs:
         if-no-files-found: warn
 
     - name: Gate DevFlow delivery status
-      if: ${{ (inputs.fail-on-attention == 'true' || inputs.fail-on-failed-verification == 'true' || inputs.fail-on-failed-visual == 'true') && always() }}
+      if: ${{ (inputs.fail-on-attention == 'true' || inputs.fail-on-failed-verification == 'true' || inputs.fail-on-failed-visual == 'true' || inputs.fail-on-missing-artifacts == 'true') && always() }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
@@ -204,6 +208,7 @@ runs:
         FAIL_ON_ATTENTION: ${{ inputs.fail-on-attention }}
         FAIL_ON_FAILED_VERIFICATION: ${{ inputs.fail-on-failed-verification }}
         FAIL_ON_FAILED_VISUAL: ${{ inputs.fail-on-failed-visual }}
+        FAIL_ON_MISSING_ARTIFACTS: ${{ inputs.fail-on-missing-artifacts }}
       run: |
         set -euo pipefail
 
@@ -211,6 +216,7 @@ runs:
         [[ "$FAIL_ON_ATTENTION" == "true" ]] && args+=(--fail-on-attention)
         [[ "$FAIL_ON_FAILED_VERIFICATION" == "true" ]] && args+=(--fail-on-failed-verification)
         [[ "$FAIL_ON_FAILED_VISUAL" == "true" ]] && args+=(--fail-on-failed-visual)
+        [[ "$FAIL_ON_MISSING_ARTIFACTS" == "true" ]] && args+=(--fail-on-missing-artifacts)
 
         package_spec="$DEVFLOW_VERSION"
         case "$package_spec" in

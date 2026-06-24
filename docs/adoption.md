@@ -229,11 +229,12 @@ dev-flow status --json
 dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 dev-flow status --fail-on-failed-visual
+dev-flow status --fail-on-missing-artifacts
 ```
 
-The status output includes applied operation counts, missing required visual text, visual layout issue counts, reviewer notes, verification remediation hints, structured next actions, and source-context sampling evidence from the delivery manifest when available, using only path-level metadata so CI logs do not expose sampled source snippets. When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also shows live provider smoke status, required-gate state, endpoint, model, key source, and message; `status --json` remains the raw delivery manifest for automation compatibility.
+The status output includes applied operation counts, missing required visual text, visual layout issue counts, missing required artifacts, reviewer notes, verification remediation hints, structured next actions, and source-context sampling evidence from the delivery manifest when available, using only path-level metadata so CI logs do not expose sampled source snippets. When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also shows live provider smoke status, required-gate state, endpoint, model, key source, and message; `status --json` remains the raw delivery manifest for automation compatibility.
 
-Use `--fail-on-attention` as a CI gate when delivery readiness must be `ready for review`. Use `--fail-on-failed-verification` when the job should fail only if the manifest records failed verification, and `--fail-on-failed-visual` when failed visual checks should be a hard CI gate.
+Use `--fail-on-attention` as a CI gate when delivery readiness must be `ready for review`. Use `--fail-on-failed-verification` when the job should fail only if the manifest records failed verification, `--fail-on-failed-visual` when failed visual checks should be a hard CI gate, and `--fail-on-missing-artifacts` when required delivery artifacts must be present.
 
 ## 9. Add DevFlow To CI
 
@@ -247,7 +248,7 @@ Use the composite GitHub Action:
     api: docs/api.md
 ```
 
-Set `fail-on-attention: "true"`, `fail-on-failed-verification: "true"`, or `fail-on-failed-visual: "true"` in the action inputs when the workflow should fail from manifest-backed delivery status gates.
+Set `fail-on-attention: "true"`, `fail-on-failed-verification: "true"`, `fail-on-failed-visual: "true"`, or `fail-on-missing-artifacts: "true"` in the action inputs when the workflow should fail from manifest-backed delivery status gates.
 
 Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 

@@ -50,6 +50,14 @@ function deliveryStatusGateFailures(manifest: DeliveryManifest, flags: FlagMap):
     failures.push("visual status is failed");
   }
 
+  if (flags["fail-on-missing-artifacts"] === "true") {
+    const missingArtifacts = missingRequiredArtifacts(manifest);
+
+    if (missingArtifacts.length > 0) {
+      failures.push(`missing required artifacts: ${formatArtifactList(missingArtifacts)}`);
+    }
+  }
+
   return failures;
 }
 
@@ -88,6 +96,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string, 
     "",
     "Artifacts:",
     ...formatKeyArtifacts(manifest),
+    ...formatMissingRequiredArtifacts(manifest),
     ...formatSmokeProviderReport(smokeReport),
     ...formatReviewerNotes(manifest),
     ...formatSourceContextSampling(manifest),
@@ -112,6 +121,35 @@ function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
   }
 
   return artifacts.map((artifact) => `- ${artifact.label}: ${artifact.path} (${artifact.status})`);
+}
+
+function missingRequiredArtifacts(manifest: DeliveryManifest): DeliveryManifest["artifacts"] {
+  return manifest.artifacts.filter((artifact) => artifact.required && artifact.status === "missing");
+}
+
+function formatMissingRequiredArtifacts(manifest: DeliveryManifest): string[] {
+  const missingArtifacts = missingRequiredArtifacts(manifest);
+
+  if (missingArtifacts.length === 0) {
+    return [];
+  }
+
+  const shown = missingArtifacts.slice(0, 5);
+  const hidden = missingArtifacts.length - shown.length;
+  const lines = ["", "Missing required artifacts:", ...shown.map((artifact) => `- ${artifact.label}: ${artifact.path}`)];
+
+  if (hidden > 0) {
+    lines.push(`- ${hidden} more required artifact${hidden === 1 ? "" : "s"} not shown.`);
+  }
+
+  return lines;
+}
+
+function formatArtifactList(artifacts: DeliveryManifest["artifacts"]): string {
+  const shown = artifacts.slice(0, 3).map((artifact) => `${artifact.label} (${artifact.path})`);
+  const hidden = artifacts.length - shown.length;
+
+  return hidden > 0 ? `${shown.join(", ")}, and ${hidden} more` : shown.join(", ");
 }
 
 async function readSmokeProviderReport(path: string): Promise<SmokeProviderReportSummary> {

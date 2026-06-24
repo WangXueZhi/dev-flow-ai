@@ -401,6 +401,27 @@ test("runStatus can fail CI gates when visual verification failed", async (t) =>
   });
 });
 
+test("runStatus can fail CI gates when required artifacts are missing", async (t) => {
+  const missingArtifactManifest: DeliveryManifest = {
+    ...manifest,
+    artifacts: manifest.artifacts.map((artifact) =>
+      artifact.id === "delivery-report" ? { ...artifact, status: "missing" } : artifact
+    )
+  };
+  const workspace = createWorkspace(t, missingArtifactManifest);
+  const output = await captureStatusOutput(workspace, {});
+
+  assert.match(output, /Missing required artifacts/);
+  assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md/);
+
+  await assert.rejects(() => captureStatusOutput(workspace, { "fail-on-missing-artifacts": "true" }), (error) => {
+    assert.ok(error instanceof CliError);
+    assert.equal(error.exitCode, 1);
+    assert.match(error.message, /missing required artifacts: Delivery report \(\.devflow\/artifacts\/delivery-report\.md\)/);
+    return true;
+  });
+});
+
 test("runStatus prints verification failure excerpts", async (t) => {
   const failedManifest: DeliveryManifest = {
     ...manifest,

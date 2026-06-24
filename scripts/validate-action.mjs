@@ -29,10 +29,12 @@ const requiredSnippets = [
   "Gate DevFlow delivery status",
   "STATUS_MANIFEST_PATH: ${{ inputs.artifacts-path }}/delivery-manifest.json",
   "FAIL_ON_FAILED_VISUAL: ${{ inputs.fail-on-failed-visual }}",
+  "FAIL_ON_MISSING_ARTIFACTS: ${{ inputs.fail-on-missing-artifacts }}",
   "args=(status --manifest \"$STATUS_MANIFEST_PATH\")",
   "args+=(--fail-on-attention)",
   "args+=(--fail-on-failed-verification)",
   "args+=(--fail-on-failed-visual)",
+  "args+=(--fail-on-missing-artifacts)",
   "dev-flow \"${args[@]}\""
 ];
 const requiredInputs = [
@@ -60,7 +62,8 @@ const requiredInputs = [
   "job-summary",
   "fail-on-attention",
   "fail-on-failed-verification",
-  "fail-on-failed-visual"
+  "fail-on-failed-visual",
+  "fail-on-missing-artifacts"
 ];
 
 for (const snippet of requiredSnippets) {

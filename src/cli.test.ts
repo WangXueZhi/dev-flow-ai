@@ -31,7 +31,7 @@ test("dev-flow help lists the status command", () => {
   assert.equal(result.status, 0);
   assert.match(
     result.stdout,
-    /dev-flow status \[--manifest <path>\] \[--json\] \[--fail-on-attention\] \[--fail-on-failed-verification\] \[--fail-on-failed-visual\]/
+    /dev-flow status \[--manifest <path>\] \[--json\] \[--fail-on-attention\] \[--fail-on-failed-verification\] \[--fail-on-failed-visual\] \[--fail-on-missing-artifacts\]/
   );
   assert.match(result.stdout, /dev-flow smoke-provider \[--out <path>\] \[--require-live\] \[--json\]/);
   assert.match(result.stdout, /status\s+Print delivery readiness and manifest status/);

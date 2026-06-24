@@ -21,6 +21,7 @@ export function formatDevFlowSummary(manifest) {
   const visualLayoutIssues = Array.isArray(manifest.evidence?.visualLayoutIssues)
     ? manifest.evidence.visualLayoutIssues
     : [];
+  const missingRequiredArtifacts = artifacts.filter((item) => item.required === true && item.status === "missing");
   const reviewerNotes = Array.isArray(manifest.evidence?.taskChangelog?.reviewHandoff?.reviewerNotes)
     ? manifest.evidence.taskChangelog.reviewHandoff.reviewerNotes
     : [];
@@ -58,6 +59,7 @@ export function formatDevFlowSummary(manifest) {
   ].filter(Boolean);
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);
 
+  lines.push(...formatMissingRequiredArtifacts(missingRequiredArtifacts));
   lines.push(...formatSourceContextSampling(sourceContextEntries));
   lines.push(...formatMissingVisualText(missingVisualText));
   lines.push(...formatVisualLayoutIssues(visualLayoutIssues));
@@ -108,6 +110,26 @@ export function formatDevFlowSummary(manifest) {
   }
 
   return lines.join("\n");
+}
+
+function formatMissingRequiredArtifacts(artifacts) {
+  if (!Array.isArray(artifacts) || artifacts.length === 0) {
+    return [];
+  }
+
+  const shown = artifacts.slice(0, 5);
+  const lines = ["", "Missing required artifacts:"];
+
+  for (const artifact of shown) {
+    lines.push(`- ${artifact.label || artifact.id || "Artifact"}: \`${artifact.path || "unknown"}\``);
+  }
+
+  if (artifacts.length > shown.length) {
+    const hidden = artifacts.length - shown.length;
+    lines.push(`- ${hidden} more required artifact${hidden === 1 ? "" : "s"} not shown.`);
+  }
+
+  return lines;
 }
 
 function formatReviewerNotes(notes) {
