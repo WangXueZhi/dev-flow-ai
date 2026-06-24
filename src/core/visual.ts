@@ -87,6 +87,10 @@ export function inferRequiredTextFromBrief(brief: ProjectBrief, limit = 8): stri
     }
   }
 
+  for (const criterion of brief.acceptanceCriteria) {
+    candidates.push(...extractVisibleTextFromCriterion(criterion));
+  }
+
   for (const item of brief.uiStateChecklist ?? []) {
     if (item.kind !== "state") {
       continue;
@@ -99,6 +103,84 @@ export function inferRequiredTextFromBrief(brief: ProjectBrief, limit = 8): stri
   }
 
   return uniqueRequiredTextCandidates(candidates, limit);
+}
+
+function extractVisibleTextFromCriterion(criterion: string): string[] {
+  const candidates: string[] = [];
+  const quotePatterns = [
+    /`([^`]{2,64})`/g,
+    /"([^"]{2,64})"/g,
+    /“([^”]{2,64})”/g,
+    /'([^']{2,64})'/g,
+    /‘([^’]{2,64})’/g,
+    /「([^」]{2,64})」/g,
+    /『([^』]{2,64})』/g
+  ];
+
+  for (const pattern of quotePatterns) {
+    for (const match of criterion.matchAll(pattern)) {
+      if (match[1]) {
+        candidates.push(match[1]);
+      }
+    }
+  }
+
+  const visibilityPattern = /(?:^|[.;。；]\s*)(?:the\s+)?(.{2,96}?)\s+(?:is|are)\s+(?:visible|shown|displayed|present|rendered)\b/gi;
+  for (const match of criterion.matchAll(visibilityPattern)) {
+    candidates.push(...splitVisibleTextPhrase(match[1] ?? ""));
+  }
+
+  const actionPattern = /\b(?:shows?|displays?|renders?)\s+(.{2,96}?)(?:[.;。；]|$)/gi;
+  for (const match of criterion.matchAll(actionPattern)) {
+    candidates.push(...splitVisibleTextPhrase(match[1] ?? ""));
+  }
+
+  const appearsPattern = /(?:^|[.;。；]\s*)(?:the\s+)?(.{2,96}?)\s+appears?\b/gi;
+  for (const match of criterion.matchAll(appearsPattern)) {
+    candidates.push(...splitVisibleTextPhrase(match[1] ?? ""));
+  }
+
+  const localizedVisibilityPattern = /(?:^|[.;。；]\s*)(?:页面|屏幕|界面|视图|组件)?(.{2,96}?)(?:可见|展示|显示|呈现|渲染)(?:[.;。；]|$)/g;
+  for (const match of criterion.matchAll(localizedVisibilityPattern)) {
+    candidates.push(...splitVisibleTextPhrase(match[1] ?? ""));
+  }
+
+  const localizedActionPattern = /(?:展示|显示|呈现|渲染|出现)(.{2,96}?)(?:[.;。；]|$)/g;
+  for (const match of criterion.matchAll(localizedActionPattern)) {
+    candidates.push(...splitVisibleTextPhrase(match[1] ?? ""));
+  }
+
+  return candidates;
+}
+
+function splitVisibleTextPhrase(value: string): string[] {
+  if (/[`"“”'‘’「」『』]/.test(value)) {
+    return [];
+  }
+
+  return value
+    .replace(/^\s*(?:then|when|given|and|but)\s+/i, "")
+    .replace(/^\s*(?:the|a|an)\s+/i, "")
+    .replace(/^\s*(?:页面|屏幕|界面|视图|组件|应当|应该|需要|需)\s*/i, "")
+    .split(/\s+(?:and|or)\s+|[,，、]|或者|和|或|与/i)
+    .map((part) =>
+      part
+        .replace(/^\s*(?:the|a|an)\s+/i, "")
+        .replace(/^\s*(?:页面|屏幕|界面|视图|组件|应当|应该|需要|需)\s*/i, "")
+        .trim()
+    )
+    .filter((part) => !isGenericVisibleTextPhrase(part));
+}
+
+function isGenericVisibleTextPhrase(value: string): boolean {
+  const normalized = value.toLowerCase();
+
+  return (
+    !normalized ||
+    /^(?:it|this|that|the page|the screen|the view|the ui|the component|a message|the message)$/.test(normalized) ||
+    /^(?:loading|empty|error|success|state|states|desktop|tablet|mobile|viewport|layout)$/.test(normalized) ||
+    /^(?:页面|屏幕|界面|视图|组件|消息|提示|状态|首屏|桌面|平板|移动端|布局)$/.test(normalized)
+  );
 }
 
 export async function runVisualCheck(input: VisualCheckInput): Promise<VisualReport> {
@@ -520,7 +602,7 @@ function normalizeRequiredTextCandidate(value: string): string | undefined {
     normalized.length < 2 ||
     normalized.length > 64 ||
     /^https?:\/\//i.test(normalized) ||
-    /^[\W_]+$/.test(normalized)
+    /^[^\p{L}\p{N}]+$/u.test(normalized)
   ) {
     return undefined;
   }

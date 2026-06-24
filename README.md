@@ -305,7 +305,7 @@ dev-flow deliver --requirements docs/requirements.md --ui docs/ui.md --api docs/
 dev-flow deliver --save-prompts .devflow/artifacts/prompts
 ```
 
-With a running preview server, include visual checks. When `--visual-text` is omitted, `deliver` infers short required text checks from design asset text snippets and UI state labels in the project brief:
+With a running preview server, include visual checks. When `--visual-text` is omitted, `deliver` infers short required text checks from design asset text snippets, visible text phrases in acceptance criteria, and UI state labels in the project brief:
 
 ```bash
 dev-flow deliver --preview-url http://127.0.0.1:5173 --visual-text OpsBoard,Checkout
@@ -395,7 +395,7 @@ Captures screenshots, blank-screen checks, layout issue checks, and optional tex
 dev-flow visual --url http://127.0.0.1:5173 --text OpsBoard,Checkout
 ```
 
-`dev-flow visual` only uses explicit `--text` values. `dev-flow deliver --preview-url <url>` can infer default text checks from the project brief when no explicit `--visual-text` or `--text` value is provided.
+`dev-flow visual` only uses explicit `--text` values. `dev-flow deliver --preview-url <url>` can infer default text checks from design asset text snippets, visible text phrases in acceptance criteria, and UI state labels in the project brief when no explicit `--visual-text` or `--text` value is provided.
 
 By default, DevFlow captures desktop, tablet, and mobile screenshots in `.devflow/artifacts/visual/` and writes `.devflow/artifacts/visual/visual-report.json` with pixel-level blank-screen analysis and basic layout issue detection.
 
@@ -479,7 +479,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Patch-set size limits for operation count, write content, and replace payloads.
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands, with existing task changelogs refreshed with command status summaries.
-- Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design/UI brief context.
+- Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design assets, acceptance criteria, and UI state brief context.
 - Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, design tokens, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, remediation hints and structured remediation plans, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.

@@ -108,6 +108,65 @@ test("inferRequiredTextFromBrief derives visual text from design snippets and UI
   ]);
 });
 
+test("inferRequiredTextFromBrief derives visual text from acceptance criteria", () => {
+  const brief: ProjectBrief = {
+    version: 1,
+    sourceDocuments: {
+      requirementsPath: "docs/requirements.md",
+      uiPath: "docs/ui.md",
+      apiPath: "docs/api.md"
+    },
+    stack: {
+      packageManager: "npm",
+      runtimes: ["Node.js"],
+      frameworks: ["React"],
+      buildTools: ["Vite"],
+      styling: [],
+      testing: [],
+      scripts: {},
+      sourceDirectories: ["src"],
+      configFiles: [],
+      notes: []
+    },
+    signals: {
+      requirements: [],
+      ui: [],
+      api: []
+    },
+    designAssets: [],
+    uiStateChecklist: [],
+    apiContracts: [],
+    apiDataModels: [],
+    apiErrorCases: [],
+    apiAuthRequirements: [],
+    invalidApiDataModels: [],
+    userStories: [],
+    constraints: [],
+    acceptanceCriteria: [
+      "Release health and deploy confidence are visible in the first viewport.",
+      "The empty state label \"No releases\" is displayed.",
+      "Then `Retry now` appears after failure.",
+      "发布状态和部署信心可见。",
+      "页面显示「暂无发布」。",
+      "失败后出现“立即重试”。"
+    ],
+    deliveryRisks: [],
+    openQuestions: [],
+    recommendedVerification: []
+  };
+
+  assert.deepEqual(inferRequiredTextFromBrief(brief), [
+    "Release health",
+    "deploy confidence",
+    "No releases",
+    "Retry now",
+    "发布状态",
+    "部署信心",
+    "暂无发布",
+    "立即重试"
+  ]);
+});
+
 test("analyzeScreenshotPng marks uniform screenshots as blank", () => {
   const analysis = analyzeScreenshotPng(createPng(10, 10, () => [255, 255, 255, 255]));
 

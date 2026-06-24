@@ -44,7 +44,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `dev-flow smoke-provider` for installed CLI live provider smoke checks and machine-readable provider evidence.
 - Added `npm run smoke:live:summary` and Release workflow job summaries for sanitized live-provider smoke evidence.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
-- Added inferred `deliver` visual text checks from design asset snippets and UI state labels.
+- Added inferred `deliver` visual text checks from design asset snippets, visible acceptance-criteria text, and UI state labels.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
 - Added UI checklist and delivery risk sections to dry-run patch proposals.
 - Added delivery risk scoring for ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.
