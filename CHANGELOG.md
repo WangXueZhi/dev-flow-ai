@@ -31,6 +31,7 @@ All notable changes to DevFlow will be documented in this file.
 - Updated the GitHub Action to validate provided patch sets before delivery.
 - Added embedded screenshot previews to delivery reports when visual artifacts are available.
 - Added `npm run release:preflight` for consolidated release checks and residue scanning.
+- Added `npm run release:readiness` for static package metadata, changelog, release notes, and npm provenance workflow checks.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
 - Added inferred `deliver` visual text checks from design asset snippets and UI state labels.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.
@@ -64,6 +65,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added selected-unit-prioritized target profile candidates for normalized frontend route, component, and data units.
 - Added selected-unit-prioritized source-context sampling so AI prompts see relevant route, component, or data candidates before broader repository files.
 - Added `.devflow/artifacts/source-context-summary.json` plus delivery report and manifest evidence for path-level AI source-context sampling.
+- Added source-context sampling evidence to `dev-flow status` and GitHub Actions job summaries.
 - Expanded target profiles with Nuxt-aware route, layout, composable, server API, style, Playwright, and Cypress candidates.
 - Expanded target profiles with Svelte/SvelteKit, Astro, and Angular route, layout, server/API, service, style, and spec candidates.
 - Added bounded repository source-context sampling for AI dry-run and patch-set prompts.

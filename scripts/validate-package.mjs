@@ -35,6 +35,7 @@ const requiredFiles = [
   "package.json",
   "schemas/patch-set.schema.json",
   "scripts/example-delivery-smoke.mjs",
+  "scripts/release-readiness.mjs",
   "scripts/release-preflight.mjs",
   "scripts/smoke-github-install.mjs",
   "scripts/live-provider-smoke.mjs",

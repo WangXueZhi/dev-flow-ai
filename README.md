@@ -383,6 +383,7 @@ npm run pack:smoke
 npm run github:smoke
 npm run example:smoke
 npm run smoke:live
+npm run release:readiness
 npm run release:preflight
 cd examples/react-vite-dashboard
 npm ci
@@ -392,7 +393,7 @@ npm run build
 
 The live smoke command is optional and skips without provider credentials. The CI workflow also verifies the npm package dry-run, runs fixture-backed source-changing delivery on the React/Vite example, starts the example preview, runs `dev-flow deliver` with visual text, blank-screen, and layout checks, and uploads DevFlow artifacts for review.
 
-Publishing is handled by the Release workflow in `.github/workflows/release.yml`. It runs the package checks and smoke tests, then publishes to npm with provenance when `NPM_TOKEN` is configured.
+Publishing is handled by the Release workflow in `.github/workflows/release.yml`. Run `npm run release:readiness` for static checks of version metadata, release notes, changelog coverage, and npm provenance workflow configuration before the full preflight. The Release workflow runs the package checks and smoke tests, then publishes to npm with provenance when `NPM_TOKEN` is configured.
 
 ## MVP Scope
 

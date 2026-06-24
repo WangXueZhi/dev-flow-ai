@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const commands = [
+  [npmCommand, ["run", "release:readiness"]],
   [npmCommand, ["run", "check"]],
   [npmCommand, ["run", "pack:smoke"]],
   [npmCommand, ["run", "github:smoke"]],

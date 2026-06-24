@@ -9,10 +9,13 @@ Run the root checks:
 ```bash
 npm ci
 npx playwright install chromium
+npm run release:readiness
 npm run release:preflight
 ```
 
-`npm run release:preflight` runs the package checks, installed package smoke, GitHub install smoke, example delivery smoke, manifest-backed status smoke, optional live provider smoke, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
+`npm run release:readiness` runs static release checks for package/package-lock version alignment, changelog coverage, versioned release notes, package allowlists, npm provenance workflow configuration, and live-provider gate documentation.
+
+`npm run release:preflight` runs release readiness, the package checks, installed package smoke, GitHub install smoke, example delivery smoke, manifest-backed status smoke, optional live provider smoke, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
 
 `npm run smoke:live` skips when no live provider key is configured. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`.
 
@@ -57,8 +60,9 @@ node ../../dist/cli.js deliver \
 - Confirm `docs/github-action.md` and `action.yml` match the current safe delivery behavior.
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
+- Confirm `npm run release:readiness` passes.
 - Confirm `npm run release:preflight` passes.
-- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `scripts/live-provider-smoke.mjs`, and `scripts/summarize-manifest.mjs`.
+- Confirm `npm run pack:dry-run` includes `dist/`, `README.md`, `LICENSE`, `CHANGELOG.md`, `scripts/release-readiness.mjs`, `scripts/live-provider-smoke.mjs`, and `scripts/summarize-manifest.mjs`.
 - Confirm `schemas/patch-set.schema.json` is included in the npm package.
 - Confirm `npm run pack:smoke` installs the tarball in a temporary project and runs `dev-flow help/init`.
 - Confirm `npm run github:smoke` installs the GitHub package spec in a temporary project before the first npm release.
@@ -73,6 +77,7 @@ The repository includes `.github/workflows/release.yml` for npm publishing. It r
 The workflow:
 
 - Installs dependencies with `npm ci`.
+- Runs `npm run release:readiness`.
 - Runs `npm run check`.
 - Runs `npm run pack:dry-run`.
 - Runs `npm run pack:smoke`.
