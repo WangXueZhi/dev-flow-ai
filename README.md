@@ -194,7 +194,7 @@ The brief includes:
 - Source document paths.
 - Extracted requirement, UI, and API signals.
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
-- UI design assets referenced from Markdown image links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
+- UI design assets referenced from Markdown image links or recognized design handoff links, including local file existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
 - UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
 - Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
@@ -453,7 +453,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 
 - Local CLI that works in any frontend repository.
 - Document ingestion for requirements, UI notes, and API docs.
-- UI design asset references extracted from Markdown image links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
+- UI design asset references extracted from Markdown image links and recognized Figma/FigJam/Adobe XD/Zeplin/Sketch Cloud/InVision/Framer design links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
 - UI design tokens extracted from visual token notes and surfaced in plans, task units, and delivery reports.
 - API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, and GraphQL operations.
 - API data model summaries extracted from fenced `json` examples.
@@ -491,7 +491,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 
 Planned capabilities:
 
-- Interpret design assets beyond lightweight Markdown/image metadata, including Figma exports, screenshots, and structured design notes with multimodal models.
+- Interpret design assets beyond lightweight Markdown/link/image metadata, including Figma exports, screenshots, and structured design notes with multimodal models.
 - Continue expanding stack-specific route/component/data-fetching tasks beyond the normalized frontend targets and initial target profiles.
 - Add interactive approvals and safer review UX around source-changing patch sets.
 - Expand visual verification beyond screenshots, text checks, blank-screen detection, and basic layout issue checks.

@@ -32,6 +32,7 @@ test("runInit creates structured starter documents", async (t) => {
   assert.match(requirements, /Loading, empty, error, and success states/);
   assert.match(ui, /## Design Assets/);
   assert.match(ui, /!\[Primary screen wireframe\]\(assets\/primary-screen\.png\)/);
+  assert.match(ui, /\[Figma design\]\(https:\/\/www\.figma\.com\/design\/example\/project\)/);
   assert.match(ui, /## Responsive Behavior/);
   assert.match(api, /## Authentication/);
   assert.match(api, /GET \/api\/example/);

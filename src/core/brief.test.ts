@@ -35,6 +35,7 @@ const context: ProjectContext = {
     "# UI Notes",
     "",
     "![Filter table wireframe](assets/filter-table.png)",
+    "[Checkout Figma](https://www.figma.com/design/abc123/Checkout?node-id=1-2)",
     "",
     "- Desktop and mobile responsive table.",
     "",
@@ -80,26 +81,32 @@ test("createProjectBrief extracts document signals and stack context", () => {
       reference: "assets/filter-table.png",
       resolvedPath: "docs/assets/filter-table.png",
       exists: false
+    },
+    {
+      source: "ui-design-link",
+      kind: "remote",
+      altText: "Checkout Figma",
+      reference: "https://www.figma.com/design/abc123/Checkout?node-id=1-2"
     }
   ]);
   assert.deepEqual(brief.designTokens, [
     {
       category: "color",
-      sourceLine: 8,
+      sourceLine: 9,
       name: "Primary color",
       value: "#2563eb",
       summary: "Primary color: #2563eb"
     },
     {
       category: "typography",
-      sourceLine: 9,
+      sourceLine: 10,
       name: "Body font",
       value: "Inter, 16px",
       summary: "Body font: Inter, 16px"
     },
     {
       category: "spacing",
-      sourceLine: 10,
+      sourceLine: 11,
       name: "Spacing scale",
       value: "8px",
       summary: "Spacing scale: 8px"
@@ -108,7 +115,7 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.deepEqual(brief.uiStateChecklist, [
     {
       kind: "responsive",
-      sourceLine: 5,
+      sourceLine: 6,
       summary: "Desktop and mobile responsive table."
     }
   ]);
@@ -140,6 +147,7 @@ test("createProjectBrief extracts document signals and stack context", () => {
   assert.match(brief.frontendTargets?.routes.map((target) => target.summary).join("\n") ?? "", /Route or view for user story/);
   assert.match(brief.frontendTargets?.routes.map((target) => target.summary).join("\n") ?? "", /Route or view for acceptance criterion: Saved filters dashboard is visible/);
   assert.match(brief.frontendTargets?.components.map((target) => target.summary).join("\n") ?? "", /Filter table wireframe/);
+  assert.match(brief.frontendTargets?.components.map((target) => target.summary).join("\n") ?? "", /Checkout Figma/);
   assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GET \/filters/);
   assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Use data model filter with fields id, label/);
   assert.match(brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "", /Desktop and mobile responsive table/);
@@ -1229,6 +1237,43 @@ test("extractDesignAssets handles local, remote, and titled markdown image refer
         reference: "assets/mobile mock.png",
         resolvedPath: "docs/assets/mobile mock.png",
         exists: false
+      }
+    ]
+  );
+});
+
+test("extractDesignAssets handles Figma and design handoff links", () => {
+  const figmaReference = "https://www.figma.com/design/abc123/Checkout?node-id=1-2";
+
+  assert.deepEqual(
+    extractDesignAssets(
+      [
+        `[Checkout Figma](${figmaReference})`,
+        figmaReference,
+        "Prototype: https://www.figma.com/proto/abc123/Checkout?page-id=0%3A1.",
+        "Handoff: https://app.zeplin.io/project/abc/screen/def;",
+        "Product docs: https://example.com/product"
+      ].join("\n"),
+      "docs/ui.md"
+    ),
+    [
+      {
+        source: "ui-design-link",
+        kind: "remote",
+        altText: "Checkout Figma",
+        reference: figmaReference
+      },
+      {
+        source: "ui-design-link",
+        kind: "remote",
+        altText: "Figma design",
+        reference: "https://www.figma.com/proto/abc123/Checkout?page-id=0%3A1"
+      },
+      {
+        source: "ui-design-link",
+        kind: "remote",
+        altText: "Zeplin design",
+        reference: "https://app.zeplin.io/project/abc/screen/def"
       }
     ]
   );

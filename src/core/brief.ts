@@ -6,7 +6,7 @@ import { extractChecklistItems, extractMarkdownSignals } from "./signals.js";
 import type { StackProfile, WorkspacePackage } from "./stack.js";
 
 export interface DesignAsset {
-  source: "ui-markdown-image";
+  source: "ui-design-link" | "ui-markdown-image";
   kind: "local" | "remote";
   altText: string;
   reference: string;
@@ -974,6 +974,8 @@ function isPlaceholderDesignTokenValue(value: string): boolean {
 export function extractDesignAssets(uiMarkdown: string, uiPath: string): DesignAsset[] {
   const assets: DesignAsset[] = [];
   const imagePattern = /!\[([^\]]*)\]\(([^)\n]+)\)/g;
+  const linkPattern = /\[([^\]]+)\]\(([^)\n]+)\)/g;
+  const bareUrlPattern = /https?:\/\/[^\s<>)]+/g;
   const baseDir = dirname(uiPath);
 
   for (const match of uiMarkdown.matchAll(imagePattern)) {
@@ -1013,7 +1015,46 @@ export function extractDesignAssets(uiMarkdown: string, uiPath: string): DesignA
     assets.push(asset);
   }
 
+  const seenDesignReferences = new Set(assets.map((asset) => asset.reference.toLowerCase()));
+
+  for (const match of uiMarkdown.matchAll(linkPattern)) {
+    if (match.index !== undefined && match.index > 0 && uiMarkdown[match.index - 1] === "!") {
+      continue;
+    }
+
+    const label = (match[1] ?? "").trim();
+    const reference = normalizeMarkdownImageReference(match[2] ?? "");
+
+    addRemoteDesignLinkAsset(assets, seenDesignReferences, reference, label);
+  }
+
+  for (const match of uiMarkdown.matchAll(bareUrlPattern)) {
+    const reference = normalizeBareUrlReference(match[0] ?? "");
+
+    addRemoteDesignLinkAsset(assets, seenDesignReferences, reference, designLinkLabel(reference));
+  }
+
   return assets;
+}
+
+function addRemoteDesignLinkAsset(assets: DesignAsset[], seenReferences: Set<string>, reference: string, altText: string): void {
+  if (!reference || !isRemoteDesignReference(reference)) {
+    return;
+  }
+
+  const key = reference.toLowerCase();
+
+  if (seenReferences.has(key)) {
+    return;
+  }
+
+  seenReferences.add(key);
+  assets.push({
+    source: "ui-design-link",
+    kind: "remote",
+    altText,
+    reference
+  });
 }
 
 function extractDesignAssetMetadata(path: string, reference: string): DesignAssetMetadata | undefined {
@@ -1621,8 +1662,72 @@ function normalizeMarkdownImageReference(value: string): string {
   return reference.trim();
 }
 
+function normalizeBareUrlReference(value: string): string {
+  return value.trim().replace(/[),.;:]+$/g, "");
+}
+
 function isRemoteReference(value: string): boolean {
   return /^https?:\/\//i.test(value) || /^data:/i.test(value);
+}
+
+function isRemoteDesignReference(value: string): boolean {
+  if (!/^https?:\/\//i.test(value)) {
+    return false;
+  }
+
+  try {
+    const hostname = new URL(value).hostname.toLowerCase();
+
+    return (
+      hostname === "xd.adobe.com" ||
+      matchesDesignHost(hostname, "figma.com") ||
+      matchesDesignHost(hostname, "figjam.com") ||
+      matchesDesignHost(hostname, "framer.com") ||
+      matchesDesignHost(hostname, "invisionapp.com") ||
+      matchesDesignHost(hostname, "sketch.cloud") ||
+      matchesDesignHost(hostname, "zeplin.io")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function matchesDesignHost(hostname: string, expected: string): boolean {
+  return hostname === expected || hostname.endsWith(`.${expected}`);
+}
+
+function designLinkLabel(reference: string): string {
+  try {
+    const hostname = new URL(reference).hostname.toLowerCase();
+
+    if (matchesDesignHost(hostname, "figma.com") || matchesDesignHost(hostname, "figjam.com")) {
+      return "Figma design";
+    }
+
+    if (hostname === "xd.adobe.com") {
+      return "Adobe XD design";
+    }
+
+    if (matchesDesignHost(hostname, "framer.com")) {
+      return "Framer design";
+    }
+
+    if (matchesDesignHost(hostname, "invisionapp.com")) {
+      return "InVision design";
+    }
+
+    if (matchesDesignHost(hostname, "sketch.cloud")) {
+      return "Sketch design";
+    }
+
+    if (matchesDesignHost(hostname, "zeplin.io")) {
+      return "Zeplin design";
+    }
+  } catch {
+    return "Design reference";
+  }
+
+  return "Design reference";
 }
 
 function normalizeApiSummary(line: string): string {

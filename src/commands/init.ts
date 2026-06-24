@@ -58,9 +58,11 @@ Describe screens, layouts, components, interaction states, responsive behavior, 
 
 ## Design Assets
 
-Reference screenshots, wireframes, or exports with Markdown image links so DevFlow can record them in the project brief.
+Reference screenshots, wireframes, exports, or Figma/Zeplin handoff links so DevFlow can record them in the project brief.
 
 ![Primary screen wireframe](assets/primary-screen.png)
+
+[Figma design](https://www.figma.com/design/example/project)
 
 ## Screens
 

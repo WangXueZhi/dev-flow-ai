@@ -13,7 +13,7 @@
 - API parameter extraction for inline endpoint references and OpenAPI parameter objects.
 - OpenAPI JSON/YAML path, parameter, component schema, request/response schema, error response, and security extraction.
 - GraphQL operation extraction for `query`, `mutation`, and `subscription` API docs.
-- Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
+- Lightweight local SVG metadata/color extraction, PNG/JPEG dimension extraction, and recognized design handoff link capture for design assets.
 - UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography.
 - Basic repository stack detection.
 - UI state checklist generation from design notes.
@@ -83,7 +83,7 @@
 - Expand screenshot capture for local preview URLs beyond the default desktop/tablet/mobile set.
 - Deeper responsive viewport checks.
 - Richer screenshot heuristics beyond basic overflow, clipped-text, and overlap checks.
-- Multimodal interpretation of referenced UI screenshots, wireframes, and design exports beyond lightweight image metadata.
+- Multimodal interpretation of referenced UI screenshots, wireframes, and design exports beyond lightweight link/image metadata.
 
 ## Milestone 4: Delivery Report
 
