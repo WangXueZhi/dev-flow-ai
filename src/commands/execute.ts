@@ -118,6 +118,8 @@ async function runApply(flags: FlagMap): Promise<void> {
   const config = await loadConfig();
   const executionLogPath = join(config.artifactsDir, "execution-log.json");
   const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
+  const verificationReportPath = join(config.artifactsDir, "verification-report.json");
+  const deliveryReportPath = join(config.artifactsDir, "delivery-report.md");
   const patchSet = flags["patch-set"] ? await readPatchSet(flags["patch-set"]) : await generateAiPatchSet(flags);
 
   if (!flags["patch-set"]) {
@@ -153,7 +155,15 @@ async function runApply(flags: FlagMap): Promise<void> {
 
   report.backupManifestPath = backup.manifestPath;
   const executionLog = await appendExecutionLog(executionLogPath, report);
-  await writeFile(taskChangelogPath, formatTaskChangelog(executionLog), "utf8");
+  await writeFile(
+    taskChangelogPath,
+    formatTaskChangelog(executionLog, {
+      executionLogPath,
+      verificationReportPath,
+      deliveryReportPath
+    }),
+    "utf8"
+  );
 
   console.log(`Backup manifest written to ${backup.manifestPath}`);
   console.log(`Patch set applied for task ${report.taskId}`);

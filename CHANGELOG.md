@@ -78,7 +78,7 @@ All notable changes to DevFlow will be documented in this file.
 - Expanded target profiles with Svelte/SvelteKit, Astro, and Angular route, layout, server/API, service, style, and spec candidates.
 - Added bounded repository source-context sampling for AI dry-run and patch-set prompts.
 - Added validated patch-set application with operation and payload limits, execution logs, backups, rollback, and automatic backup restoration when apply fails after partial writes.
-- Added `.devflow/artifacts/task-changelog.md` for human-readable source-changing task history.
+- Added `.devflow/artifacts/task-changelog.md` for human-readable source-changing task history, reviewer notes, and verification/delivery artifact links.
 - Added guarded patch-set delete operations with backup and rollback coverage for obsolete source files.
 - Added safe `deliver` orchestration with optional explicitly approved source-changing apply.
 - Added verification reports, visual screenshot checks, and delivery reports with applied-change summaries, touched files, operation counts, backup counts, line-count deltas, and bounded failure excerpts.

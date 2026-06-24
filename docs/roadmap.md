@@ -36,6 +36,7 @@
 - Explicit local prompt audit artifacts for planner, dry-run, patch-set, and delivery flows.
 - Validated patch-set application.
 - Human-readable task changelog generated after source-changing apply.
+- Task changelog review handoff notes with execution, verification, and delivery artifact links.
 - Aggregated recommended verification commands from detected package scripts.
 - Recommended verification command selection from common script aliases and dependency-aware TypeScript, test, and build tool fallbacks.
 - Verification report with bounded failure excerpts.
@@ -68,7 +69,7 @@
 - Further improve task files generated from the implementation plan with richer dependency ordering and review metadata.
 - Expand dry-run patch proposals with deeper stack-specific file targeting and richer source-context selection beyond the initial bounded sampler.
 - Improve source-changing execution with interactive approvals and richer review metadata.
-- Enrich task changelogs with reviewer notes and verification links.
+- Further enrich task changelogs with reviewer-authored notes and verification result summaries.
 - Further expand verification command selection with stack-specific framework aliases and dependency-aware checks.
 - Feed verification results into the delivery report after code changes.
 

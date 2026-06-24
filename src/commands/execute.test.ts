@@ -315,6 +315,11 @@ test("runExecute writes a task changelog after successful apply", async (t) => {
   assert.equal(executionLog.entries[0]?.taskId, "T03-code-implementation");
   assert.match(changelog, /# Task Changelog/);
   assert.match(changelog, /Apply successful patch set/);
+  assert.match(changelog, /Review Handoff/);
+  assert.match(changelog, /Verification report: `\.devflow\/artifacts\/verification-report\.json`/);
+  assert.match(changelog, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md`/);
+  assert.match(changelog, /Reviewer notes/);
+  assert.match(changelog, /Run `dev-flow verify` or `dev-flow deliver` after apply/);
   assert.match(changelog, /src\/existing\.txt/);
   assert.match(changelog, /src\/generated\.txt/);
   assert.match(changelog, /src\/deleted\.txt/);
