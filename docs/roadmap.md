@@ -9,7 +9,7 @@
 - OpenAI-compatible provider.
 - Runtime doctor command.
 - Structured project brief.
-- API error case and auth requirement extraction.
+- API error case, auth requirement, and API-driven state requirement extraction.
 - API parameter extraction for inline endpoint references and OpenAPI parameter objects.
 - OpenAPI/Swagger JSON/YAML path, parameter, component schema, request/response schema, error response, and security extraction from fenced blocks and local links.
 - GraphQL operation and schema extraction from inline notes, fenced blocks, and local `.graphql` or `.gql` links.

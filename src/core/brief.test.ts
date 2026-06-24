@@ -10,6 +10,7 @@ import {
   extractApiContracts,
   extractApiDataModels,
   extractApiErrorCases,
+  extractApiStateRequirements,
   extractDesignAssets,
   extractDesignTokens,
   extractUiStateChecklist
@@ -674,6 +675,40 @@ test("extractApiAuthRequirements captures auth sections and token keywords", () 
       }
     ]
   );
+});
+
+test("extractApiStateRequirements captures loading, cache, and refresh notes", () => {
+  const api = [
+    "# API",
+    "",
+    "## Loading And Cache",
+    "- Show skeleton rows while `GET /orders` loads.",
+    "- Keep last known values during background refresh.",
+    "",
+    "Outside section uses cursor pagination and rate limit backoff."
+  ].join("\n");
+
+  assert.deepEqual(extractApiStateRequirements(api), [
+    {
+      sourceLine: 4,
+      summary: "Show skeleton rows while GET /orders loads."
+    },
+    {
+      sourceLine: 5,
+      summary: "Keep last known values during background refresh."
+    },
+    {
+      sourceLine: 7,
+      summary: "Outside section uses cursor pagination and rate limit backoff."
+    }
+  ]);
+
+  const brief = createProjectBrief({ ...context, api }, stack);
+  const uiStates = brief.frontendTargets?.uiStates.map((target) => target.summary).join("\n") ?? "";
+
+  assert.match(brief.apiStateRequirements?.map((item) => item.summary).join("\n") ?? "", /Show skeleton rows/);
+  assert.match(uiStates, /Represent API state requirement: Show skeleton rows while GET \/orders loads/);
+  assert.match(uiStates, /Represent API state requirement: Keep last known values during background refresh/);
 });
 
 test("extractApiDataModels summarizes valid and invalid json code fences", () => {

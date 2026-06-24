@@ -166,7 +166,7 @@ Creates the local project context:
 - `.devflow/artifacts/`
 - `docs/requirements.md` with goal, roles, scope, acceptance criteria, constraints, and verification notes
 - `docs/ui.md` with design asset links, screens, components, states, interactions, responsive behavior, accessibility, and visual tokens
-- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations and schema links, JSON data models, error cases, loading/cache notes, and linked or fenced OpenAPI/Swagger JSON/YAML
+- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations and schema links, JSON data models, error cases, loading/cache/refresh/data freshness notes, and linked or fenced OpenAPI/Swagger JSON/YAML
 
 Existing handoff documents are preserved. `init` creates missing starter files and reports how many starter docs were created or already existed.
 
@@ -200,7 +200,7 @@ The brief includes:
 - Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
 - API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations, including linked local GraphQL schema root fields, inline query/path parameters, and OpenAPI query, path, header, and cookie parameters when available.
 - API data models extracted from fenced `json` examples and GraphQL `type`, `input`, `interface`, and `enum` schema definitions.
-- API error cases and authentication requirements extracted from API docs.
+- API error cases, authentication requirements, and API-driven loading, cache, refresh, and data freshness requirements extracted from API docs.
 - Fenced or locally linked OpenAPI/Swagger JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
 - Detected package manager, runtime, frameworks and routing conventions, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
@@ -353,7 +353,7 @@ When `.devflow/artifacts/source-context-summary.json` exists, the delivery repor
 
 When `.devflow/artifacts/task-changelog.md` exists, the delivery report and manifest also include the review handoff notes plus the latest changelog Verification Summary written by `dev-flow verify`.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, review handoff notes, backup manifests, verification status with bounded failure excerpts plus remediation hints and next-action plans, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, API state requirements, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, review handoff notes, backup manifests, verification status with bounded failure excerpts plus remediation hints and next-action plans, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
 The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, reviewer-note counts, task changelog handoff evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, remediation hints, structured remediation plans, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
@@ -457,7 +457,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - UI design tokens extracted from visual token notes and surfaced in plans, task units, and delivery reports.
 - API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, GraphQL operations, and linked local GraphQL schema root fields.
 - API data model summaries extracted from fenced `json` examples and GraphQL schema definitions.
-- API error and auth requirement summaries extracted from API docs.
+- API error, auth, and state requirement summaries extracted from API docs.
 - OpenAPI/Swagger JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks and local Markdown links.
 - Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria from checkbox and acceptance sections, and downstream planning context.
@@ -469,7 +469,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Deterministic fallback planner for offline use.
 - Planner guardrails that keep patch-set JSON out of implementation-plan artifacts and add missing frontend blueprint sections to provider plans.
 - Generated implementation plan with phases, risks, structured frontend delivery blueprint sections, and verification checklist.
-- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, design tokens, and API docs, and structured implementation units for explicit route/view, component, frontend data, frontend state, design asset, and design token targets, with dependency hints and type-specific review checklists.
+- Generated task plan for implementation phases, normalized frontend targets derived from requirements, acceptance criteria, UI notes, design assets, design tokens, and API docs, including API-driven state requirements, and structured implementation units for explicit route/view, component, frontend data, frontend state, design asset, and design token targets, with dependency hints and type-specific review checklists.
 - AI-assisted dry-run patch proposals for review before source-changing execution, including UI checklist coverage and delivery risk summaries.
 - Stack-specific target profiles and bounded source-context sampling in AI prompts, including normalized frontend targets plus selected-unit-prioritized explicit route/component/API-derived file candidates, component, data, style, test, config, and verification candidates. Source-context sampling follows the selected unit's route/component/data priority before broader candidates, with React Router, Nuxt, Svelte/SvelteKit, Astro, and Angular-aware route/data/style/test targeting.
 - Source context privacy controls through `--no-source-context` and `DEVFLOW_SOURCE_CONTEXT=none`.

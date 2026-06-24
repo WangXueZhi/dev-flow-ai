@@ -106,6 +106,11 @@ export interface ApiAuthRequirement {
   summary: string;
 }
 
+export interface ApiStateRequirement {
+  sourceLine: number;
+  summary: string;
+}
+
 export interface InvalidApiDataModel {
   sourceLine: number;
   error: string;
@@ -131,6 +136,7 @@ export interface ProjectBrief {
   apiDataModels: ApiDataModel[];
   apiErrorCases: ApiErrorCase[];
   apiAuthRequirements: ApiAuthRequirement[];
+  apiStateRequirements?: ApiStateRequirement[];
   invalidApiDataModels: InvalidApiDataModel[];
   frontendTargets?: FrontendTargets;
   userStories: string[];
@@ -174,6 +180,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
   const apiContracts = extractApiContracts(context.api, context.apiPath);
   const apiErrorCases = extractApiErrorCases(context.api, context.apiPath);
   const apiAuthRequirements = extractApiAuthRequirements(context.api, context.apiPath);
+  const apiStateRequirements = extractApiStateRequirements(context.api);
   const recommendedVerification = buildRecommendedVerification(stack);
   const userStories = extractRequirementUserStories(context.requirements);
   const constraints = extractRequirementConstraints(context.requirements);
@@ -190,6 +197,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
     apiDataModels: apiDataModelResult.models,
     apiErrorCases,
     apiAuthRequirements,
+    apiStateRequirements,
     invalidApiDataModels: apiDataModelResult.invalid,
     frontendTargets: buildFrontendTargets({
       signals,
@@ -199,6 +207,7 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
       apiDataModels: apiDataModelResult.models,
       apiErrorCases,
       apiAuthRequirements,
+      apiStateRequirements,
       userStories,
       acceptanceCriteria
     }),
@@ -246,6 +255,7 @@ interface FrontendTargetsInput {
   apiDataModels: ApiDataModel[];
   apiErrorCases: ApiErrorCase[];
   apiAuthRequirements: ApiAuthRequirement[];
+  apiStateRequirements?: ApiStateRequirement[];
   userStories: string[];
   acceptanceCriteria: string[];
 }
@@ -323,6 +333,12 @@ function buildFrontendTargets(input: FrontendTargetsInput): FrontendTargets {
         `Represent API failure state: ${errorCase.summary}`,
         ["API error case"],
         errorCase.sourceLine
+      )),
+      ...(input.apiStateRequirements ?? []).map((state) => frontendTarget(
+        "api",
+        `Represent API state requirement: ${state.summary}`,
+        ["API state requirement"],
+        state.sourceLine
       )),
       ...input.acceptanceCriteria
         .map((criterion) => {
@@ -846,6 +862,13 @@ export function extractApiAuthRequirements(apiMarkdown: string, apiPath?: string
   }
 
   return notes;
+}
+
+export function extractApiStateRequirements(apiMarkdown: string): ApiStateRequirement[] {
+  return extractApiNotes(apiMarkdown, {
+    headingPattern: /\b(loading|states?|ui behavior|frontend behavior|data freshness|cach(?:e|ing)|polling|realtime|real-time|offline|empty|pagination|refresh)\b/i,
+    keywordPattern: /\b(loading|skeleton|empty|success|retry|refresh|poll|polling|realtime|real-time|cache|cached|caching|stale|fresh|fallback|offline|optimistic|pagination|page size|cursor|debounce|throttle|rate limit|background refresh|last known)\b/i
+  });
 }
 
 export function formatBriefForPrompt(brief: ProjectBrief): string {

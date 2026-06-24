@@ -65,6 +65,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
 - Added UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography in briefs, plans, task units, and delivery reports.
 - Added API error case and auth requirement extraction for planning, task units, and delivery reports.
+- Added API-driven loading, cache, refresh, and data freshness requirement extraction for project briefs, frontend state targets, and delivery reports.
 - Added API parameter extraction for inline query/path parameters and OpenAPI query, path, header, and cookie parameters.
 - Added fenced OpenAPI JSON/YAML extraction for paths, component schemas, request/response schemas, error responses, and security requirements.
 - Added local OpenAPI/Swagger file link extraction from API docs.

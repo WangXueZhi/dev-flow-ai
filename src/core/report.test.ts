@@ -116,6 +116,12 @@ const brief: ProjectBrief = {
       summary: "Authorization: Bearer token is required."
     }
   ],
+  apiStateRequirements: [
+    {
+      sourceLine: 38,
+      summary: "Keep last known dashboard values during background refresh."
+    }
+  ],
   invalidApiDataModels: [],
   userStories: ["As a release owner, I want dashboard health visible so that release risk is clear."],
   constraints: ["Keep the dashboard dense and operational."],
@@ -360,6 +366,8 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Dashboard endpoint unavailable/);
   assert.match(report, /API Auth Requirements/);
   assert.match(report, /Bearer token is required/);
+  assert.match(report, /API State Requirements/);
+  assert.match(report, /Keep last known dashboard values during background refresh/);
   assert.match(report, /T03-code-implementation: applied/);
   assert.match(report, /Files touched: `src\/App\.tsx`/);
   assert.match(report, /Written operations: 1/);

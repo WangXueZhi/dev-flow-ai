@@ -259,6 +259,10 @@ ${brief ? formatApiErrorCases(brief) : "- Project brief was not available."}
 
 ${brief ? formatApiAuthRequirements(brief) : "- Project brief was not available."}
 
+## API State Requirements
+
+${brief ? formatApiStateRequirements(brief) : "- Project brief was not available."}
+
 ## Repository Stack
 
 ${brief ? formatStack(brief) : "- Stack profile was not available."}
@@ -1045,6 +1049,16 @@ function formatApiAuthRequirements(brief: ProjectBrief): string {
   }
 
   return brief.apiAuthRequirements.map((item) => `- Line ${item.sourceLine}: ${item.summary}`).join("\n");
+}
+
+function formatApiStateRequirements(brief: ProjectBrief): string {
+  const items = brief.apiStateRequirements ?? [];
+
+  if (items.length === 0) {
+    return "- No explicit API-driven loading, empty, cache, refresh, or data freshness requirements were found.";
+  }
+
+  return items.map((item) => `- Line ${item.sourceLine}: ${item.summary}`).join("\n");
 }
 
 function formatVerification(report: VerificationReport, verificationReportPath?: string): string {

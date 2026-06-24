@@ -8,6 +8,7 @@ DevFlow also extracts operational API constraints that affect frontend delivery:
 
 - Error cases: lines or sections describing failures, unavailable endpoints, partial data, invalid responses, stale data, timeouts, warnings, unauthorized responses, or forbidden responses.
 - Auth requirements: lines or sections describing authentication, authorization, bearer tokens, cookies, sessions, API keys, permissions, OAuth, JWT, or secrets.
+- State requirements: lines or sections describing loading, skeletons, empty states, cache behavior, stale data, background refresh, polling, pagination, offline fallback, rate limits, optimistic updates, or data freshness.
 
 These become implementation units so AI execution can plan loading, empty, error, stale-data, unauthorized, and retry states instead of treating API docs as endpoint lists only.
 
