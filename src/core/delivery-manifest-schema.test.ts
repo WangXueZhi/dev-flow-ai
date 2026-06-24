@@ -28,8 +28,22 @@ const schema = JSON.parse(
       required: string[];
     };
     acceptanceEvidence: unknown;
+    appliedChangeOperation: {
+      properties: {
+        entryStatus: { enum: string[] };
+        type: { enum: string[] };
+        status: { enum: string[] };
+      };
+    };
     apiStateRequirement: unknown;
-    appliedChanges: unknown;
+    appliedChanges: {
+      required: string[];
+      properties: {
+        operationDetails: {
+          items: { $ref: string };
+        };
+      };
+    };
     designToken: unknown;
     deliveryRisk: unknown;
     sourceContextEntry: unknown;
@@ -104,6 +118,18 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.acceptanceEvidence);
   assert.ok(schema.$defs.apiStateRequirement);
   assert.ok(schema.$defs.appliedChanges);
+  assert.deepEqual(schema.$defs.appliedChanges.required, [
+    "entries",
+    "touchedFiles",
+    "operations",
+    "lineDelta",
+    "backupManifestPaths",
+    "operationDetails"
+  ]);
+  assert.equal(schema.$defs.appliedChanges.properties.operationDetails.items.$ref, "#/$defs/appliedChangeOperation");
+  assert.deepEqual(schema.$defs.appliedChangeOperation.properties.entryStatus.enum, ["applied", "unchanged"]);
+  assert.deepEqual(schema.$defs.appliedChangeOperation.properties.type.enum, ["delete", "replace", "write"]);
+  assert.deepEqual(schema.$defs.appliedChangeOperation.properties.status.enum, ["deleted", "unchanged", "written"]);
   assert.ok(schema.$defs.designToken);
   assert.ok(schema.$defs.deliveryRisk);
   assert.ok(schema.$defs.sourceContextEntry);

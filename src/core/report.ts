@@ -76,6 +76,22 @@ export interface DeliveryAcceptanceEvidence {
   manualQa: string[];
 }
 
+export interface DeliveryAppliedChangeOperation {
+  taskId: string;
+  summary: string;
+  appliedAt: string;
+  entryStatus: AppliedPatchReport["status"];
+  type: AppliedPatchOperation["type"];
+  path: string;
+  status: AppliedPatchOperation["status"];
+  bytesWritten: number;
+  replacements?: number;
+  linesBefore?: number;
+  linesAfter?: number;
+  lineDelta?: number;
+  backupManifestPath?: string;
+}
+
 export type VerificationRemediationCategory =
   | "audit"
   | "build"
@@ -174,6 +190,7 @@ export interface DeliveryManifest {
       };
       lineDelta: number;
       backupManifestPaths: string[];
+      operationDetails: DeliveryAppliedChangeOperation[];
     };
     sourceContext?: SourceContextSummaryLog["entries"];
     taskChangelog?: TaskChangelogSummary;
@@ -319,6 +336,7 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
   const brief = input.brief;
   const operations = input.executionLog?.entries.flatMap((entry) => entry.operations) ?? [];
   const touchedFiles = unique(operations.filter((operation) => operation.status !== "unchanged").map((operation) => operation.path));
+  const operationDetails = collectAppliedChangeOperationDetails(input.executionLog);
   const highDeliveryRisks = (brief?.deliveryRisks ?? []).filter((risk) => risk.level === "high");
   const deliveryEvidence = collectDeliveryEvidence(input);
   const acceptanceCriteria = brief?.acceptanceCriteria.map((criterion, index) => {
@@ -410,7 +428,8 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
           unchanged: operations.filter((operation) => operation.status === "unchanged").length
         },
         lineDelta: operations.reduce((total, operation) => total + (operation.lineDelta ?? 0), 0),
-        backupManifestPaths: input.executionLog?.entries.flatMap((entry) => entry.backupManifestPath ? [entry.backupManifestPath] : []) ?? []
+        backupManifestPaths: input.executionLog?.entries.flatMap((entry) => entry.backupManifestPath ? [entry.backupManifestPath] : []) ?? [],
+        operationDetails
       },
       sourceContext: input.sourceContextSummary?.entries ?? [],
       taskChangelog: input.taskChangelog,
@@ -418,6 +437,26 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
       openQuestions: brief?.openQuestions ?? []
     }
   };
+}
+
+function collectAppliedChangeOperationDetails(executionLog: ExecutionLog | undefined): DeliveryAppliedChangeOperation[] {
+  return executionLog?.entries.flatMap((entry) =>
+    entry.operations.map((operation) => ({
+      taskId: entry.taskId,
+      summary: entry.summary,
+      appliedAt: entry.appliedAt,
+      entryStatus: entry.status,
+      type: operation.type,
+      path: operation.path,
+      status: operation.status,
+      bytesWritten: operation.bytesWritten,
+      ...(operation.replacements === undefined ? {} : { replacements: operation.replacements }),
+      ...(operation.linesBefore === undefined ? {} : { linesBefore: operation.linesBefore }),
+      ...(operation.linesAfter === undefined ? {} : { linesAfter: operation.linesAfter }),
+      ...(operation.lineDelta === undefined ? {} : { lineDelta: operation.lineDelta }),
+      ...(entry.backupManifestPath === undefined ? {} : { backupManifestPath: entry.backupManifestPath })
+    }))
+  ) ?? [];
 }
 
 const taskChangelogVerificationSummaryStart = "<!-- devflow-verification-summary:start -->";

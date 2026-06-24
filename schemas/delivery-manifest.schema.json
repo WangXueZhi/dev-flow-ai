@@ -493,7 +493,7 @@
     "appliedChanges": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["entries", "touchedFiles", "operations", "lineDelta", "backupManifestPaths"],
+      "required": ["entries", "touchedFiles", "operations", "lineDelta", "backupManifestPaths", "operationDetails"],
       "properties": {
         "entries": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -525,6 +525,58 @@
         },
         "backupManifestPaths": {
           "$ref": "#/$defs/stringArray"
+        },
+        "operationDetails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/appliedChangeOperation"
+          }
+        }
+      }
+    },
+    "appliedChangeOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskId", "summary", "appliedAt", "entryStatus", "type", "path", "status", "bytesWritten"],
+      "properties": {
+        "taskId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "appliedAt": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "entryStatus": {
+          "enum": ["applied", "unchanged"]
+        },
+        "type": {
+          "enum": ["delete", "replace", "write"]
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "status": {
+          "enum": ["deleted", "unchanged", "written"]
+        },
+        "bytesWritten": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "replacements": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "linesBefore": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "linesAfter": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "lineDelta": {
+          "type": "integer"
+        },
+        "backupManifestPath": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },

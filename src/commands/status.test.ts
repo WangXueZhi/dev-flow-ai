@@ -125,7 +125,38 @@ const manifest: DeliveryManifest = {
         unchanged: 0
       },
       lineDelta: 10,
-      backupManifestPaths: [".devflow/artifacts/backups/backup/manifest.json"]
+      backupManifestPaths: [".devflow/artifacts/backups/backup/manifest.json"],
+      operationDetails: [
+        {
+          taskId: "T03-code-implementation",
+          summary: "Apply dashboard source changes.",
+          appliedAt: "2026-01-01T00:00:00.500Z",
+          entryStatus: "applied",
+          type: "write",
+          path: "src/App.jsx",
+          status: "written",
+          bytesWritten: 2048,
+          linesBefore: 80,
+          linesAfter: 88,
+          lineDelta: 8,
+          backupManifestPath: ".devflow/artifacts/backups/backup/manifest.json"
+        },
+        {
+          taskId: "T03-code-implementation",
+          summary: "Apply dashboard source changes.",
+          appliedAt: "2026-01-01T00:00:00.500Z",
+          entryStatus: "applied",
+          type: "replace",
+          path: "src/styles.css",
+          status: "written",
+          bytesWritten: 512,
+          replacements: 1,
+          linesBefore: 20,
+          linesAfter: 22,
+          lineDelta: 2,
+          backupManifestPath: ".devflow/artifacts/backups/backup/manifest.json"
+        }
+      ]
     },
     sourceContext: [
       {
@@ -190,6 +221,7 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Verification: passed/);
   assert.match(output, /Visual: not-run/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
+  assert.match(output, /Applied operations: 2/);
   assert.match(output, /Design tokens: 1/);
   assert.match(output, /API state requirements: 1/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
@@ -213,6 +245,7 @@ test("runStatus prints raw manifest JSON", async (t) => {
 
   assert.equal(parsed.status.readiness, "needs attention");
   assert.equal(parsed.counts.touchedFiles, 2);
+  assert.equal(parsed.evidence.appliedChanges.operationDetails[0]?.path, "src/App.jsx");
   assert.equal(parsed.counts.designTokens, 1);
   assert.equal(parsed.counts.apiStateRequirements, 1);
 });

@@ -640,6 +640,37 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.deepEqual(manifest.evidence.appliedChanges.touchedFiles, ["src/App.tsx", "src/ObsoletePanel.tsx"]);
   assert.equal(manifest.evidence.appliedChanges.lineDelta, -18);
   assert.deepEqual(manifest.evidence.appliedChanges.backupManifestPaths, [".devflow/artifacts/backups/backup/manifest.json"]);
+  assert.deepEqual(manifest.evidence.appliedChanges.operationDetails, [
+    {
+      taskId: "T03-code-implementation",
+      summary: "Apply dashboard source changes.",
+      appliedAt: "2026-01-01T00:00:00.500Z",
+      entryStatus: "applied",
+      type: "replace",
+      path: "src/App.tsx",
+      status: "written",
+      bytesWritten: 2048,
+      replacements: 1,
+      linesBefore: 80,
+      linesAfter: 86,
+      lineDelta: 6,
+      backupManifestPath: ".devflow/artifacts/backups/backup/manifest.json"
+    },
+    {
+      taskId: "T03-code-implementation",
+      summary: "Apply dashboard source changes.",
+      appliedAt: "2026-01-01T00:00:00.500Z",
+      entryStatus: "applied",
+      type: "delete",
+      path: "src/ObsoletePanel.tsx",
+      status: "deleted",
+      bytesWritten: 0,
+      linesBefore: 24,
+      linesAfter: 0,
+      lineDelta: -24,
+      backupManifestPath: ".devflow/artifacts/backups/backup/manifest.json"
+    }
+  ]);
   assert.equal(manifest.evidence.visualScreenshots[0]?.blank, false);
   assert.equal(manifest.evidence.visualRequiredText[0]?.found, true);
   assert.equal(manifest.evidence.designTokens[0]?.name, "Primary color");

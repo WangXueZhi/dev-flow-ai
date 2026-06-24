@@ -29,7 +29,7 @@ The manifest schema describes:
 - API state requirement evidence extracted from API docs for loading, empty, cache, refresh, and data freshness behavior.
 - Verification command summaries with optional bounded stdout/stderr excerpts, remediation hints, and structured remediation plans for failed commands.
 - Visual screenshots and required text checks.
-- Applied-change summaries with touched files, operation counts, line delta, task changelog artifact, and backup manifests.
+- Applied-change summaries with touched files, operation counts, line delta, per-operation details, task changelog artifact, and backup manifests.
 - Task changelog review handoff notes and the latest changelog Verification Summary when available.
 - Source-context sampling summaries with task id, mode, selected unit metadata, sampled path entries, omitted candidates, and sampling limits.
 - Delivery risks and open questions.

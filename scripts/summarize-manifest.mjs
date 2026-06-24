@@ -37,6 +37,7 @@ export function formatDevFlowSummary(manifest) {
     `- Design tokens: ${counts.designTokens ?? 0}`,
     `- API state requirements: ${counts.apiStateRequirements ?? 0}`,
     `- Touched files: ${counts.touchedFiles ?? 0}`,
+    `- Applied operations: ${counts.appliedOperations ?? 0}`,
     "",
     "Artifacts:",
     artifactLine("delivery-report"),

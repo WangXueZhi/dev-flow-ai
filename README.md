@@ -355,7 +355,7 @@ When `.devflow/artifacts/task-changelog.md` exists, the delivery report and mani
 
 The report includes source documents, user stories, requirement constraints, acceptance criteria, source-signal matched per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, API state requirements, risk assessment, detected stack, design asset details, design tokens, artifact paths, prompt artifact directory status, applied patch summaries, review handoff notes, backup manifests, verification status with bounded failure excerpts plus remediation hints and next-action plans, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
-The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, API state requirements, reviewer-note counts, task changelog handoff evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, remediation hints, structured remediation plans, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, design tokens, API state requirements, reviewer-note counts, task changelog handoff evidence, touched files, applied operation details, backup manifests, screenshots, required text checks, bounded verification failure excerpts, remediation hints, structured remediation plans, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
 ```bash
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json
@@ -381,7 +381,7 @@ dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
 ```
 
-Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, source-context sampling, reviewer-note, artifact, verification-failure, remediation, risk, and open-question status without opening the Markdown report.
+Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, source-change, applied-operation, source-context sampling, reviewer-note, artifact, verification-failure, remediation, risk, and open-question status without opening the Markdown report.
 
 When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also includes the AI provider smoke status, required-gate state, generated time, endpoint, model, key environment source, and smoke message. If `DEVFLOW_LIVE_SMOKE_REPORT=<path>` is set, `status` reads that custom smoke report path. `status --json` remains the raw delivery manifest for compatibility with existing automation.
 
@@ -480,7 +480,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Automatic backup restoration when patch-set application fails after partial writes.
 - Verification report generated from project commands, with existing task changelogs refreshed with command status summaries.
 - Visual report with screenshots, blank-screen checks, layout issue checks for overflow, clipped text, and overlapping visible elements, optional text checks for preview URLs, and inferred `deliver` text checks from design assets, acceptance criteria, and UI state brief context.
-- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, source-signal matched per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, design tokens, API state requirements, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, remediation hints and structured remediation plans, touched files, operation counts, backup counts, and line-count deltas when patch sets are applied.
+- Delivery report and machine-readable delivery manifest generated from DevFlow artifacts, including acceptance criteria, source-signal matched per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, design tokens, API state requirements, risk assessment, embedded visual screenshots, artifact statuses, delivery readiness, verification failure excerpts, remediation hints and structured remediation plans, touched files, operation counts, applied operation details, backup counts, and line-count deltas when patch sets are applied.
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.

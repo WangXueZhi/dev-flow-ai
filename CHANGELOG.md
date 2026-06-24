@@ -21,6 +21,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `.devflow/artifacts/delivery-manifest.json` with machine-readable artifact status, readiness, verification, visual, source-change, acceptance-evidence, touched-file, backup, screenshot, open-question, and delivery-risk summaries.
 - Added API state requirement counts and evidence to delivery manifests, local status output, and GitHub Actions job summaries.
 - Added criterion-specific acceptance evidence matching from visual text, UI state, API state, API error, and API auth signals.
+- Added applied operation details to delivery manifests and surfaced applied operation counts in local status and GitHub Actions job summaries.
 - Added `dev-flow status` and `dev-flow status --json` for local delivery manifest summaries.
 - Added `dev-flow status --fail-on-attention` and `--fail-on-failed-verification` for CI delivery gates backed by the manifest.
 - Added live provider smoke report summaries to text `dev-flow status` output when `.devflow/artifacts/live-provider-smoke.json` exists.
