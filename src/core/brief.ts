@@ -146,9 +146,14 @@ interface MarkdownCodeBlock {
   content: string;
 }
 
+interface LinkedOpenApiBlock extends MarkdownCodeBlock {
+  kind: "json" | "yaml";
+  reference: string;
+}
+
 export function createProjectBrief(context: ProjectContext, stack: StackProfile): ProjectBrief {
   const acceptanceCriteria = extractChecklistItems(context.requirements);
-  const apiDataModelResult = extractApiDataModels(context.api);
+  const apiDataModelResult = extractApiDataModels(context.api, context.apiPath);
   const sourceDocuments = {
     requirementsPath: context.requirementsPath,
     uiPath: context.uiPath,
@@ -162,9 +167,9 @@ export function createProjectBrief(context: ProjectContext, stack: StackProfile)
   const designAssets = extractDesignAssets(context.ui, context.uiPath);
   const designTokens = extractDesignTokens(context.ui);
   const uiStateChecklist = extractUiStateChecklist(context.ui);
-  const apiContracts = extractApiContracts(context.api);
-  const apiErrorCases = extractApiErrorCases(context.api);
-  const apiAuthRequirements = extractApiAuthRequirements(context.api);
+  const apiContracts = extractApiContracts(context.api, context.apiPath);
+  const apiErrorCases = extractApiErrorCases(context.api, context.apiPath);
+  const apiAuthRequirements = extractApiAuthRequirements(context.api, context.apiPath);
   const recommendedVerification = buildRecommendedVerification(stack);
   const userStories = extractRequirementUserStories(context.requirements);
   const constraints = extractRequirementConstraints(context.requirements);
@@ -568,10 +573,10 @@ export function assessDeliveryRisks(
   const acceptanceCriteria = input?.acceptanceCriteria ?? extractChecklistItems(context.requirements);
   const designAssets = input?.designAssets ?? extractDesignAssets(context.ui, context.uiPath);
   const uiStateChecklist = input?.uiStateChecklist ?? extractUiStateChecklist(context.ui);
-  const apiContracts = input?.apiContracts ?? extractApiContracts(context.api);
-  const apiErrorCases = input?.apiErrorCases ?? extractApiErrorCases(context.api);
-  const apiAuthRequirements = input?.apiAuthRequirements ?? extractApiAuthRequirements(context.api);
-  const invalidApiDataModels = input?.invalidApiDataModels ?? extractApiDataModels(context.api).invalid;
+  const apiContracts = input?.apiContracts ?? extractApiContracts(context.api, context.apiPath);
+  const apiErrorCases = input?.apiErrorCases ?? extractApiErrorCases(context.api, context.apiPath);
+  const apiAuthRequirements = input?.apiAuthRequirements ?? extractApiAuthRequirements(context.api, context.apiPath);
+  const invalidApiDataModels = input?.invalidApiDataModels ?? extractApiDataModels(context.api, context.apiPath).invalid;
   const recommendedVerification = input?.recommendedVerification ?? buildRecommendedVerification(stack);
   const risks: DeliveryRisk[] = [];
 
@@ -671,7 +676,7 @@ export function assessDeliveryRisks(
   return uniqueDeliveryRisks(risks, 16);
 }
 
-export function extractApiContracts(apiMarkdown: string): ApiContract[] {
+export function extractApiContracts(apiMarkdown: string, apiPath?: string): ApiContract[] {
   const contracts: ApiContract[] = [];
   const seen = new Set<string>();
   const endpointPattern = /\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\s+([^\s`),\]]+)/i;
@@ -717,7 +722,7 @@ export function extractApiContracts(apiMarkdown: string): ApiContract[] {
     }
   }
 
-  for (const document of extractOpenApiDocuments(apiMarkdown)) {
+  for (const document of extractOpenApiDocuments(apiMarkdown, apiPath)) {
     for (const contract of extractOpenApiContracts(document)) {
       addApiContract(contracts, seen, contract);
     }
@@ -726,7 +731,7 @@ export function extractApiContracts(apiMarkdown: string): ApiContract[] {
   return contracts;
 }
 
-export function extractApiDataModels(apiMarkdown: string): { models: ApiDataModel[]; invalid: InvalidApiDataModel[] } {
+export function extractApiDataModels(apiMarkdown: string, apiPath?: string): { models: ApiDataModel[]; invalid: InvalidApiDataModel[] } {
   const models: ApiDataModel[] = [];
   const invalid: InvalidApiDataModel[] = [];
 
@@ -767,17 +772,32 @@ export function extractApiDataModels(apiMarkdown: string): { models: ApiDataMode
     }
   }
 
+  for (const block of extractLinkedOpenApiBlocks(apiMarkdown, apiPath)) {
+    try {
+      const parsed = parseLinkedOpenApiBlock(block);
+
+      if (isOpenApiDocument(parsed)) {
+        models.push(...describeOpenApiDataModels({ sourceLine: block.sourceLine, document: parsed }));
+      }
+    } catch (error) {
+      invalid.push({
+        sourceLine: block.sourceLine,
+        error: `Invalid linked OpenAPI document ${block.reference}: ${error instanceof Error ? error.message : "Could not parse document."}`
+      });
+    }
+  }
+
   return { models, invalid };
 }
 
-export function extractApiErrorCases(apiMarkdown: string): ApiErrorCase[] {
+export function extractApiErrorCases(apiMarkdown: string, apiPath?: string): ApiErrorCase[] {
   const notes = extractApiNotes(apiMarkdown, {
     headingPattern: /\b(errors?|failures?|exceptions?)\b/i,
     keywordPattern: /\b(error|errors|fail|fails|failed|failure|unavailable|timeout|partial|invalid|stale|warning|unauthorized|forbidden)\b/i
   });
   const seen = new Set(notes.map((note) => note.summary.toLowerCase()));
 
-  for (const document of extractOpenApiDocuments(apiMarkdown)) {
+  for (const document of extractOpenApiDocuments(apiMarkdown, apiPath)) {
     for (const note of extractOpenApiErrorCases(document)) {
       addApiNote(notes, seen, note);
     }
@@ -786,14 +806,14 @@ export function extractApiErrorCases(apiMarkdown: string): ApiErrorCase[] {
   return notes;
 }
 
-export function extractApiAuthRequirements(apiMarkdown: string): ApiAuthRequirement[] {
+export function extractApiAuthRequirements(apiMarkdown: string, apiPath?: string): ApiAuthRequirement[] {
   const notes = extractApiNotes(apiMarkdown, {
     headingPattern: /\b(auth|authentication|authorization|permissions?|security)\b/i,
     keywordPattern: /\b(auth|authentication|authorization|bearer|token|cookie|session|api key|permission|oauth|jwt|secret)\b/i
   });
   const seen = new Set(notes.map((note) => note.summary.toLowerCase()));
 
-  for (const document of extractOpenApiDocuments(apiMarkdown)) {
+  for (const document of extractOpenApiDocuments(apiMarkdown, apiPath)) {
     for (const note of extractOpenApiAuthRequirements(document)) {
       addApiNote(notes, seen, note);
     }
@@ -1417,19 +1437,19 @@ function buildOpenQuestions(
     questions.push("UI notes do not explicitly describe responsive behavior.");
   }
 
-  if (extractApiErrorCases(context.api).length === 0) {
+  if (extractApiErrorCases(context.api, context.apiPath).length === 0) {
     questions.push("API docs do not explicitly describe error handling.");
   }
 
-  if (extractApiContracts(context.api).length === 0) {
+  if (extractApiContracts(context.api, context.apiPath).length === 0) {
     questions.push("API docs do not include recognizable HTTP endpoint contracts.");
   }
 
-  if (extractApiAuthRequirements(context.api).length === 0) {
+  if (extractApiAuthRequirements(context.api, context.apiPath).length === 0) {
     questions.push("API docs do not explicitly describe authentication or authorization requirements.");
   }
 
-  for (const invalidModel of extractApiDataModels(context.api).invalid) {
+  for (const invalidModel of extractApiDataModels(context.api, context.apiPath).invalid) {
     questions.push(`API docs contain an invalid API data model at line ${invalidModel.sourceLine}: ${invalidModel.error}`);
   }
 
@@ -1670,6 +1690,24 @@ function isRemoteReference(value: string): boolean {
   return /^https?:\/\//i.test(value) || /^data:/i.test(value);
 }
 
+function isPotentialLocalOpenApiReference(value: string): boolean {
+  if (!value || isRemoteReference(value)) {
+    return false;
+  }
+
+  const normalized = value.replaceAll("\\", "/");
+
+  return /\.(?:json|ya?ml)(?:[?#].*)?$/i.test(normalized) && /(?:^|[/._-])(?:api|openapi|swagger)(?:[/._-]|$)/i.test(normalized);
+}
+
+function stripReferenceQuery(value: string): string {
+  return value.split(/[?#]/, 1)[0] ?? value;
+}
+
+function isJsonReference(value: string): boolean {
+  return /\.json(?:[?#].*)?$/i.test(value);
+}
+
 function isRemoteDesignReference(value: string): boolean {
   if (!/^https?:\/\//i.test(value)) {
     return false;
@@ -1902,8 +1940,12 @@ function formatApiParameterSummary(parameter: ApiParameter): string {
   return `${parameter.in} ${parameter.name}${details.length ? ` (${details.join(", ")})` : ""}`;
 }
 
-function extractOpenApiDocuments(markdown: string): Array<{ sourceLine: number; document: Record<string, unknown> }> {
-  return [...extractJsonOpenApiDocuments(markdown), ...extractYamlOpenApiDocuments(markdown)];
+function extractOpenApiDocuments(markdown: string, apiPath?: string): Array<{ sourceLine: number; document: Record<string, unknown> }> {
+  return [
+    ...extractJsonOpenApiDocuments(markdown),
+    ...extractYamlOpenApiDocuments(markdown),
+    ...extractLinkedOpenApiDocuments(markdown, apiPath)
+  ];
 }
 
 function extractJsonOpenApiDocuments(markdown: string): Array<{ sourceLine: number; document: Record<string, unknown> }> {
@@ -1946,6 +1988,68 @@ function extractYamlOpenApiDocuments(markdown: string): Array<{ sourceLine: numb
   }
 
   return documents;
+}
+
+function extractLinkedOpenApiDocuments(markdown: string, apiPath: string | undefined): Array<{ sourceLine: number; document: Record<string, unknown> }> {
+  const documents: Array<{ sourceLine: number; document: Record<string, unknown> }> = [];
+
+  for (const block of extractLinkedOpenApiBlocks(markdown, apiPath)) {
+    try {
+      const parsed = parseLinkedOpenApiBlock(block);
+
+      if (isOpenApiDocument(parsed)) {
+        documents.push({
+          sourceLine: block.sourceLine,
+          document: parsed
+        });
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return documents;
+}
+
+function extractLinkedOpenApiBlocks(markdown: string, apiPath: string | undefined): LinkedOpenApiBlock[] {
+  if (!apiPath) {
+    return [];
+  }
+
+  const blocks: LinkedOpenApiBlock[] = [];
+  const seen = new Set<string>();
+  const linkPattern = /\[([^\]]+)\]\(([^)\n]+)\)/g;
+  const baseDir = dirname(apiPath);
+
+  for (const match of markdown.matchAll(linkPattern)) {
+    const reference = normalizeMarkdownImageReference(match[2] ?? "");
+    const fileReference = stripReferenceQuery(reference);
+
+    if (!isPotentialLocalOpenApiReference(reference)) {
+      continue;
+    }
+
+    const resolvedPath = normalize(isAbsolute(fileReference) ? fileReference : join(baseDir, fileReference));
+    const key = resolvedPath.toLowerCase();
+
+    if (seen.has(key) || !existsSync(resolvedPath)) {
+      continue;
+    }
+
+    seen.add(key);
+    blocks.push({
+      sourceLine: match.index === undefined ? 1 : markdown.slice(0, match.index).split(/\r?\n/).length,
+      content: readFileSync(resolvedPath, "utf8"),
+      kind: isJsonReference(fileReference) ? "json" : "yaml",
+      reference
+    });
+  }
+
+  return blocks;
+}
+
+function parseLinkedOpenApiBlock(block: LinkedOpenApiBlock): unknown {
+  return block.kind === "json" ? JSON.parse(block.content) : parseYaml(block.content);
 }
 
 function isOpenApiDocument(value: unknown): value is Record<string, unknown> {

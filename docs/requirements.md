@@ -30,7 +30,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations, including inline query/path parameters and OpenAPI query, path, header, and cookie parameters.
 - [ ] The project brief includes API data model summaries extracted from fenced `json` examples.
 - [ ] The project brief includes API error cases and authentication requirements extracted from API docs.
-- [ ] The project brief includes API contracts, parameters, API data models, API error cases, and API auth requirements extracted from fenced OpenAPI JSON/YAML blocks.
+- [ ] The project brief includes API contracts, parameters, API data models, API error cases, and API auth requirements extracted from fenced OpenAPI JSON/YAML blocks or local OpenAPI/Swagger file links.
 - [ ] `dev-flow plan` reads configured documents and writes `.devflow/artifacts/implementation-plan.md`.
 - [ ] `dev-flow plan` also writes `.devflow/artifacts/project-brief.json`.
 - [ ] Implementation plans include a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections.

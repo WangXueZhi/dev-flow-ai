@@ -166,7 +166,7 @@ Creates the local project context:
 - `.devflow/artifacts/`
 - `docs/requirements.md` with goal, roles, scope, acceptance criteria, constraints, and verification notes
 - `docs/ui.md` with design asset links, screens, components, states, interactions, responsive behavior, accessibility, and visual tokens
-- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations, JSON data models, error cases, loading/cache notes, and an OpenAPI JSON/YAML placeholder
+- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations, JSON data models, error cases, loading/cache notes, and linked or fenced OpenAPI/Swagger JSON/YAML
 
 Existing handoff documents are preserved. `init` creates missing starter files and reports how many starter docs were created or already existed.
 
@@ -201,7 +201,7 @@ The brief includes:
 - API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations, including inline query/path parameters and OpenAPI query, path, header, and cookie parameters when available.
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
-- Fenced OpenAPI JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
+- Fenced or locally linked OpenAPI/Swagger JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
 - Detected package manager, runtime, frameworks, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
 - Acceptance criteria, delivery risk assessment, and open questions.
 - Recommended verification commands from root and workspace package scripts, common script aliases, or inferred quality, framework type-checking, test, and build tooling.
@@ -458,7 +458,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, and GraphQL operations.
 - API data model summaries extracted from fenced `json` examples.
 - API error and auth requirement summaries extracted from API docs.
-- OpenAPI JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks.
+- OpenAPI/Swagger JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks and local Markdown links.
 - Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.
 - Structured project brief output with user stories, constraints, acceptance criteria, and downstream planning context.
 - Aggregated recommended verification commands from detected root/workspace `check`, `lint`, `format:check`, `typecheck`, unit/component/integration/E2E test, coverage, `build`, and audit package scripts, common local/CI aliases, or inferred quality, framework type-checking, test, and build tooling.

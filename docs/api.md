@@ -27,7 +27,7 @@ mutation UpdateOrderStatus($id: ID!, $status: OrderStatus!) {
 }
 ```
 
-Fenced OpenAPI JSON or YAML blocks are recognized when they contain `openapi` and `paths`:
+Fenced OpenAPI JSON or YAML blocks are recognized when they contain `openapi` and `paths`. API docs may also link local OpenAPI or Swagger files with Markdown links such as `[OpenAPI spec](openapi.yaml)` or `[Swagger JSON](swagger.json)`. Linked files are resolved relative to `docs/api.md` and parsed when they are local JSON/YAML files whose path includes `api`, `openapi`, or `swagger`:
 
 - `paths` methods become API contracts.
 - Path-level and operation-level `parameters` become API contract parameter notes for query, path, header, and cookie parameters.
@@ -50,7 +50,7 @@ paths:
           description: Unauthorized
 ```
 
-Use fenced `json`, `yaml`, or `yml` blocks for structured OpenAPI extraction. Invalid OpenAPI-like YAML is reported as an open question so the API document can be corrected before implementation.
+Use fenced `json`, `yaml`, or `yml` blocks, or local Markdown links to OpenAPI/Swagger files, for structured OpenAPI extraction. Invalid OpenAPI-like YAML is reported as an open question so the API document can be corrected before implementation.
 
 ## Environment Variables
 

@@ -36,6 +36,7 @@ test("runInit creates structured starter documents", async (t) => {
   assert.match(ui, /## Responsive Behavior/);
   assert.match(api, /## Authentication/);
   assert.match(api, /GET \/api\/example/);
+  assert.match(api, /\[OpenAPI spec\]\(openapi\.yaml\)/);
   assert.match(api, /## GraphQL Operations/);
   assert.match(api, /query ExampleStatus/);
   assert.match(api, /```json/);

@@ -66,6 +66,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added API error case and auth requirement extraction for planning, task units, and delivery reports.
 - Added API parameter extraction for inline query/path parameters and OpenAPI query, path, header, and cookie parameters.
 - Added fenced OpenAPI JSON/YAML extraction for paths, component schemas, request/response schemas, error responses, and security requirements.
+- Added local OpenAPI/Swagger file link extraction from API docs.
 - Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.
 - Added repository stack detection for package manager, runtime, framework, build, styling, testing, scripts, source directories, and config files.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.

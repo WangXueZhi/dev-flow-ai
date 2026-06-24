@@ -59,7 +59,7 @@ Fill those documents with the project handoff:
 
 - Requirements: goals, users, scope, constraints, acceptance criteria, verification notes.
 - UI: screens, components, states, interactions, responsive behavior, design tokens, design asset links.
-- API: auth, HTTP endpoints, query/path parameters, GraphQL operations, data models, error cases, loading/cache notes, OpenAPI JSON/YAML when available.
+- API: auth, HTTP endpoints, query/path parameters, GraphQL operations, data models, error cases, loading/cache notes, fenced or linked local OpenAPI/Swagger JSON/YAML when available.
 
 ## 3. Generate A Brief, Plan, And Tasks
 

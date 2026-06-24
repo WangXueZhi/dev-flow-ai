@@ -11,7 +11,7 @@
 - Structured project brief.
 - API error case and auth requirement extraction.
 - API parameter extraction for inline endpoint references and OpenAPI parameter objects.
-- OpenAPI JSON/YAML path, parameter, component schema, request/response schema, error response, and security extraction.
+- OpenAPI/Swagger JSON/YAML path, parameter, component schema, request/response schema, error response, and security extraction from fenced blocks and local links.
 - GraphQL operation extraction for `query`, `mutation`, and `subscription` API docs.
 - Lightweight local SVG metadata/color extraction, PNG/JPEG dimension extraction, and recognized design handoff link capture for design assets.
 - UI design token extraction for colors, typography, spacing, radius, shadows, motion, and iconography.

@@ -1156,6 +1156,96 @@ test("extractApiContracts and API summaries handle OpenAPI YAML blocks", () => {
   ]);
 });
 
+test("createProjectBrief reads linked local OpenAPI documents", (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-linked-openapi-"));
+  const docsDir = join(workspace, "docs");
+  const apiPath = join(docsDir, "api.md");
+
+  t.after(() => rmSync(workspace, { recursive: true, force: true }));
+  mkdirSync(docsDir, { recursive: true });
+  writeFileSync(
+    join(docsDir, "openapi.yaml"),
+    [
+      "openapi: 3.1.0",
+      "security:",
+      "  - bearerAuth: []",
+      "paths:",
+      "  /linked-orders:",
+      "    get:",
+      "      summary: List linked orders",
+      "      security:",
+      "        - bearerAuth: []",
+      "      responses:",
+      "        '200':",
+      "          description: OK",
+      "        '500':",
+      "          description: Service unavailable",
+      "components:",
+      "  schemas:",
+      "    LinkedOrder:",
+      "      type: object",
+      "      properties:",
+      "        id:",
+      "          type: string",
+      "        status:",
+      "          type: string",
+      "  securitySchemes:",
+      "    bearerAuth:",
+      "      type: http",
+      "      scheme: bearer",
+      "      bearerFormat: JWT"
+    ].join("\n"),
+    "utf8"
+  );
+
+  const brief = createProjectBrief(
+    {
+      ...context,
+      apiPath,
+      api: "# API\n\n[OpenAPI spec](openapi.yaml?raw=1)\n"
+    },
+    stack
+  );
+
+  assert.deepEqual(brief.apiContracts, [
+    {
+      method: "GET",
+      path: "/linked-orders",
+      sourceLine: 3,
+      summary: "List linked orders"
+    }
+  ]);
+  assert.deepEqual(brief.apiDataModels, [
+    {
+      name: "LinkedOrder",
+      sourceLine: 3,
+      fields: ["id", "status"],
+      summary: "OpenAPI component schema"
+    }
+  ]);
+  assert.deepEqual(brief.apiErrorCases, [
+    {
+      sourceLine: 3,
+      summary: "GET /linked-orders 500: Service unavailable"
+    }
+  ]);
+  assert.deepEqual(brief.apiAuthRequirements, [
+    {
+      sourceLine: 3,
+      summary: "OpenAPI security scheme bearerAuth: http bearer JWT"
+    },
+    {
+      sourceLine: 3,
+      summary: "OpenAPI global security requirement: bearerAuth"
+    },
+    {
+      sourceLine: 3,
+      summary: "OpenAPI GET /linked-orders security requirement: bearerAuth"
+    }
+  ]);
+  assert.ok(!brief.openQuestions.some((question) => /recognizable HTTP endpoint contracts/.test(question)));
+});
+
 test("extractApiContracts handles yml OpenAPI fences", () => {
   assert.deepEqual(
     extractApiContracts(
