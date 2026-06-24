@@ -42,6 +42,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added Release workflow uploads for `.devflow/artifacts/live-provider-smoke.json` so live-provider smoke evidence is retained on skipped, failed, and passed release runs.
 - Added `npm run smoke:live:report` to validate live-provider smoke JSON evidence and require `status: "passed"` for release gates.
 - Added `dev-flow smoke-provider` for installed CLI live provider smoke checks and machine-readable provider evidence.
+- Added `npm run smoke:live:summary` and Release workflow job summaries for sanitized live-provider smoke evidence.
 - Tightened release/package residue checks to reject local `.env.*` files while allowing `.env.example`.
 - Added inferred `deliver` visual text checks from design asset snippets and UI state labels.
 - Clarified `dev-flow init` output and covered preservation of existing handoff documents.

@@ -40,6 +40,7 @@
     "scripts/smoke-github-install.mjs",
     "scripts/live-provider-smoke.mjs",
     "scripts/verify-live-smoke-report.mjs",
+    "scripts/summarize-live-smoke-report.mjs",
     "scripts/summarize-manifest.mjs"
   ],
   "scripts": {
@@ -56,6 +57,7 @@
     "release:preflight": "node scripts/release-preflight.mjs",
     "smoke:live": "node scripts/live-provider-smoke.mjs",
     "smoke:live:report": "node scripts/verify-live-smoke-report.mjs",
+    "smoke:live:summary": "node scripts/summarize-live-smoke-report.mjs",
     "prepare": "npm run build",
     "prepublishOnly": "npm run check",
     "test": "node --test \"dist/**/*.test.js\" \"scripts/**/*.test.mjs\""

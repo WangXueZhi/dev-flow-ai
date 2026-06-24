@@ -46,7 +46,7 @@ DEVFLOW_AI_FIXTURE_PATH=fixtures/patch-set-ai-applied.json \
   node ../../dist/cli.js deliver --apply --yes --unit U18
 ```
 
-The live smoke command is optional for normal contributors. It skips without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, writes `.devflow/artifacts/live-provider-smoke.json`, and `npm run smoke:live:report` validates that JSON evidence. Maintainers can set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` and run `npm run smoke:live:report -- --require-passed` when they want a release gate to prove a real provider smoke passed. The Release workflow uploads that JSON report as `live-provider-smoke-report`, even when the smoke step fails.
+The live smoke command is optional for normal contributors. It skips without `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`, writes `.devflow/artifacts/live-provider-smoke.json`, and `npm run smoke:live:report` validates that JSON evidence. Maintainers can set `DEVFLOW_REQUIRE_LIVE_SMOKE=true` and run `npm run smoke:live:report -- --require-passed` when they want a release gate to prove a real provider smoke passed. The Release workflow writes a sanitized job-summary section with `npm run smoke:live:summary` and uploads that JSON report as `live-provider-smoke-report`, even when the smoke step fails.
 
 For changes that affect delivery, also run the example with a preview server and the DevFlow orchestrator:
 

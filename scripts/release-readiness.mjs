@@ -40,7 +40,8 @@ export function evaluateReleaseReadiness(input) {
       "Package exposes release readiness, preflight, and live-smoke report scripts",
       input.packageJson.scripts?.["release:readiness"] === "node scripts/release-readiness.mjs" &&
         input.packageJson.scripts?.["release:preflight"] === "node scripts/release-preflight.mjs" &&
-        input.packageJson.scripts?.["smoke:live:report"] === "node scripts/verify-live-smoke-report.mjs",
+        input.packageJson.scripts?.["smoke:live:report"] === "node scripts/verify-live-smoke-report.mjs" &&
+        input.packageJson.scripts?.["smoke:live:summary"] === "node scripts/summarize-live-smoke-report.mjs",
       "release scripts in package.json"
     ),
     check(
@@ -48,8 +49,9 @@ export function evaluateReleaseReadiness(input) {
       "Release support scripts are included in the package file allowlist",
       Array.isArray(input.packageJson.files) &&
         input.packageJson.files.includes("scripts/release-readiness.mjs") &&
-        input.packageJson.files.includes("scripts/verify-live-smoke-report.mjs"),
-      "scripts/release-readiness.mjs and scripts/verify-live-smoke-report.mjs"
+        input.packageJson.files.includes("scripts/verify-live-smoke-report.mjs") &&
+        input.packageJson.files.includes("scripts/summarize-live-smoke-report.mjs"),
+      "release readiness, live-smoke report, and live-smoke summary scripts"
     ),
     check(
       "changelog-entry",
@@ -112,6 +114,14 @@ export function evaluateReleaseReadiness(input) {
         /Verify required live provider smoke report/.test(input.releaseWorkflow) &&
         /run:\s*npm run smoke:live:report -- --require-passed/.test(input.releaseWorkflow),
       "smoke:live:report with --require-passed for required release gates"
+    ),
+    check(
+      "release-workflow-live-smoke-summary",
+      "Release workflow writes a live provider smoke job summary",
+      /Summarize live provider smoke report[\s\S]*?if:\s*\$\{\{\s*always\(\)\s*\}\}[\s\S]*?run:\s*npm run smoke:live:summary/.test(
+        input.releaseWorkflow
+      ),
+      "smoke:live:summary with always()"
     ),
     check(
       "live-smoke-gate",

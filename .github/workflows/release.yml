@@ -81,6 +81,10 @@ jobs:
         if: ${{ github.event_name == 'release' || github.event.inputs.require_live_smoke == 'true' }}
         run: npm run smoke:live:report -- --require-passed
 
+      - name: Summarize live provider smoke report
+        if: ${{ always() }}
+        run: npm run smoke:live:summary
+
       - name: Upload live provider smoke report
         uses: actions/upload-artifact@v7
         if: ${{ always() }}

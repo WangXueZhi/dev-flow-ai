@@ -17,7 +17,7 @@ npm run release:preflight
 
 `npm run release:preflight` runs release readiness, the package checks, installed package smoke, GitHub install smoke, example delivery smoke, manifest-backed status smoke, optional live provider smoke, live-smoke report validation, and a local `.env`, `.env.*` except `.env.example`, and `.tgz` residue check.
 
-`dev-flow smoke-provider --require-live` sends a minimal request through the installed CLI and writes `.devflow/artifacts/live-provider-smoke.json` without using fixture replay. `npm run smoke:live` runs the fuller repository release smoke and skips when no live provider key is configured. `npm run smoke:live:report` validates the JSON report shape and fails on `status: "failed"`; add `-- --require-passed` when a release gate must prove `status: "passed"` and `required: true`. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`. Set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` when CI should store the JSON report in a custom artifact location. `dev-flow status` surfaces that report in the text delivery summary when it exists, while `status --json` remains the raw delivery manifest. The Release workflow fixes this path, validates the report before npm publish, and uploads it with the `Upload live provider smoke report` workflow artifact, even when the smoke step fails, so maintainers can inspect skipped, failed, and passed live-smoke evidence.
+`dev-flow smoke-provider --require-live` sends a minimal request through the installed CLI and writes `.devflow/artifacts/live-provider-smoke.json` without using fixture replay. `npm run smoke:live` runs the fuller repository release smoke and skips when no live provider key is configured. `npm run smoke:live:report` validates the JSON report shape and fails on `status: "failed"`; add `-- --require-passed` when a release gate must prove `status: "passed"` and `required: true`. For a release gate that must verify the real provider path, run the preflight with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY`. Set `DEVFLOW_LIVE_SMOKE_REPORT=<path>` when CI should store the JSON report in a custom artifact location. `dev-flow status` surfaces that report in the text delivery summary when it exists, while `status --json` remains the raw delivery manifest. The Release workflow fixes this path, validates the report before npm publish, writes a sanitized live-smoke section to the GitHub job summary, and uploads the JSON with the `Upload live provider smoke report` workflow artifact, even when the smoke step fails, so maintainers can inspect skipped, failed, and passed live-smoke evidence.
 
 Run the React/Vite example smoke test:
 
@@ -72,6 +72,7 @@ node ../../dist/cli.js deliver \
 - Confirm `npm run smoke:live` has either passed against a real provider or intentionally skipped for a non-live release, then run `npm run smoke:live:report` to validate `.devflow/artifacts/live-provider-smoke.json`.
 - Confirm `dev-flow status` shows the live provider smoke section when `.devflow/artifacts/live-provider-smoke.json` exists.
 - Confirm required live release gates run `npm run smoke:live:report -- --require-passed`.
+- Confirm the Release workflow job summary includes the sanitized live provider smoke section.
 - Confirm the Release workflow uploads the `live-provider-smoke-report` artifact containing `.devflow/artifacts/live-provider-smoke.json`.
 - Confirm no secrets or local `.env`/`.env.*` files, except `.env.example`, are included in the package.
 - Tag the release after CI passes.
@@ -92,6 +93,7 @@ The workflow:
 - Runs optional `npm run smoke:live` for manual dispatch unless `require_live_smoke` is `"true"`.
 - Requires `npm run smoke:live` with `DEVFLOW_REQUIRE_LIVE_SMOKE=true` when a GitHub Release is published.
 - Validates the live-provider smoke JSON with `npm run smoke:live:report`, requiring `status: "passed"` before publish when the live smoke gate is required.
+- Writes a sanitized live-provider smoke section to the GitHub job summary with `npm run smoke:live:summary` and `if: always()`.
 - Uploads `.devflow/artifacts/live-provider-smoke.json` as the `live-provider-smoke-report` workflow artifact with `if: always()`.
 - Checks that the `NPM_TOKEN` repository secret is configured before publish.
 - Publishes with `npm publish --provenance --access public`.

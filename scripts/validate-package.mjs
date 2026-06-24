@@ -40,6 +40,7 @@ const requiredFiles = [
   "scripts/smoke-github-install.mjs",
   "scripts/live-provider-smoke.mjs",
   "scripts/verify-live-smoke-report.mjs",
+  "scripts/summarize-live-smoke-report.mjs",
   "scripts/summarize-manifest.mjs"
 ];
 

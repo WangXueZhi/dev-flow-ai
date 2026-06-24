@@ -15,11 +15,17 @@ const validInput = {
     publishConfig: {
       access: "public"
     },
-    files: ["dist", "scripts/release-readiness.mjs", "scripts/verify-live-smoke-report.mjs"],
+    files: [
+      "dist",
+      "scripts/release-readiness.mjs",
+      "scripts/verify-live-smoke-report.mjs",
+      "scripts/summarize-live-smoke-report.mjs"
+    ],
     scripts: {
       "release:readiness": "node scripts/release-readiness.mjs",
       "release:preflight": "node scripts/release-preflight.mjs",
-      "smoke:live:report": "node scripts/verify-live-smoke-report.mjs"
+      "smoke:live:report": "node scripts/verify-live-smoke-report.mjs",
+      "smoke:live:summary": "node scripts/summarize-live-smoke-report.mjs"
     }
   },
   packageLock: {
@@ -62,6 +68,9 @@ const validInput = {
     "        run: npm run smoke:live:report",
     "      - name: Verify required live provider smoke report",
     "        run: npm run smoke:live:report -- --require-passed",
+    "      - name: Summarize live provider smoke report",
+    "        if: ${{ always() }}",
+    "        run: npm run smoke:live:summary",
     "      - name: Upload live provider smoke report",
     "        uses: actions/upload-artifact@v7",
     "        if: ${{ always() }}",
@@ -130,5 +139,6 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.ok(failedIds.includes("release-workflow-live-smoke"));
   assert.ok(failedIds.includes("release-workflow-live-smoke-artifact"));
   assert.ok(failedIds.includes("release-workflow-live-smoke-report-gate"));
+  assert.ok(failedIds.includes("release-workflow-live-smoke-summary"));
   assert.ok(failedIds.includes("live-smoke-gate"));
 });
