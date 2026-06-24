@@ -109,7 +109,7 @@ Reference screenshots, wireframes, or exports with Markdown image links so DevFl
 `,
     [config.apiPath]: `# API Docs
 
-Describe endpoints, schemas, auth, errors, loading behavior, and integration constraints. Include concrete method/path lines, JSON examples, or OpenAPI JSON/YAML when possible.
+Describe HTTP endpoints, GraphQL operations, schemas, auth, errors, loading behavior, and integration constraints. Include concrete method/path lines, GraphQL query or mutation snippets, JSON examples, or OpenAPI JSON/YAML when possible.
 
 ## Authentication
 
@@ -121,6 +121,17 @@ Describe endpoints, schemas, auth, errors, loading behavior, and integration con
 
 - GET /api/example
 - POST /api/example
+
+## GraphQL Operations
+
+\`\`\`graphql
+query ExampleStatus($id: ID!) {
+  example(id: $id) {
+    id
+    status
+  }
+}
+\`\`\`
 
 ## Data Models
 

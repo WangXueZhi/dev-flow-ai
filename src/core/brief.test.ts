@@ -593,6 +593,55 @@ test("extractApiContracts handles common HTTP endpoint lines and removes duplica
   );
 });
 
+test("extractApiContracts handles GraphQL operations and removes duplicates", () => {
+  const apiMarkdown = [
+    "# API",
+    "",
+    "- GraphQL `query ReleaseSummary($id: ID!)`",
+    "- Cache notes mention query freshness without defining an operation.",
+    "",
+    "```graphql",
+    "query ReleaseSummary($id: ID!) {",
+    "  release(id: $id) { id status }",
+    "}",
+    "",
+    "mutation UpdateRelease($id: ID!, $input: ReleaseInput!) {",
+    "  updateRelease(id: $id, input: $input) { id }",
+    "}",
+    "```",
+    "",
+    "```gql",
+    "subscription ReleaseEvents {",
+    "  releaseEvents { id type }",
+    "}",
+    "```"
+  ].join("\n");
+
+  assert.deepEqual(extractApiContracts(apiMarkdown), [
+    {
+      method: "GRAPHQL",
+      path: "query ReleaseSummary",
+      sourceLine: 3,
+      summary: "GraphQL query ReleaseSummary($id: ID!)"
+    },
+    {
+      method: "GRAPHQL",
+      path: "mutation UpdateRelease",
+      sourceLine: 11,
+      summary: "GraphQL mutation UpdateRelease"
+    },
+    {
+      method: "GRAPHQL",
+      path: "subscription ReleaseEvents",
+      sourceLine: 17,
+      summary: "GraphQL subscription ReleaseEvents"
+    }
+  ]);
+
+  const brief = createProjectBrief({ ...context, api: apiMarkdown }, stack);
+  assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GRAPHQL mutation UpdateRelease/);
+});
+
 test("extractApiContracts handles OpenAPI JSON paths", () => {
   const openApiMarkdown = [
     "# API",

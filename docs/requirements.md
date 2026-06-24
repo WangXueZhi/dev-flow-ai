@@ -26,7 +26,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow brief` writes `.devflow/artifacts/project-brief.json`.
 - [ ] The project brief includes source documents, extracted signals, user stories, requirement constraints, stack profile, acceptance criteria, delivery risks, open questions, normalized frontend targets with explicit route paths and component names, and verification commands derived from detected package scripts, common aliases, or inferred TypeScript, test, and build tooling.
 - [ ] The project brief includes UI design assets referenced by Markdown image links, local file existence, lightweight SVG metadata including color swatches, and PNG/JPEG dimensions when available.
-- [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references.
+- [ ] The project brief includes API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations.
 - [ ] The project brief includes API data model summaries extracted from fenced `json` examples.
 - [ ] The project brief includes API error cases and authentication requirements extracted from API docs.
 - [ ] The project brief includes API contracts, API data models, API error cases, and API auth requirements extracted from fenced OpenAPI JSON/YAML blocks.

@@ -11,6 +11,7 @@
 - Structured project brief.
 - API error case and auth requirement extraction.
 - OpenAPI JSON/YAML path, component schema, request/response schema, error response, and security extraction.
+- GraphQL operation extraction for `query`, `mutation`, and `subscription` API docs.
 - Lightweight local SVG metadata/color extraction and PNG/JPEG dimension extraction for design assets.
 - Basic repository stack detection.
 - UI state checklist generation from design notes.

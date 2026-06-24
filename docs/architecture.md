@@ -31,7 +31,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Config: local `.devflow/config.json` loading and defaults.
 - Context: reads requirements, UI notes, and API docs.
 - Design Assets: extracts UI Markdown image references into the project brief, including local path existence, SVG structure/text/color metadata, and PNG/JPEG dimensions for local assets.
-- API Contracts: extracts recognizable HTTP method/path endpoint references, fenced JSON data model summaries, OpenAPI JSON/YAML structures, API error cases, and auth requirements into the project brief.
+- API Contracts: extracts recognizable HTTP method/path endpoint references, GraphQL operations, fenced JSON data model summaries, OpenAPI JSON/YAML structures, API error cases, and auth requirements into the project brief.
 - Stack Detector: detects package manager, runtime, frontend frameworks, build tools, styling, testing, scripts, source directories, and config files from dependency metadata plus common frontend conventions such as Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Brief: combines documents and repository signals into `.devflow/artifacts/project-brief.json`, including normalized route/view, explicit route path, component name, data-need, and UI-state targets for downstream planning.
 - AI Provider: calls OpenAI-compatible chat completions for planning and dry-run execution when configured.
@@ -76,7 +76,7 @@ The brief contains:
 - Extracted requirement, UI, and API signals.
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions when available.
-- API endpoint contracts extracted from HTTP method/path references.
+- API endpoint contracts extracted from HTTP method/path references and GraphQL operations.
 - API data models extracted from fenced `json` examples.
 - API error cases and authentication requirements extracted from API docs.
 - OpenAPI JSON/YAML paths, component schemas, request/response schemas, error responses, and security requirements extracted from fenced blocks.

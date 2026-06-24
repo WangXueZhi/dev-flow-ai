@@ -53,6 +53,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
 - Added API error case and auth requirement extraction for planning, task units, and delivery reports.
 - Added fenced OpenAPI JSON/YAML extraction for paths, component schemas, request/response schemas, error responses, and security requirements.
+- Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.
 - Added repository stack detection for package manager, runtime, framework, build, styling, testing, scripts, source directories, and config files.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Added structured project brief generation.

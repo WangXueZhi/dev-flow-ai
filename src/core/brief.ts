@@ -643,24 +643,39 @@ export function extractApiContracts(apiMarkdown: string): ApiContract[] {
   const seen = new Set<string>();
   const endpointPattern = /\b(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\s+([^\s`),\]]+)/i;
   const lines = apiMarkdown.split(/\r?\n/);
+  let inFencedCodeBlock = false;
 
   for (const [index, line] of lines.entries()) {
-    const match = endpointPattern.exec(line);
-
-    if (!match) {
+    if (/^```/.test(line.trim())) {
+      inFencedCodeBlock = !inFencedCodeBlock;
       continue;
     }
 
-    const method = (match[1] ?? "").toUpperCase();
-    const path = (match[2] ?? "").replace(/`+$/g, "");
-    const key = `${method} ${path}`;
+    const match = endpointPattern.exec(line);
 
-    addApiContract(contracts, seen, {
-      method,
-      path,
-      sourceLine: index + 1,
-      summary: normalizeApiSummary(line)
-    });
+    if (match) {
+      const method = (match[1] ?? "").toUpperCase();
+      const path = (match[2] ?? "").replace(/`+$/g, "");
+
+      addApiContract(contracts, seen, {
+        method,
+        path,
+        sourceLine: index + 1,
+        summary: normalizeApiSummary(line)
+      });
+    }
+
+    if (!inFencedCodeBlock) {
+      for (const contract of extractInlineGraphqlContracts(line, index + 1)) {
+        addApiContract(contracts, seen, contract);
+      }
+    }
+  }
+
+  for (const block of extractGraphqlBlocks(apiMarkdown)) {
+    for (const contract of extractGraphqlOperationContracts(block.content, block.sourceLine + 1)) {
+      addApiContract(contracts, seen, contract);
+    }
   }
 
   for (const document of extractOpenApiDocuments(apiMarkdown)) {
@@ -1413,6 +1428,51 @@ function normalizeApiSummary(line: string): string {
     .trim();
 }
 
+function extractInlineGraphqlContracts(line: string, sourceLine: number): ApiContract[] {
+  const summary = normalizeApiSummary(line);
+
+  if (!summary || !/\b(?:query|mutation|subscription)\s+[_A-Za-z][_0-9A-Za-z]*/.test(summary)) {
+    return [];
+  }
+
+  if (!/\bGraphQL\b/i.test(summary) && !/`[^`]*\b(?:query|mutation|subscription)\s+[_A-Za-z][_0-9A-Za-z]*/.test(line) && !/[({]/.test(summary)) {
+    return [];
+  }
+
+  return extractGraphqlOperationContracts(summary, sourceLine, summary, false);
+}
+
+function extractGraphqlOperationContracts(
+  content: string,
+  sourceLine: number,
+  summary?: string,
+  allowAnonymous = true
+): ApiContract[] {
+  const contracts: ApiContract[] = [];
+  const operationPattern = /\b(query|mutation|subscription)\b\s*([_A-Za-z][_0-9A-Za-z]*)?/g;
+
+  for (const match of content.matchAll(operationPattern)) {
+    const operation = match[1];
+    const name = match[2];
+
+    if (!operation || (!name && !allowAnonymous)) {
+      continue;
+    }
+
+    const path = name ? `${operation} ${name}` : operation;
+    const lineOffset = content.slice(0, match.index).split(/\r?\n/).length - 1;
+
+    contracts.push({
+      method: "GRAPHQL",
+      path,
+      sourceLine: sourceLine + lineOffset,
+      summary: summary ?? `GraphQL ${path}`
+    });
+  }
+
+  return contracts;
+}
+
 function addApiContract(contracts: ApiContract[], seen: Set<string>, contract: ApiContract): void {
   const key = `${contract.method} ${contract.path}`;
 
@@ -1850,6 +1910,10 @@ function extractJsonBlocks(markdown: string): MarkdownCodeBlock[] {
 
 function extractYamlBlocks(markdown: string): MarkdownCodeBlock[] {
   return extractFencedCodeBlocks(markdown, /^```ya?ml\s*$/i);
+}
+
+function extractGraphqlBlocks(markdown: string): MarkdownCodeBlock[] {
+  return extractFencedCodeBlocks(markdown, /^```(?:graphql|gql)\s*$/i);
 }
 
 function extractFencedCodeBlocks(markdown: string, openingPattern: RegExp): MarkdownCodeBlock[] {
