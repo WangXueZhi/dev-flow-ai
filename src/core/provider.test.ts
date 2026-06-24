@@ -30,9 +30,14 @@ test("getAiProviderStatus reports fixture mode first", () => {
     {
       mode: "fixture",
       ready: true,
+      liveApiKeyEnvName: "DEVFLOW_AI_API_KEY",
       fixturePath: "fixtures/patch-set.json",
+      fixtureOverridesLive: true,
       baseUrl: "https://api.openai.com/v1",
-      model: "gpt-4.1"
+      baseUrlSource: "default",
+      chatCompletionsUrl: "https://api.openai.com/v1/chat/completions",
+      model: "gpt-4.1",
+      modelSource: "default"
     }
   );
 });
@@ -48,8 +53,35 @@ test("getAiProviderStatus falls back to OPENAI_API_KEY", () => {
       mode: "live",
       ready: true,
       apiKeyEnvName: "OPENAI_API_KEY",
+      liveApiKeyEnvName: "OPENAI_API_KEY",
+      fixtureOverridesLive: false,
       baseUrl: "https://gateway.example/v1",
-      model: "example-model"
+      baseUrlSource: "env",
+      chatCompletionsUrl: "https://gateway.example/v1/chat/completions",
+      model: "example-model",
+      modelSource: "env"
+    }
+  );
+});
+
+test("getAiProviderStatus prefers DEVFLOW_AI_API_KEY over OPENAI_API_KEY", () => {
+  assert.deepEqual(
+    getAiProviderStatus({
+      DEVFLOW_AI_API_KEY: "devflow-key",
+      OPENAI_API_KEY: "openai-key",
+      DEVFLOW_AI_BASE_URL: "https://gateway.example/v1/"
+    }),
+    {
+      mode: "live",
+      ready: true,
+      apiKeyEnvName: "DEVFLOW_AI_API_KEY",
+      liveApiKeyEnvName: "DEVFLOW_AI_API_KEY",
+      fixtureOverridesLive: false,
+      baseUrl: "https://gateway.example/v1/",
+      baseUrlSource: "env",
+      chatCompletionsUrl: "https://gateway.example/v1/chat/completions",
+      model: "gpt-4.1",
+      modelSource: "default"
     }
   );
 });
@@ -59,8 +91,13 @@ test("getAiProviderStatus reports fallback mode without a provider", () => {
     mode: "fallback",
     ready: false,
     apiKeyEnvName: undefined,
+    liveApiKeyEnvName: undefined,
+    fixtureOverridesLive: false,
     baseUrl: "https://api.openai.com/v1",
-    model: "gpt-4.1"
+    baseUrlSource: "default",
+    chatCompletionsUrl: "https://api.openai.com/v1/chat/completions",
+    model: "gpt-4.1",
+    modelSource: "default"
   });
 });
 
@@ -136,7 +173,7 @@ test("createAiProviderFromEnv surfaces provider HTTP failures", async () => {
         system: "system",
         prompt: "prompt"
       }),
-      /AI provider request failed \(429\): rate limited/
+      /AI provider request failed \(429\) \(http:\/\/127\.0\.0\.1:\d+\/v1\/chat\/completions, model gpt-4\.1 using DEVFLOW_AI_API_KEY\): rate limited/
     );
   } finally {
     restoreEnv();

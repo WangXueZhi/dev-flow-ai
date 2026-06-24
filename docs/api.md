@@ -60,6 +60,10 @@ Use fenced `json`, `yaml`, or `yml` blocks for structured OpenAPI extraction. In
 - `DEVFLOW_AI_MODEL`: model name, default `gpt-4.1`.
 - `DEVFLOW_AI_FIXTURE_PATH`: optional local file used to replay an AI response for tests and CI.
 
+`DEVFLOW_AI_API_KEY` takes precedence over `OPENAI_API_KEY` when both are set. `DEVFLOW_AI_FIXTURE_PATH` takes precedence over live provider keys so deterministic tests and CI fixtures do not call an external model.
+
+Run `dev-flow doctor --json` to inspect `aiProvider.mode`, `apiKeyEnvName`, `liveApiKeyEnvName`, `baseUrl`, `baseUrlSource`, `chatCompletionsUrl`, `model`, `modelSource`, and `fixtureOverridesLive` without making a provider request.
+
 ## Endpoint
 
 `POST {DEVFLOW_AI_BASE_URL}/chat/completions`

@@ -115,6 +115,8 @@ Pass provider configuration through environment variables or GitHub secrets. The
     DEVFLOW_AI_MODEL: gpt-4.1
 ```
 
+`DEVFLOW_AI_API_KEY` takes precedence over `OPENAI_API_KEY` when both are present. `DEVFLOW_AI_FIXTURE_PATH` takes precedence over live keys for deterministic CI; `dev-flow doctor --json` reports `aiProvider.fixtureOverridesLive` when fixture replay is overriding a configured live key.
+
 Set `source-context: "false"` to omit sampled repository source snippets from AI prompts while still sending requirements, UI notes, API docs, project brief, task plan, and target profile context:
 
 ```yaml

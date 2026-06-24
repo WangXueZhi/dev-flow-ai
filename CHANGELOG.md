@@ -29,6 +29,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added prompt artifact directory status to delivery reports, manifests, local status summaries, and GitHub Actions job summaries.
 - Added prompt artifact diagnostics to `dev-flow doctor --json`, including saved prompt file counts and latest prompt metadata.
 - Added source-context diagnostics to `dev-flow doctor` and `dev-flow doctor --json`.
+- Added AI provider endpoint, model, default/env source, key-source, and fixture-override diagnostics to `dev-flow doctor --json`, plus provider error messages that include endpoint/model context without exposing keys.
 - Added `dev-flow execute --validate --patch-set <path>` for non-mutating patch-set validation.
 - Added patch-set validation to the fixture-backed example smoke flow.
 - Added `schemas/patch-set.schema.json` and patch-set schema documentation.

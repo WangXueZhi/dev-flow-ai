@@ -75,11 +75,15 @@ async function createDoctorReport(flags: FlagMap): Promise<DoctorReport> {
 
   const messages: string[] = [];
   if (aiStatus.mode === "fallback") {
-    messages.push("AI provider is not configured; plan will use the local fallback.");
+    messages.push(`AI provider is not configured; plan will use the local fallback. Default endpoint would be ${aiStatus.chatCompletionsUrl} with model ${aiStatus.model}.`);
   } else if (aiStatus.mode === "fixture") {
-    messages.push(`AI provider fixture configured: ${aiStatus.fixturePath}`);
+    const override = aiStatus.fixtureOverridesLive && aiStatus.liveApiKeyEnvName
+      ? ` Fixture responses override ${aiStatus.liveApiKeyEnvName} for deterministic runs.`
+      : "";
+
+    messages.push(`AI provider fixture configured: ${aiStatus.fixturePath}.${override}`);
   } else {
-    messages.push(`AI provider configured via ${aiStatus.apiKeyEnvName}; model ${aiStatus.model}.`);
+    messages.push(`AI provider configured via ${aiStatus.apiKeyEnvName}; endpoint ${aiStatus.chatCompletionsUrl}; model ${aiStatus.model}.`);
   }
 
   if (!chromiumStatus.available) {

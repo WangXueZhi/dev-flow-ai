@@ -60,6 +60,7 @@ node ../../dist/cli.js deliver \
 - Confirm `docs/github-action.md` and `action.yml` match the current safe delivery behavior.
 - Confirm the repository has an `NPM_TOKEN` secret with publish rights for `dev-flow-ai`.
 - Confirm the repository has `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured before publishing a GitHub Release.
+- Confirm `dev-flow doctor --json` reports the expected provider endpoint, model, key source, and fixture override state without exposing secret values.
 - Confirm `dev-flow doctor` reports Playwright Chromium readiness before visual checks.
 - Confirm `npm run release:readiness` passes.
 - Confirm `npm run release:preflight` passes.

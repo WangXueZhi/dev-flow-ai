@@ -74,7 +74,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] The GitHub Action writes a job summary from `.devflow/artifacts/delivery-manifest.json` by default and can disable it with `job-summary: "false"`.
 - [ ] The GitHub Action can fail CI with manifest-backed readiness and failed-verification gates.
 - [ ] `dev-flow plan` uses a deterministic local fallback when no AI key is configured.
-- [ ] `dev-flow doctor` reports runtime, document, config, Playwright Chromium, and AI provider readiness.
+- [ ] `dev-flow doctor` reports runtime, document, config, Playwright Chromium, AI provider readiness, provider endpoint/model diagnostics, and fixture override state without exposing provider keys.
 - [ ] `dev-flow doctor --json` reports whether sampled repository source snippets are enabled for AI prompts.
 - [ ] The repository includes a composite GitHub Action that runs safe `dev-flow deliver` by default and requires explicit confirmation for source-changing delivery.
 - [ ] The repository includes product, architecture, roadmap, contribution, license, and quick-start docs.

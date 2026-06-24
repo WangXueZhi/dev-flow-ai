@@ -17,9 +17,14 @@ export interface AiProviderStatus {
   mode: "fixture" | "live" | "fallback";
   ready: boolean;
   apiKeyEnvName?: "DEVFLOW_AI_API_KEY" | "OPENAI_API_KEY";
+  liveApiKeyEnvName?: "DEVFLOW_AI_API_KEY" | "OPENAI_API_KEY";
   fixturePath?: string;
+  fixtureOverridesLive: boolean;
   baseUrl: string;
+  baseUrlSource: "default" | "env";
+  chatCompletionsUrl: string;
   model: string;
+  modelSource: "default" | "env";
 }
 
 interface ChatCompletionResponse {
@@ -30,48 +35,56 @@ interface ChatCompletionResponse {
   }>;
 }
 
+const defaultBaseUrl = "https://api.openai.com/v1";
+const defaultModel = "gpt-4.1";
+
 export function createAiProviderFromEnv(): AiProvider | undefined {
-  const fixturePath = process.env.DEVFLOW_AI_FIXTURE_PATH;
+  const config = readAiProviderConfig(process.env);
+  const fixturePath = config.fixturePath;
 
   if (fixturePath) {
     return createFixtureAiProvider(fixturePath);
   }
 
-  const apiKey = process.env.DEVFLOW_AI_API_KEY ?? process.env.OPENAI_API_KEY;
+  const apiKey = config.apiKey;
 
   if (!apiKey) {
     return undefined;
   }
 
-  const baseUrl = process.env.DEVFLOW_AI_BASE_URL ?? "https://api.openai.com/v1";
-  const model = process.env.DEVFLOW_AI_MODEL ?? "gpt-4.1";
-
   async function complete(input: AiCompletionInput): Promise<string> {
-    const response = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          {
-            role: "system",
-            content: input.system
-          },
-          {
-            role: "user",
-            content: input.prompt
-          }
-        ],
-        temperature: input.temperature ?? 0.2
-      })
-    });
+    let response: Response;
+
+    try {
+      response = await fetch(config.chatCompletionsUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: [
+            {
+              role: "system",
+              content: input.system
+            },
+            {
+              role: "user",
+              content: input.prompt
+            }
+          ],
+          temperature: input.temperature ?? 0.2
+        })
+      });
+    } catch (error) {
+      const details = error instanceof Error ? error.message : String(error);
+      throw new Error(`AI provider request failed before a response was received (${formatProviderTarget(config)}): ${details}`);
+    }
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`AI provider request failed (${response.status}): ${body}`);
+      throw new Error(`AI provider request failed (${response.status}) (${formatProviderTarget(config)}): ${body}`);
     }
 
     const data = (await response.json()) as ChatCompletionResponse;
@@ -99,28 +112,34 @@ export function createAiProviderFromEnv(): AiProvider | undefined {
 }
 
 export function getAiProviderStatus(env: NodeJS.ProcessEnv = process.env): AiProviderStatus {
-  if (env.DEVFLOW_AI_FIXTURE_PATH) {
+  const config = readAiProviderConfig(env);
+
+  if (config.fixturePath) {
     return {
       mode: "fixture",
       ready: true,
-      fixturePath: env.DEVFLOW_AI_FIXTURE_PATH,
-      baseUrl: env.DEVFLOW_AI_BASE_URL ?? "https://api.openai.com/v1",
-      model: env.DEVFLOW_AI_MODEL ?? "gpt-4.1"
+      liveApiKeyEnvName: config.apiKeyEnvName,
+      fixturePath: config.fixturePath,
+      fixtureOverridesLive: Boolean(config.apiKeyEnvName),
+      baseUrl: config.baseUrl,
+      baseUrlSource: config.baseUrlSource,
+      chatCompletionsUrl: config.chatCompletionsUrl,
+      model: config.model,
+      modelSource: config.modelSource
     };
   }
 
-  const apiKeyEnvName = env.DEVFLOW_AI_API_KEY
-    ? "DEVFLOW_AI_API_KEY"
-    : env.OPENAI_API_KEY
-      ? "OPENAI_API_KEY"
-      : undefined;
-
   return {
-    mode: apiKeyEnvName ? "live" : "fallback",
-    ready: Boolean(apiKeyEnvName),
-    apiKeyEnvName,
-    baseUrl: env.DEVFLOW_AI_BASE_URL ?? "https://api.openai.com/v1",
-    model: env.DEVFLOW_AI_MODEL ?? "gpt-4.1"
+    mode: config.apiKeyEnvName ? "live" : "fallback",
+    ready: Boolean(config.apiKeyEnvName),
+    apiKeyEnvName: config.apiKeyEnvName,
+    liveApiKeyEnvName: config.apiKeyEnvName,
+    fixtureOverridesLive: false,
+    baseUrl: config.baseUrl,
+    baseUrlSource: config.baseUrlSource,
+    chatCompletionsUrl: config.chatCompletionsUrl,
+    model: config.model,
+    modelSource: config.modelSource
   };
 }
 
@@ -138,4 +157,52 @@ export function createFixtureAiProvider(path: string): AiProvider {
       });
     }
   };
+}
+
+interface AiProviderConfig {
+  apiKey?: string;
+  apiKeyEnvName?: "DEVFLOW_AI_API_KEY" | "OPENAI_API_KEY";
+  fixturePath?: string;
+  baseUrl: string;
+  baseUrlSource: "default" | "env";
+  chatCompletionsUrl: string;
+  model: string;
+  modelSource: "default" | "env";
+}
+
+function readAiProviderConfig(env: NodeJS.ProcessEnv): AiProviderConfig {
+  const apiKeyEnvName = readEnvValue(env, "DEVFLOW_AI_API_KEY")
+    ? "DEVFLOW_AI_API_KEY"
+    : readEnvValue(env, "OPENAI_API_KEY")
+      ? "OPENAI_API_KEY"
+      : undefined;
+  const baseUrl = readEnvValue(env, "DEVFLOW_AI_BASE_URL");
+  const model = readEnvValue(env, "DEVFLOW_AI_MODEL");
+
+  return {
+    apiKey: apiKeyEnvName ? readEnvValue(env, apiKeyEnvName) : undefined,
+    apiKeyEnvName,
+    fixturePath: readEnvValue(env, "DEVFLOW_AI_FIXTURE_PATH"),
+    baseUrl: baseUrl ?? defaultBaseUrl,
+    baseUrlSource: baseUrl ? "env" : "default",
+    chatCompletionsUrl: buildChatCompletionsUrl(baseUrl ?? defaultBaseUrl),
+    model: model ?? defaultModel,
+    modelSource: model ? "env" : "default"
+  };
+}
+
+function buildChatCompletionsUrl(baseUrl: string): string {
+  return `${baseUrl.replace(/\/+$/, "")}/chat/completions`;
+}
+
+function formatProviderTarget(config: Pick<AiProviderConfig, "apiKeyEnvName" | "chatCompletionsUrl" | "model">): string {
+  const keySource = config.apiKeyEnvName ? ` using ${config.apiKeyEnvName}` : "";
+
+  return `${config.chatCompletionsUrl}, model ${config.model}${keySource}`;
+}
+
+function readEnvValue(env: NodeJS.ProcessEnv, key: string): string | undefined {
+  const value = env[key]?.trim();
+
+  return value ? value : undefined;
 }

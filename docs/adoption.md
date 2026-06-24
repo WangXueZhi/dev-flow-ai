@@ -107,6 +107,8 @@ dev-flow doctor --json
 
 `doctor --json` includes `promptArtifacts` and `sourceContext.enabled`, so teams can verify whether saved AI prompt artifacts exist and whether sampled repository source snippets are currently enabled for AI prompts.
 
+It also includes `aiProvider.chatCompletionsUrl`, `aiProvider.model`, default/env source fields, and fixture override diagnostics so teams can confirm which OpenAI-compatible endpoint DevFlow would use before running a live plan, execute, or release smoke.
+
 When using a live provider, DevFlow can omit sampled repository source snippets while still sending requirements, UI notes, API docs, project brief, task plan, and target profile context:
 
 ```bash

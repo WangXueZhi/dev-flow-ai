@@ -98,6 +98,8 @@ export DEVFLOW_AI_MODEL="gpt-4.1"
 
 Without an API key, `dev-flow plan` and `dev-flow execute --dry-run` fall back to deterministic local output. That fallback is intentionally useful for development and tests, but the AI path is where richer implementation plans and patch proposals come from.
 
+Use `dev-flow doctor --json` to inspect provider diagnostics without making a live request. The JSON includes the active mode, selected key environment variable, normalized chat completions endpoint, model, whether base URL and model came from defaults or environment variables, and whether fixture replay is overriding a configured live key.
+
 When a live provider is configured, execution prompts may include bounded snippets of existing repository files selected from the target profile. To use an AI provider without sending sampled source snippets, pass `--no-source-context` to `dev-flow execute` or `dev-flow deliver`, or set:
 
 ```bash
@@ -122,6 +124,8 @@ For reproducible tests or CI without a live model, point `DEVFLOW_AI_FIXTURE_PAT
 ```bash
 DEVFLOW_AI_FIXTURE_PATH=fixtures/patch-set.json dev-flow execute --apply --task T03-code-implementation
 ```
+
+When both `DEVFLOW_AI_FIXTURE_PATH` and a live key are set, fixture replay wins so deterministic tests do not call a live provider.
 
 To verify a real provider before a release or demo, run the optional live smoke test after building:
 
@@ -209,7 +213,7 @@ For machine-readable diagnostics:
 dev-flow doctor --json
 ```
 
-Doctor output also reports whether prompt artifacts have been saved for local review and whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
+Doctor output also reports the active AI provider mode, selected key environment variable, normalized chat completions endpoint, model, provider default/env sources, whether prompt artifacts have been saved for local review, and whether sampled repository source snippets are enabled for AI prompts. Use `DEVFLOW_SOURCE_CONTEXT=none dev-flow doctor --json` to verify a privacy-oriented environment.
 
 ### `dev-flow tasks`
 

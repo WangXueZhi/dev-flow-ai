@@ -48,7 +48,14 @@ test("dev-flow doctor --json prints structured diagnostics", () => {
   const report = JSON.parse(result.stdout) as {
     version: string;
     checks: Array<{ label: string; ok: boolean }>;
-    aiProvider: { mode: string };
+    aiProvider: {
+      mode: string;
+      chatCompletionsUrl: string;
+      model: string;
+      baseUrlSource: string;
+      modelSource: string;
+      fixtureOverridesLive: boolean;
+    };
     sourceContext: { enabled: boolean; source: string };
     promptArtifacts: { path: string; status: string; fileCount: number; truncated: boolean };
   };
@@ -56,11 +63,80 @@ test("dev-flow doctor --json prints structured diagnostics", () => {
   assert.equal(report.version, `dev-flow ${packageJson.version}`);
   assert.ok(report.checks.some((check) => check.label === "Node.js >= 20"));
   assert.ok(report.aiProvider.mode);
+  assert.equal(report.aiProvider.chatCompletionsUrl, "https://api.openai.com/v1/chat/completions");
+  assert.equal(report.aiProvider.model, "gpt-4.1");
+  assert.equal(report.aiProvider.baseUrlSource, "default");
+  assert.equal(report.aiProvider.modelSource, "default");
+  assert.equal(report.aiProvider.fixtureOverridesLive, false);
   assert.equal(report.sourceContext.enabled, true);
   assert.ok(report.sourceContext.source);
   assert.equal(report.promptArtifacts.path, ".devflow/artifacts/prompts");
   assert.equal(typeof report.promptArtifacts.fileCount, "number");
   assert.equal(report.promptArtifacts.truncated, false);
+});
+
+test("dev-flow doctor --json surfaces live provider endpoint diagnostics", () => {
+  const result = spawnSync(process.execPath, [cliPath, "doctor", "--json"], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      DEVFLOW_AI_API_KEY: "test-key",
+      OPENAI_API_KEY: "ignored-key",
+      DEVFLOW_AI_BASE_URL: "https://gateway.example/v1/",
+      DEVFLOW_AI_MODEL: "example-model"
+    }
+  });
+
+  assert.equal(result.status, 0);
+  const report = JSON.parse(result.stdout) as {
+    aiProvider: {
+      mode: string;
+      apiKeyEnvName?: string;
+      liveApiKeyEnvName?: string;
+      baseUrl: string;
+      baseUrlSource: string;
+      chatCompletionsUrl: string;
+      model: string;
+      modelSource: string;
+    };
+    messages: string[];
+  };
+
+  assert.equal(report.aiProvider.mode, "live");
+  assert.equal(report.aiProvider.apiKeyEnvName, "DEVFLOW_AI_API_KEY");
+  assert.equal(report.aiProvider.liveApiKeyEnvName, "DEVFLOW_AI_API_KEY");
+  assert.equal(report.aiProvider.baseUrl, "https://gateway.example/v1/");
+  assert.equal(report.aiProvider.baseUrlSource, "env");
+  assert.equal(report.aiProvider.chatCompletionsUrl, "https://gateway.example/v1/chat/completions");
+  assert.equal(report.aiProvider.model, "example-model");
+  assert.equal(report.aiProvider.modelSource, "env");
+  assert.ok(report.messages.some((message) => message.includes("endpoint https://gateway.example/v1/chat/completions")));
+});
+
+test("dev-flow doctor --json reports fixture override diagnostics", () => {
+  const result = spawnSync(process.execPath, [cliPath, "doctor", "--json"], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      DEVFLOW_AI_FIXTURE_PATH: "fixtures/patch-set.json",
+      DEVFLOW_AI_API_KEY: "test-key"
+    }
+  });
+
+  assert.equal(result.status, 0);
+  const report = JSON.parse(result.stdout) as {
+    aiProvider: {
+      mode: string;
+      liveApiKeyEnvName?: string;
+      fixtureOverridesLive: boolean;
+    };
+    messages: string[];
+  };
+
+  assert.equal(report.aiProvider.mode, "fixture");
+  assert.equal(report.aiProvider.liveApiKeyEnvName, "DEVFLOW_AI_API_KEY");
+  assert.equal(report.aiProvider.fixtureOverridesLive, true);
+  assert.ok(report.messages.some((message) => message.includes("Fixture responses override DEVFLOW_AI_API_KEY")));
 });
 
 test("dev-flow doctor --json reports saved prompt artifacts", () => {
