@@ -76,6 +76,12 @@ export function evaluateReleaseReadiness(input) {
       "npm publish --provenance --access public"
     ),
     check(
+      "release-workflow-readiness",
+      "Release workflow runs static release readiness before publish",
+      /npm run release:readiness/.test(input.releaseWorkflow),
+      "npm run release:readiness"
+    ),
+    check(
       "release-workflow-live-smoke",
       "Release workflow can require live provider smoke with provider secrets",
       /Required live provider smoke/.test(input.releaseWorkflow) &&
@@ -85,12 +91,24 @@ export function evaluateReleaseReadiness(input) {
       "required live smoke with provider secrets"
     ),
     check(
+      "release-workflow-live-smoke-artifact",
+      "Release workflow uploads the live provider smoke JSON report",
+      /DEVFLOW_LIVE_SMOKE_REPORT:\s*\.devflow\/artifacts\/live-provider-smoke\.json/.test(input.releaseWorkflow) &&
+        /Upload live provider smoke report/.test(input.releaseWorkflow) &&
+        /uses:\s*actions\/upload-artifact@v7/.test(input.releaseWorkflow) &&
+        /if:\s*\$\{\{\s*always\(\)\s*\}\}/.test(input.releaseWorkflow) &&
+        /name:\s*live-provider-smoke-report/.test(input.releaseWorkflow) &&
+        /path:\s*\.devflow\/artifacts\/live-provider-smoke\.json/.test(input.releaseWorkflow),
+      ".devflow/artifacts/live-provider-smoke.json artifact upload"
+    ),
+    check(
       "live-smoke-gate",
       "Release docs describe the required live-provider smoke gate and JSON evidence",
       /DEVFLOW_REQUIRE_LIVE_SMOKE=true/.test(input.releaseGuide) &&
         /DEVFLOW_AI_API_KEY|OPENAI_API_KEY/.test(input.releaseGuide) &&
-        /live-provider-smoke\.json/.test(input.releaseGuide),
-      "docs/release.md live provider gate and JSON evidence"
+        /live-provider-smoke\.json/.test(input.releaseGuide) &&
+        /Upload live provider smoke report|workflow artifact/i.test(input.releaseGuide),
+      "docs/release.md live provider gate and JSON artifact evidence"
     )
   ];
 

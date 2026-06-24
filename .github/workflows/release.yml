@@ -21,6 +21,8 @@ permissions:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    env:
+      DEVFLOW_LIVE_SMOKE_REPORT: .devflow/artifacts/live-provider-smoke.json
 
     steps:
       - name: Checkout
@@ -35,6 +37,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Check release readiness
+        run: npm run release:readiness
 
       - name: Check CLI
         run: npm run check
@@ -67,6 +72,15 @@ jobs:
           DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npm run smoke:live
+
+      - name: Upload live provider smoke report
+        uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: live-provider-smoke-report
+          path: .devflow/artifacts/live-provider-smoke.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Check npm token
         env:

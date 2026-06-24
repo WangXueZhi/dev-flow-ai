@@ -46,18 +46,30 @@ const validInput = {
     "",
     "jobs:",
     "  publish:",
+    "    env:",
+    "      DEVFLOW_LIVE_SMOKE_REPORT: .devflow/artifacts/live-provider-smoke.json",
     "    steps:",
+    "      - name: Check release readiness",
+    "        run: npm run release:readiness",
     "      - name: Required live provider smoke",
     "        env:",
     "          DEVFLOW_REQUIRE_LIVE_SMOKE: \"true\"",
     "          DEVFLOW_AI_API_KEY: ${{ secrets.DEVFLOW_AI_API_KEY }}",
     "          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}",
     "        run: npm run smoke:live",
+    "      - name: Upload live provider smoke report",
+    "        uses: actions/upload-artifact@v7",
+    "        if: ${{ always() }}",
+    "        with:",
+    "          name: live-provider-smoke-report",
+    "          path: .devflow/artifacts/live-provider-smoke.json",
+    "          if-no-files-found: warn",
     "      - run: npm publish --provenance --access public",
     "        env:",
     "          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}"
   ].join("\n"),
-  releaseGuide: "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY and archive live-provider-smoke.json."
+  releaseGuide:
+    "Run DEVFLOW_REQUIRE_LIVE_SMOKE=true with DEVFLOW_AI_API_KEY or OPENAI_API_KEY and archive live-provider-smoke.json. The live-provider-smoke-report workflow artifact stores the JSON evidence."
 };
 
 test("evaluateReleaseReadiness passes for complete release metadata", () => {
@@ -105,6 +117,8 @@ test("evaluateReleaseReadiness reports incomplete release metadata", () => {
   assert.ok(failedIds.includes("release-notes"));
   assert.ok(failedIds.includes("release-workflow-trigger"));
   assert.ok(failedIds.includes("release-workflow-provenance"));
+  assert.ok(failedIds.includes("release-workflow-readiness"));
   assert.ok(failedIds.includes("release-workflow-live-smoke"));
+  assert.ok(failedIds.includes("release-workflow-live-smoke-artifact"));
   assert.ok(failedIds.includes("live-smoke-gate"));
 });
