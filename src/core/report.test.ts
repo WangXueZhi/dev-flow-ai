@@ -125,7 +125,7 @@ const brief: ProjectBrief = {
   invalidApiDataModels: [],
   userStories: ["As a release owner, I want dashboard health visible so that release risk is clear."],
   constraints: ["Keep the dashboard dense and operational."],
-  acceptanceCriteria: ["Dashboard renders release health.", "Deploy confidence is visible."],
+  acceptanceCriteria: ["Dashboard renders release health.", "Keep last known dashboard values during background refresh."],
   deliveryRisks: [
     {
       level: "high",
@@ -339,7 +339,12 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
   assert.match(report, /Dashboard renders release health/);
   assert.match(report, /Acceptance Evidence/);
   assert.match(report, /AC1: Dashboard renders release health/);
+  assert.match(report, /AC2: Keep last known dashboard values during background refresh/);
   assert.match(report, /Evidence: Source-changing execution recorded 1 entry touching `src\/App\.tsx`, `src\/ObsoletePanel\.tsx`/);
+  assert.match(
+    report,
+    /Evidence: API state requirement matches this criterion \(api:38\): Keep last known dashboard values during background refresh\./
+  );
   assert.match(report, /Evidence: Verification passed: `npm run check` exit 0/);
   assert.match(report, /Evidence: Visual verification failed: 1 screenshot\(s\), 1\/1 required text checks found/);
   assert.match(report, /Status: needs attention/);
@@ -621,6 +626,11 @@ test("createDeliveryManifest summarizes artifact status and delivery evidence", 
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.id, "AC1");
   assert.equal(manifest.evidence.acceptanceCriteria[0]?.status, "needs attention");
   assert.match(manifest.evidence.acceptanceCriteria[0]?.evidence.join("\n") ?? "", /Verification passed/);
+  assert.doesNotMatch(
+    manifest.evidence.acceptanceCriteria[0]?.evidence.join("\n") ?? "",
+    /API (state requirement|error case) matches this criterion/
+  );
+  assert.match(manifest.evidence.acceptanceCriteria[1]?.evidence.join("\n") ?? "", /API state requirement matches this criterion/);
   assert.deepEqual(manifest.evidence.appliedChanges.operations, {
     total: 2,
     written: 1,

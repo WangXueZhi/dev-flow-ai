@@ -53,6 +53,7 @@
 - Delivery report.
 - Delivery report change summaries with touched files, operation counts, backup counts, and line-count deltas.
 - Per-acceptance-criterion delivery evidence with known gaps, assumptions, and manual QA prompts.
+- Criterion-specific delivery evidence matching from visual text, UI state, API state, API error, and API auth signals.
 - Embedded screenshots in delivery reports when visual artifacts are available.
 - Local delivery status summary command backed by the delivery manifest.
 - CI gate exits for delivery readiness attention and failed verification.
@@ -90,7 +91,7 @@
 
 - Enrich changed-file summaries with reviewer notes and deeper diff stats beyond line-count deltas.
 - Include richer verification results.
-- Expand delivery readiness with deeper criterion-specific evidence matching.
+- Further expand delivery readiness with code, diff, and screenshot-specific evidence matching.
 
 ## Milestone 5: Ecosystem
 

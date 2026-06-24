@@ -615,6 +615,8 @@ function assessAcceptanceCriterion(
   const knownGaps: string[] = [];
   const assumptions: string[] = [];
   const manualQa = manualQaForCriterion(criterion);
+  const criterionEvidence = collectCriterionSpecificEvidence(input, criterion);
+  const combinedEvidence = unique([...criterionEvidence, ...evidence]);
 
   if (!input.executionLog?.entries.length) {
     knownGaps.push("No source-changing execution log is available for this delivery.");
@@ -647,15 +649,15 @@ function assessAcceptanceCriterion(
     knownGaps.push(`${input.brief.openQuestions.length} open question(s) remain.`);
   }
 
-  if (evidence.length === 0) {
+  if (combinedEvidence.length === 0) {
     knownGaps.push("No verification, visual, or applied-change evidence was found.");
-  } else {
+  } else if (criterionEvidence.length === 0) {
     assumptions.push("Delivery-level evidence applies to this criterion; reviewers should confirm the specific behavior is covered.");
   }
 
   return {
-    status: acceptanceStatus(knownGaps, evidence),
-    evidence,
+    status: acceptanceStatus(knownGaps, combinedEvidence),
+    evidence: combinedEvidence,
     knownGaps,
     assumptions,
     manualQa
@@ -710,6 +712,100 @@ function isVerificationCriterion(criterion: string, normalized: string): boolean
     /\b(?:npm run|pnpm|yarn|bun)\b/.test(normalized) ||
     /\b(?:lint|typecheck|verification|verify|test command|build command|production build|app builds|project builds|build succeeds)\b/.test(normalized)
   );
+}
+
+function collectCriterionSpecificEvidence(input: DeliveryReportInput, criterion: string): string[] {
+  const evidence: string[] = [];
+
+  for (const check of input.visualReport?.requiredText ?? []) {
+    if (check.found && hasCriterionOverlap(criterion, check.text)) {
+      evidence.push(`Visual required text found for this criterion: "${check.text}".`);
+    }
+  }
+
+  for (const item of input.brief?.uiStateChecklist ?? []) {
+    if (hasCriterionOverlap(criterion, item.summary)) {
+      evidence.push(`UI checklist item matches this criterion (ui:${item.sourceLine}): ${item.summary}`);
+    }
+  }
+
+  for (const item of input.brief?.apiStateRequirements ?? []) {
+    if (hasCriterionOverlap(criterion, item.summary)) {
+      evidence.push(`API state requirement matches this criterion (api:${item.sourceLine}): ${item.summary}`);
+    }
+  }
+
+  for (const item of input.brief?.apiErrorCases ?? []) {
+    if (hasCriterionOverlap(criterion, item.summary)) {
+      evidence.push(`API error case matches this criterion (api:${item.sourceLine}): ${item.summary}`);
+    }
+  }
+
+  for (const item of input.brief?.apiAuthRequirements ?? []) {
+    if (hasCriterionOverlap(criterion, item.summary)) {
+      evidence.push(`API auth requirement matches this criterion (api:${item.sourceLine}): ${item.summary}`);
+    }
+  }
+
+  return unique(evidence);
+}
+
+function hasCriterionOverlap(criterion: string, source: string): boolean {
+  const normalizedCriterion = normalizeEvidenceText(criterion);
+  const normalizedSource = normalizeEvidenceText(source);
+
+  if (!normalizedCriterion || !normalizedSource) {
+    return false;
+  }
+
+  const shorter = normalizedCriterion.length < normalizedSource.length ? normalizedCriterion : normalizedSource;
+  const longer = shorter === normalizedCriterion ? normalizedSource : normalizedCriterion;
+
+  if (shorter.length >= 8 && longer.includes(shorter)) {
+    return true;
+  }
+
+  const criterionTokens = meaningfulEvidenceTokens(normalizedCriterion);
+  const sourceTokens = new Set(meaningfulEvidenceTokens(normalizedSource));
+
+  if (criterionTokens.length === 0 || sourceTokens.size === 0) {
+    return false;
+  }
+
+  const sharedTokens = criterionTokens.filter((token) => sourceTokens.has(token));
+
+  return sharedTokens.length >= 2 || sharedTokens.some((token) => token.length >= 8 && sourceTokens.size <= 2);
+}
+
+function meaningfulEvidenceTokens(value: string): string[] {
+  const words = value.match(/[a-z0-9][a-z0-9-]{2,}/g) ?? [];
+  const cjk = value.match(/[\u3400-\u9fff]{2,}/g) ?? [];
+  const stopWords = new Set([
+    "and",
+    "are",
+    "for",
+    "from",
+    "has",
+    "have",
+    "into",
+    "that",
+    "the",
+    "then",
+    "this",
+    "when",
+    "where",
+    "with"
+  ]);
+
+  return unique([...words, ...cjk].filter((token) => !stopWords.has(token)));
+}
+
+function normalizeEvidenceText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[`"'“”‘’「」『』()[\]{}.,:;!?/\\|_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function collectDeliveryEvidence(input: DeliveryReportInput): string[] {
