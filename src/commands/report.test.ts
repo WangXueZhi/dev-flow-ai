@@ -19,6 +19,9 @@ test("runReport can suppress stale visual reports", async (t) => {
   console.log = () => undefined;
   process.chdir(workspace);
   mkdirSync(".devflow/artifacts/visual", { recursive: true });
+  mkdirSync(".devflow/artifacts/prompts/dry-run", { recursive: true });
+  writeFileSync(".devflow/artifacts/prompts/plan.prompt.md", "Planner prompt\n", "utf8");
+  writeFileSync(".devflow/artifacts/prompts/dry-run/T03-code-implementation.prompt.md", "Dry-run prompt\n", "utf8");
   writeFileSync(".devflow/artifacts/task-changelog.md", "# Task Changelog\n\n- T03-code-implementation\n", "utf8");
   writeFileSync(
     ".devflow/artifacts/source-context-summary.json",
@@ -83,17 +86,20 @@ test("runReport can suppress stale visual reports", async (t) => {
 
   const report = readFileSync(".devflow/artifacts/delivery-report.md", "utf8");
   assert.match(report, /Visual verification has not been run yet/);
+  assert.match(report, /Prompt artifacts: `\.devflow\/artifacts\/prompts`/);
   assert.match(report, /Source Context Sampling/);
   assert.match(report, /`src\/App\.tsx` \(file\)/);
   assert.doesNotMatch(report, /Stale Preview/);
 
   const manifest = JSON.parse(readFileSync(".devflow/artifacts/delivery-manifest.json", "utf8")) as {
     status: { visual: string };
-    artifacts: Array<{ id: string; status: string }>;
+    artifacts: Array<{ id: string; status: string; count?: number }>;
   };
   assert.equal(manifest.status.visual, "not-run");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "visual-report")?.status, "not-applicable");
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "task-changelog")?.status, "present");
+  assert.equal(manifest.artifacts.find((artifact) => artifact.id === "prompt-artifacts")?.status, "present");
+  assert.equal(manifest.artifacts.find((artifact) => artifact.id === "prompt-artifacts")?.count, 2);
   assert.equal(manifest.artifacts.find((artifact) => artifact.id === "source-context-summary")?.status, "present");
   assert.doesNotMatch(JSON.stringify(manifest), /Stale Preview/);
 });

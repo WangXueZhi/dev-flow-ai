@@ -79,7 +79,7 @@ function formatDeliveryStatus(manifest: DeliveryManifest, manifestPath: string):
 }
 
 function formatKeyArtifacts(manifest: DeliveryManifest): string[] {
-  const ids = ["delivery-report", "delivery-manifest", "verification-report", "visual-report", "source-context-summary"];
+  const ids = ["delivery-report", "delivery-manifest", "verification-report", "visual-report", "prompt-artifacts", "source-context-summary"];
   const artifacts = ids
     .map((id) => manifest.artifacts.find((artifact) => artifact.id === id))
     .filter((artifact): artifact is DeliveryManifest["artifacts"][number] => Boolean(artifact));

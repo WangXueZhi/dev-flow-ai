@@ -49,6 +49,12 @@ const manifest = {
       status: "not-applicable"
     },
     {
+      id: "prompt-artifacts",
+      label: "Prompt artifacts",
+      path: ".devflow/artifacts/prompts",
+      status: "present"
+    },
+    {
       id: "source-context-summary",
       label: "Source context summary",
       path: ".devflow/artifacts/source-context-summary.json",
@@ -110,6 +116,7 @@ test("formatDevFlowSummary renders delivery status markdown", () => {
   assert.match(summary, /Verification: \*\*passed\*\*/);
   assert.match(summary, /Delivery risks: 2 \(1 high\)/);
   assert.match(summary, /Delivery report: `\.devflow\/artifacts\/delivery-report\.md` \(present\)/);
+  assert.match(summary, /Prompt artifacts: `\.devflow\/artifacts\/prompts` \(present\)/);
   assert.match(summary, /Source context summary: `\.devflow\/artifacts\/source-context-summary\.json` \(present\)/);
   assert.match(summary, /Source context sampling/);
   assert.match(summary, /Runs recorded: 1/);

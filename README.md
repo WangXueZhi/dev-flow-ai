@@ -115,7 +115,7 @@ dev-flow execute --apply --task T03-code-implementation --save-prompt .devflow/a
 dev-flow deliver --save-prompts .devflow/artifacts/prompts
 ```
 
-Prompt artifacts may include requirements, UI notes, API docs, project brief data, target profiles, and any sampled source snippets that source-context policy allows. Treat saved prompts as local review artifacts and avoid uploading them unless your team is comfortable with that context being shared.
+Prompt artifacts may include requirements, UI notes, API docs, project brief data, target profiles, and any sampled source snippets that source-context policy allows. Treat saved prompts as local review artifacts and avoid uploading them unless your team is comfortable with that context being shared. Delivery reports and manifests index the prompt artifact directory and file count without duplicating prompt contents.
 
 For reproducible tests or CI without a live model, point `DEVFLOW_AI_FIXTURE_PATH` at a file containing the model response to replay:
 
@@ -323,9 +323,9 @@ Reads DevFlow artifacts and writes `.devflow/artifacts/delivery-report.md` plus 
 
 When `.devflow/artifacts/source-context-summary.json` exists, the delivery report and manifest include path-level source-context sampling evidence so reviewers can see which files were sampled for AI prompts without exposing duplicated source snippets.
 
-The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
+The report includes source documents, user stories, requirement constraints, acceptance criteria, per-criterion delivery evidence, known gaps, assumptions, manual QA prompts, UI state checklist items, risk assessment, detected stack, design asset details, artifact paths, prompt artifact directory status, applied patch summaries, backup manifests, verification status with bounded failure excerpts, visual checks with embedded screenshots when available, delivery readiness, open questions, and next actions.
 
-The manifest is JSON. It records artifact paths and statuses, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
+The manifest is JSON. It records artifact paths and statuses, prompt artifact directory status, delivery readiness, verification and visual status, source-change status, acceptance evidence, touched files, backup manifests, screenshots, required text checks, bounded verification failure excerpts, open questions, and delivery risk counts. Use `--manifest-out <path>` to write it somewhere else:
 
 ```bash
 dev-flow report --manifest-out .devflow/artifacts/review/delivery-manifest.json

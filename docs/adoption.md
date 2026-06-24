@@ -122,7 +122,7 @@ dev-flow execute --dry-run --save-prompt .devflow/artifacts/prompts/dry-run
 dev-flow deliver --save-prompts .devflow/artifacts/prompts
 ```
 
-Saved prompts may include requirements, UI notes, API docs, project brief data, target profiles, and sampled source snippets when source context is enabled. Treat them as local review artifacts unless your team explicitly approves sharing that context.
+Saved prompts may include requirements, UI notes, API docs, project brief data, target profiles, and sampled source snippets when source context is enabled. Treat them as local review artifacts unless your team explicitly approves sharing that context. Delivery reports and manifests index the prompt artifact directory and file count without duplicating prompt contents.
 
 ## 5. Propose Changes Before Applying Them
 
@@ -209,7 +209,7 @@ dev-flow deliver --apply --yes --patch-set path/to/reviewed-patch-set.json
 
 The final report is written to `.devflow/artifacts/delivery-report.md`. It includes source documents, acceptance criteria, per-criterion delivery evidence, verification status, optional visual checks with embedded screenshots when available, applied changes, task changelog path, risk assessment, open questions, and delivery readiness.
 
-DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, readiness, verification status, source-change status, source-context sampling evidence, screenshot paths, touched files, task changelogs, backups, open questions, and delivery risks without parsing Markdown.
+DevFlow also writes `.devflow/artifacts/delivery-manifest.json`. Use this JSON artifact when CI, an editor extension, or a downstream agent needs artifact paths, prompt artifact status, readiness, verification status, source-change status, source-context sampling evidence, screenshot paths, touched files, task changelogs, backups, open questions, and delivery risks without parsing Markdown.
 
 Validate the manifest with `schemas/delivery-manifest.schema.json` when building stricter CI or editor integrations.
 

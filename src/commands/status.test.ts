@@ -60,6 +60,16 @@ const manifest: DeliveryManifest = {
       role: "Visual checks."
     },
     {
+      id: "prompt-artifacts",
+      label: "Prompt artifacts",
+      kind: "directory",
+      path: ".devflow/artifacts/prompts",
+      status: "present",
+      required: false,
+      role: "Saved AI prompt artifacts for local review.",
+      count: 2
+    },
+    {
       id: "source-context-summary",
       label: "Source context summary",
       kind: "json",
@@ -145,6 +155,7 @@ test("runStatus prints a readable delivery manifest summary", async (t) => {
   assert.match(output, /Visual: not-run/);
   assert.match(output, /Delivery risks: 2 \(1 high\)/);
   assert.match(output, /Delivery report: \.devflow\/artifacts\/delivery-report\.md \(present\)/);
+  assert.match(output, /Prompt artifacts: \.devflow\/artifacts\/prompts \(present\)/);
   assert.match(output, /Source context summary: \.devflow\/artifacts\/source-context-summary\.json \(present\)/);
   assert.match(output, /Source context sampling/);
   assert.match(output, /Runs recorded: 1/);

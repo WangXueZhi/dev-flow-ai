@@ -24,6 +24,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
   const taskPlanPath = join(config.artifactsDir, "tasks.json");
   const taskPlanMarkdownPath = join(config.artifactsDir, "tasks.md");
   const patchProposalsDir = join(config.artifactsDir, "patch-proposals");
+  const promptArtifactsDir = join(config.artifactsDir, "prompts");
   const sourceContextSummaryPath = join(config.artifactsDir, "source-context-summary.json");
   const executionLogPath = join(config.artifactsDir, "execution-log.json");
   const taskChangelogPath = join(config.artifactsDir, "task-changelog.md");
@@ -51,6 +52,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
     taskPlanPath,
     taskPlanMarkdownPath,
     patchProposalsDir,
+    promptArtifactsDir,
     sourceContextSummaryPath,
     sourceContextSummary,
     executionLogPath,
@@ -80,6 +82,7 @@ export async function runReport(flags: FlagMap): Promise<void> {
       taskPlanPath,
       taskPlanMarkdownPath,
       patchProposalsDir,
+      promptArtifactsDir,
       sourceContextSummaryPath,
       sourceContextSummary,
       executionLogPath,
@@ -117,6 +120,7 @@ async function collectDeliveryArtifacts(input: {
   taskPlanPath: string;
   taskPlanMarkdownPath: string;
   patchProposalsDir: string;
+  promptArtifactsDir: string;
   sourceContextSummaryPath: string;
   sourceContextSummary: SourceContextSummaryLog | undefined;
   executionLogPath: string;
@@ -133,6 +137,7 @@ async function collectDeliveryArtifacts(input: {
   const patchSetDir = join(input.artifactsDir, "patch-sets");
   const backupsDir = join(input.artifactsDir, "backups");
   const patchProposalFiles = await listFiles(input.patchProposalsDir, (name) => name.endsWith(".md"));
+  const promptArtifactFiles = await listFilesRecursive(input.promptArtifactsDir, () => true);
   const patchSetFiles = await listFiles(patchSetDir, (name) => name.endsWith(".json"));
   const backupManifestFiles = unique([
     ...await listFilesRecursive(backupsDir, (path) => path.endsWith(`${sep}manifest.json`)),
@@ -144,6 +149,7 @@ async function collectDeliveryArtifacts(input: {
     await artifact("task-plan-json", "Task plan JSON", "json", input.taskPlanPath, true, "Machine-readable implementation task plan."),
     await artifact("task-plan-markdown", "Task plan Markdown", "markdown", input.taskPlanMarkdownPath, true, "Human-readable implementation task plan."),
     await artifact("patch-proposals", "Patch proposals", "directory", input.patchProposalsDir, true, "Dry-run implementation proposals for review.", patchProposalFiles.length),
+    await artifact("prompt-artifacts", "Prompt artifacts", "directory", input.promptArtifactsDir, false, "Saved AI prompt artifacts for local review.", promptArtifactFiles.length, promptArtifactFiles.length > 0),
     await artifact("source-context-summary", "Source context summary", "json", input.sourceContextSummaryPath, false, "Path-level summary of source-context files sampled for AI prompts.", input.sourceContextSummary?.entries.length, Boolean(input.sourceContextSummary)),
     await artifact("execution-log", "Execution log", "json", input.executionLogPath, false, "Source-changing patch-set application history.", undefined, Boolean(input.executionLog)),
     await artifact("task-changelog", "Task changelog", "markdown", input.taskChangelogPath, false, "Human-readable source-changing task change history.", undefined, await fileExists(input.taskChangelogPath)),

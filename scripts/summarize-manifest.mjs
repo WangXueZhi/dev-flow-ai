@@ -38,6 +38,7 @@ export function formatDevFlowSummary(manifest) {
     artifactLine("delivery-manifest"),
     artifactLine("verification-report"),
     artifactLine("visual-report"),
+    artifactLine("prompt-artifacts"),
     artifactLine("source-context-summary")
   ].filter(Boolean);
   const verificationFailures = verificationCommands.filter((command) => command.exitCode !== 0).slice(0, 3);

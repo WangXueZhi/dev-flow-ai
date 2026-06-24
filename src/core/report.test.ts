@@ -135,6 +135,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
     taskPlanPath: ".devflow/artifacts/tasks.json",
     taskPlanMarkdownPath: ".devflow/artifacts/tasks.md",
     patchProposalsDir: ".devflow/artifacts/patch-proposals",
+    promptArtifactsDir: ".devflow/artifacts/prompts",
     sourceContextSummaryPath: ".devflow/artifacts/source-context-summary.json",
     sourceContextSummary: {
       version: 1,
@@ -236,6 +237,7 @@ test("formatDeliveryReport includes artifacts, stack, verification, and question
 
   assert.match(report, /Delivery Report/);
   assert.match(report, /Task plan/);
+  assert.match(report, /Prompt artifacts: `\.devflow\/artifacts\/prompts`/);
   assert.match(report, /Applied Changes/);
   assert.match(report, /User Stories/);
   assert.match(report, /release owner.*dashboard health visible/);
