@@ -51,7 +51,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added normalized frontend target summaries to AI execution target profiles.
 - Added per-acceptance-criterion evidence summaries to generated delivery reports.
 - Added acceptance-criterion status, known gaps, assumptions, and manual QA prompts to generated delivery reports.
-- Added verification remediation hints to delivery reports, delivery manifests, local status output, and GitHub Actions job summaries.
+- Added verification remediation hints and structured remediation plans to delivery reports, delivery manifests, local status output, and GitHub Actions job summaries.
 - Added project initialization for `.devflow` config, artifacts, and structured starter source documents.
 - Added requirements, UI notes, and API docs ingestion.
 - Added lightweight local design asset metadata extraction for SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.

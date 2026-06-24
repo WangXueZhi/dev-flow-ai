@@ -252,6 +252,21 @@ test("runStatus prints verification failure excerpts", async (t) => {
           exitCode: 1,
           durationMs: 1000,
           remediation: "Fix missing imports, exports, or module paths, then rerun the failing verification command.",
+          remediationPlan: {
+            category: "imports",
+            summary: "Fix missing imports, exports, or module paths, then rerun the failing verification command.",
+            nextActions: [
+              "Inspect the first unresolved module, export, or import path in the failure output.",
+              "Update the owning module export or correct the consumer import path.",
+              "Rerun `npm run check` after the targeted fix."
+            ],
+            artifactReferences: [
+              {
+                label: "Full verification report",
+                path: ".devflow/artifacts/verification-report.json"
+              }
+            ]
+          },
           outputExcerpt: {
             stderr: "Build failed\nMissing export",
             truncatedStderr: true
@@ -267,6 +282,8 @@ test("runStatus prints verification failure excerpts", async (t) => {
   assert.match(output, /`npm run check`: exit 1/);
   assert.match(output, /Build failed Missing export/);
   assert.match(output, /Suggested follow-up: Fix missing imports, exports, or module paths/);
+  assert.match(output, /Next action: Inspect the first unresolved module/);
+  assert.match(output, /Related artifact: Full verification report \(\.devflow\/artifacts\/verification-report\.json\)/);
   assert.match(output, /Output excerpt was truncated/);
 });
 

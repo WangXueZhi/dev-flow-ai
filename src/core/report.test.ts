@@ -470,6 +470,10 @@ test("formatDeliveryReport includes verification failure output excerpts", () =>
   assert.match(report, /Missing export/);
   assert.match(report, /Output excerpt was truncated/);
   assert.match(report, /Suggested follow-up for `npm run check`: Fix missing imports, exports, or module paths/);
+  assert.match(report, /Remediation plan/);
+  assert.match(report, /Inspect the first unresolved module, export, or import path/);
+  assert.match(report, /Related artifacts/);
+  assert.match(report, /Full verification report: `\.devflow\/artifacts\/verification-report\.json`/);
 });
 
 test("createDeliveryManifest summarizes artifact status and delivery evidence", () => {
@@ -673,4 +677,15 @@ test("createDeliveryManifest includes verification failure output excerpts", () 
     manifest.evidence.verificationCommands[0]?.remediation,
     "Fix missing imports, exports, or module paths, then rerun the failing verification command."
   );
+  assert.equal(manifest.evidence.verificationCommands[0]?.remediationPlan?.category, "imports");
+  assert.match(
+    manifest.evidence.verificationCommands[0]?.remediationPlan?.nextActions[0] ?? "",
+    /Inspect the first unresolved module/
+  );
+  assert.deepEqual(manifest.evidence.verificationCommands[0]?.remediationPlan?.artifactReferences, [
+    {
+      label: "Full verification report",
+      path: ".devflow/artifacts/verification-report.json"
+    }
+  ]);
 });

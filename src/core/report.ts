@@ -76,6 +76,27 @@ export interface DeliveryAcceptanceEvidence {
   manualQa: string[];
 }
 
+export type VerificationRemediationCategory =
+  | "audit"
+  | "build"
+  | "e2e"
+  | "format"
+  | "general"
+  | "imports"
+  | "lint"
+  | "test"
+  | "typecheck";
+
+export interface VerificationRemediationPlan {
+  category: VerificationRemediationCategory;
+  summary: string;
+  nextActions: string[];
+  artifactReferences: Array<{
+    label: string;
+    path: string;
+  }>;
+}
+
 export interface DeliveryManifest {
   version: 1;
   generatedAt: string;
@@ -110,6 +131,7 @@ export interface DeliveryManifest {
       exitCode: number | null;
       durationMs: number;
       remediation?: string;
+      remediationPlan?: VerificationRemediationPlan;
       outputExcerpt?: {
         stdout?: string;
         stderr?: string;
@@ -255,7 +277,7 @@ ${formatReviewHandoff(input)}
 
 ## Verification
 
-${verification ? formatVerification(verification) : "- Verification has not been run yet."}
+${verification ? formatVerification(verification, input.verificationReportPath) : "- Verification has not been run yet."}
 
 ## Visual Verification
 
@@ -333,13 +355,18 @@ export function createDeliveryManifest(input: DeliveryManifestInput): DeliveryMa
     },
     evidence: {
       acceptanceCriteria,
-      verificationCommands: input.verification?.results.map((result) => ({
-        command: result.command,
-        exitCode: result.exitCode,
-        durationMs: result.durationMs,
-        remediation: verificationRemediationForResult(result),
-        outputExcerpt: result.outputExcerpt
-      })) ?? [],
+      verificationCommands: input.verification?.results.map((result) => {
+        const remediationPlan = verificationRemediationPlanForResult(result, input.verificationReportPath);
+
+        return {
+          command: result.command,
+          exitCode: result.exitCode,
+          durationMs: result.durationMs,
+          remediation: remediationPlan?.summary,
+          remediationPlan,
+          outputExcerpt: result.outputExcerpt
+        };
+      }) ?? [],
       visualScreenshots: input.visualReport?.screenshots.map((screenshot) => ({
         viewport: screenshot.viewport.name,
         width: screenshot.viewport.width,
@@ -1020,7 +1047,7 @@ function formatApiAuthRequirements(brief: ProjectBrief): string {
   return brief.apiAuthRequirements.map((item) => `- Line ${item.sourceLine}: ${item.summary}`).join("\n");
 }
 
-function formatVerification(report: VerificationReport): string {
+function formatVerification(report: VerificationReport, verificationReportPath?: string): string {
   if (report.status === "skipped") {
     return "- Verification was skipped because no commands were available.";
   }
@@ -1029,12 +1056,12 @@ function formatVerification(report: VerificationReport): string {
   const commands = report.results.map(
     (result) => `- \`${result.command}\`: exit ${result.exitCode ?? "unknown"} in ${result.durationMs}ms`
   );
-  const failureDetails = report.results.flatMap(formatVerificationFailureDetails);
+  const failureDetails = report.results.flatMap((result) => formatVerificationFailureDetails(result, verificationReportPath));
 
   return [...summary, ...commands, ...failureDetails].join("\n");
 }
 
-function formatVerificationFailureDetails(result: VerificationReport["results"][number]): string[] {
+function formatVerificationFailureDetails(result: VerificationReport["results"][number], verificationReportPath?: string): string[] {
   if (result.exitCode === 0) {
     return [];
   }
@@ -1057,20 +1084,36 @@ function formatVerificationFailureDetails(result: VerificationReport["results"][
     }
   }
 
-  const remediation = verificationRemediationForResult(result);
+  const remediationPlan = verificationRemediationPlanForResult(result, verificationReportPath);
 
-  if (remediation) {
-    lines.push(`- Suggested follow-up for \`${result.command}\`: ${remediation}`);
+  if (remediationPlan) {
+    lines.push(`- Suggested follow-up for \`${result.command}\`: ${remediationPlan.summary}`);
+    lines.push("  - Remediation plan:", ...remediationPlan.nextActions.map((action) => `    - ${action}`));
+
+    if (remediationPlan.artifactReferences.length > 0) {
+      lines.push(
+        "  - Related artifacts:",
+        ...remediationPlan.artifactReferences.map((artifact) => `    - ${artifact.label}: \`${artifact.path}\``)
+      );
+    }
   }
 
   return lines;
 }
 
 function verificationRemediationForResult(result: VerificationReport["results"][number]): string | undefined {
+  return verificationRemediationPlanForResult(result)?.summary;
+}
+
+function verificationRemediationPlanForResult(
+  result: VerificationReport["results"][number],
+  verificationReportPath?: string
+): VerificationRemediationPlan | undefined {
   if (result.exitCode === 0) {
     return undefined;
   }
 
+  const rerunAction = `Rerun \`${result.command}\` after the targeted fix.`;
   const command = result.command.toLowerCase();
   const output = [
     result.stdout,
@@ -1081,38 +1124,135 @@ function verificationRemediationForResult(result: VerificationReport["results"][
   const signal = `${command}\n${output}`;
 
   if (/\b(missing export|no exported member|module not found|cannot find module|failed to resolve import|cannot resolve)\b/.test(signal)) {
-    return "Fix missing imports, exports, or module paths, then rerun the failing verification command.";
+    return createVerificationRemediationPlan({
+      category: "imports",
+      summary: "Fix missing imports, exports, or module paths, then rerun the failing verification command.",
+      nextActions: [
+        "Inspect the first unresolved module, export, or import path in the failure output.",
+        "Update the owning module export or correct the consumer import path.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(audit|advisory|vulnerabilit|security)\b/.test(command)) {
-    return "Review dependency advisories, update or patch affected packages, then rerun the audit command.";
+    return createVerificationRemediationPlan({
+      category: "audit",
+      summary: "Review dependency advisories, update or patch affected packages, then rerun the audit command.",
+      nextActions: [
+        "Read the advisory IDs and affected package ranges in the audit output.",
+        "Update, override, or patch the affected dependencies with an intentional changelog note.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(prettier|format|format:check|check:format)\b/.test(command)) {
-    return "Run the project formatter or fix formatting drift, then rerun the formatting check.";
+    return createVerificationRemediationPlan({
+      category: "format",
+      summary: "Run the project formatter or fix formatting drift, then rerun the formatting check.",
+      nextActions: [
+        "Run the repository formatter command or apply the reported formatting edits.",
+        "Review the resulting diff to confirm only formatting changed.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(eslint|lint|biome)\b/.test(command)) {
-    return "Fix lint diagnostics or adjust the relevant rule intentionally, then rerun the lint command.";
+    return createVerificationRemediationPlan({
+      category: "lint",
+      summary: "Fix lint diagnostics or adjust the relevant rule intentionally, then rerun the lint command.",
+      nextActions: [
+        "Group lint diagnostics by file and rule so repeated issues can be fixed together.",
+        "Update implementation code or document an intentional rule exception.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(typecheck|type-check|type:check|check:types|tsc|vue-tsc|svelte-check|typescript|ts\d{4})\b/.test(signal)) {
-    return "Resolve TypeScript or framework type-checking errors, then rerun the type check.";
+    return createVerificationRemediationPlan({
+      category: "typecheck",
+      summary: "Resolve TypeScript or framework type-checking errors, then rerun the type check.",
+      nextActions: [
+        "Start with the earliest type error because later diagnostics may be cascading failures.",
+        "Align component props, API models, route params, or generated types with the implementation.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(playwright|cypress|e2e)\b/.test(command)) {
-    return "Inspect E2E failure artifacts such as screenshots, traces, or videos, fix the user flow, then rerun the E2E command.";
+    return createVerificationRemediationPlan({
+      category: "e2e",
+      summary: "Inspect E2E failure artifacts such as screenshots, traces, or videos, fix the user flow, then rerun the E2E command.",
+      nextActions: [
+        "Open the failing scenario output and any screenshots, traces, or videos produced by the runner.",
+        "Fix the broken user flow, selector, routing state, or async loading expectation.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(vitest|jest|node --test|test|unit|component|integration|coverage)\b/.test(command)) {
-    return "Inspect failing tests or coverage thresholds, update the implementation or tests, then rerun the test command.";
+    return createVerificationRemediationPlan({
+      category: "test",
+      summary: "Inspect failing tests or coverage thresholds, update the implementation or tests, then rerun the test command.",
+      nextActions: [
+        "Identify the first failing assertion or coverage threshold from the test output.",
+        "Update the implementation or the test expectation so it matches the accepted behavior.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
   if (/\b(build|compile|vite|next|nuxt|astro|ng build|angular)\b/.test(command)) {
-    return "Resolve bundler or production build errors, then rerun the build command.";
+    return createVerificationRemediationPlan({
+      category: "build",
+      summary: "Resolve bundler or production build errors, then rerun the build command.",
+      nextActions: [
+        "Find the first bundler, compiler, or framework error in the build output.",
+        "Fix the source, config, environment, or asset path that prevents production compilation.",
+        rerunAction
+      ],
+      verificationReportPath
+    });
   }
 
-  return "Inspect the full verification report, address the failing command, then rerun verification before handoff.";
+  return createVerificationRemediationPlan({
+    category: "general",
+    summary: "Inspect the full verification report, address the failing command, then rerun verification before handoff.",
+    nextActions: [
+      "Open the full verification report and identify the earliest actionable failure.",
+      "Apply the smallest fix that addresses the failing command without masking unrelated issues.",
+      rerunAction
+    ],
+    verificationReportPath
+  });
+}
+
+function createVerificationRemediationPlan(input: {
+  category: VerificationRemediationCategory;
+  summary: string;
+  nextActions: string[];
+  verificationReportPath?: string;
+}): VerificationRemediationPlan {
+  return {
+    category: input.category,
+    summary: input.summary,
+    nextActions: input.nextActions,
+    artifactReferences: input.verificationReportPath
+      ? [{ label: "Full verification report", path: input.verificationReportPath }]
+      : []
+  };
 }
 
 function formatIndentedCodeBlock(value: string, indent: string): string {

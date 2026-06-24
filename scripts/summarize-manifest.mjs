@@ -64,6 +64,15 @@ export function formatDevFlowSummary(manifest) {
         lines.push(`  - Suggested follow-up: ${command.remediation}`);
       }
 
+      if (command.remediationPlan?.nextActions?.[0]) {
+        lines.push(`  - Next action: ${command.remediationPlan.nextActions[0]}`);
+      }
+
+      if (command.remediationPlan?.artifactReferences?.[0]) {
+        const artifact = command.remediationPlan.artifactReferences[0];
+        lines.push(`  - Related artifact: ${artifact.label} (${artifact.path})`);
+      }
+
       if (command.outputExcerpt?.truncatedStderr || command.outputExcerpt?.truncatedStdout) {
         lines.push("  - Output excerpt was truncated.");
       }

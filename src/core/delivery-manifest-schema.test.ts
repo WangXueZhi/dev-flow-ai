@@ -45,9 +45,20 @@ const schema = JSON.parse(
     verificationCommand: {
       properties: {
         remediation: { type: string };
+        remediationPlan: { $ref: string };
         outputExcerpt: { $ref: string };
       };
     };
+    verificationRemediationPlan: {
+      properties: {
+        category: { enum: string[] };
+        nextActions: { $ref: string };
+        artifactReferences: {
+          items: { $ref: string };
+        };
+      };
+    };
+    remediationArtifactReference: unknown;
     verificationOutputExcerpt: unknown;
     visualRequiredText: unknown;
     visualScreenshot: unknown;
@@ -100,7 +111,25 @@ test("delivery manifest JSON schema tracks public manifest sections and status e
   assert.ok(schema.$defs.taskChangelogVerificationSummary);
   assert.ok(schema.$defs.verificationCommand);
   assert.equal(schema.$defs.verificationCommand.properties.remediation.type, "string");
+  assert.equal(schema.$defs.verificationCommand.properties.remediationPlan.$ref, "#/$defs/verificationRemediationPlan");
   assert.equal(schema.$defs.verificationCommand.properties.outputExcerpt.$ref, "#/$defs/verificationOutputExcerpt");
+  assert.deepEqual(schema.$defs.verificationRemediationPlan.properties.category.enum, [
+    "audit",
+    "build",
+    "e2e",
+    "format",
+    "general",
+    "imports",
+    "lint",
+    "test",
+    "typecheck"
+  ]);
+  assert.equal(schema.$defs.verificationRemediationPlan.properties.nextActions.$ref, "#/$defs/stringArray");
+  assert.equal(
+    schema.$defs.verificationRemediationPlan.properties.artifactReferences.items.$ref,
+    "#/$defs/remediationArtifactReference"
+  );
+  assert.ok(schema.$defs.remediationArtifactReference);
   assert.ok(schema.$defs.verificationOutputExcerpt);
   assert.ok(schema.$defs.visualRequiredText);
   assert.ok(schema.$defs.visualScreenshot);

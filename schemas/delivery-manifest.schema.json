@@ -364,8 +364,46 @@
         "remediation": {
           "type": "string"
         },
+        "remediationPlan": {
+          "$ref": "#/$defs/verificationRemediationPlan"
+        },
         "outputExcerpt": {
           "$ref": "#/$defs/verificationOutputExcerpt"
+        }
+      }
+    },
+    "verificationRemediationPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "summary", "nextActions", "artifactReferences"],
+      "properties": {
+        "category": {
+          "enum": ["audit", "build", "e2e", "format", "general", "imports", "lint", "test", "typecheck"]
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "nextActions": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "artifactReferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/remediationArtifactReference"
+          }
+        }
+      }
+    },
+    "remediationArtifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "path"],
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "path": {
+          "$ref": "#/$defs/nonEmptyString"
         }
       }
     },
