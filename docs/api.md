@@ -2,7 +2,7 @@
 
 The MVP integrates with OpenAI-compatible chat completion APIs. Local fallback planning, dry-run execution, and local patch-set application require no API.
 
-When project API docs include endpoint lines such as ``GET /api/orders`` or ``GET /api/orders?status=open``, DevFlow records those API contracts in the project brief, implementation plan, task units, and delivery report. Inline endpoint paths can also surface query parameters like `status` and path parameters like `{id}`. DevFlow also recognizes GraphQL `query`, `mutation`, and `subscription` operations in inline notes and fenced `graphql` or `gql` blocks. Fenced `json` examples are summarized as API data models with top-level model names and field lists.
+When project API docs include endpoint lines such as ``GET /api/orders`` or ``GET /api/orders?status=open``, DevFlow records those API contracts in the project brief, implementation plan, task units, and delivery report. Inline endpoint paths can also surface query parameters like `status` and path parameters like `{id}`. DevFlow also recognizes GraphQL `query`, `mutation`, and `subscription` operations in inline notes, fenced `graphql` or `gql` blocks, and local `.graphql` or `.gql` Markdown links such as `[GraphQL schema](schema.graphql)`. GraphQL schema `type Query`, `type Mutation`, and `type Subscription` fields become API contracts, while GraphQL `type`, `input`, `interface`, and `enum` definitions become API data models. Fenced `json` examples are summarized as API data models with top-level model names and field lists.
 
 DevFlow also extracts operational API constraints that affect frontend delivery:
 
@@ -50,7 +50,7 @@ paths:
           description: Unauthorized
 ```
 
-Use fenced `json`, `yaml`, or `yml` blocks, or local Markdown links to OpenAPI/Swagger files, for structured OpenAPI extraction. Invalid OpenAPI-like YAML is reported as an open question so the API document can be corrected before implementation.
+Use fenced `graphql` or `gql` blocks, or local Markdown links to `.graphql` or `.gql` files, for structured GraphQL extraction. Use fenced `json`, `yaml`, or `yml` blocks, or local Markdown links to OpenAPI/Swagger files, for structured OpenAPI extraction. Invalid OpenAPI-like YAML is reported as an open question so the API document can be corrected before implementation.
 
 ## Environment Variables
 

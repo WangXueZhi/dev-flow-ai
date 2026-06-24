@@ -166,7 +166,7 @@ Creates the local project context:
 - `.devflow/artifacts/`
 - `docs/requirements.md` with goal, roles, scope, acceptance criteria, constraints, and verification notes
 - `docs/ui.md` with design asset links, screens, components, states, interactions, responsive behavior, accessibility, and visual tokens
-- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations, JSON data models, error cases, loading/cache notes, and linked or fenced OpenAPI/Swagger JSON/YAML
+- `docs/api.md` with auth, HTTP endpoints, query/path parameters, GraphQL operations and schema links, JSON data models, error cases, loading/cache notes, and linked or fenced OpenAPI/Swagger JSON/YAML
 
 Existing handoff documents are preserved. `init` creates missing starter files and reports how many starter docs were created or already existed.
 
@@ -198,8 +198,8 @@ The brief includes:
 - UI design tokens for colors, typography, spacing, radius, shadows, motion, and iconography extracted from UI notes.
 - UI state checklist items extracted from screens, components, states, interactions, responsive behavior, accessibility sections, and state-related UI keywords.
 - Normalized frontend targets for routes/views, components, data needs, and UI states, including explicit route paths, component names, and targets derived from acceptance criteria.
-- API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations, including inline query/path parameters and OpenAPI query, path, header, and cookie parameters when available.
-- API data models extracted from fenced `json` examples.
+- API endpoint contracts extracted from HTTP method/path references and GraphQL `query`, `mutation`, and `subscription` operations, including linked local GraphQL schema root fields, inline query/path parameters, and OpenAPI query, path, header, and cookie parameters when available.
+- API data models extracted from fenced `json` examples and GraphQL `type`, `input`, `interface`, and `enum` schema definitions.
 - API error cases and authentication requirements extracted from API docs.
 - Fenced or locally linked OpenAPI/Swagger JSON/YAML support for `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes.
 - Detected package manager, runtime, frameworks and routing conventions, build and quality tools, styling, testing, root/workspace scripts, workspace packages, source directories, and config files, including common frontend config conventions when dependency metadata is incomplete.
@@ -455,8 +455,8 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Document ingestion for requirements, UI notes, and API docs.
 - UI design asset references extracted from Markdown image links and recognized Figma/FigJam/Adobe XD/Zeplin/Sketch Cloud/InVision/Framer design links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions.
 - UI design tokens extracted from visual token notes and surfaced in plans, task units, and delivery reports.
-- API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, and GraphQL operations.
-- API data model summaries extracted from fenced `json` examples.
+- API endpoint contracts extracted from API docs, including HTTP method/path references, inline query/path parameters, OpenAPI parameters, GraphQL operations, and linked local GraphQL schema root fields.
+- API data model summaries extracted from fenced `json` examples and GraphQL schema definitions.
 - API error and auth requirement summaries extracted from API docs.
 - OpenAPI/Swagger JSON/YAML `paths`, parameters, component schemas, request/response schemas, error responses, and security schemes extracted from fenced `json`, `yaml`, or `yml` blocks and local Markdown links.
 - Stack detection for package manager metadata, workspace packages, framework, build/quality tooling, styling, testing, scripts, source layout, and common frontend config conventions.

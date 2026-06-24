@@ -31,7 +31,7 @@ The current MVP implements the context loader, repository stack detector, struct
 - Config: local `.devflow/config.json` loading and defaults.
 - Context: reads requirements, UI notes, and API docs.
 - Design Assets And Tokens: extracts UI Markdown image references and recognized design handoff links into the project brief, including local path existence, SVG structure/text/color metadata, PNG/JPEG dimensions, and structured visual tokens for color, typography, spacing, radius, shadows, motion, and iconography.
-- API Contracts: extracts recognizable HTTP method/path endpoint references, inline query/path parameters, GraphQL operations, fenced JSON data model summaries, and fenced or locally linked OpenAPI/Swagger JSON/YAML structures including parameters, API error cases, and auth requirements into the project brief.
+- API Contracts: extracts recognizable HTTP method/path endpoint references, inline query/path parameters, GraphQL operations and linked local GraphQL schema root fields, fenced JSON and GraphQL schema data model summaries, and fenced or locally linked OpenAPI/Swagger JSON/YAML structures including parameters, API error cases, and auth requirements into the project brief.
 - Stack Detector: detects package manager, runtime, workspace packages, frontend frameworks and routing conventions, build and quality tools, styling, testing, root/workspace scripts, source directories, and config files from dependency metadata plus common frontend conventions such as React Router, Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Biome, ESLint, Prettier, Vitest, Playwright, Cypress, and Jest config files.
 - Brief: combines documents and repository signals into `.devflow/artifacts/project-brief.json`, including normalized route/view, explicit route path, component name, data-need, and UI-state targets for downstream planning.
 - AI Provider: calls OpenAI-compatible chat completions for planning and dry-run execution when configured. Provider status diagnostics report active mode, key source, normalized endpoint, model, default/env sources, and fixture override state without exposing key values or making a live request. `dev-flow smoke-provider` can make a minimal live provider request, ignores fixture replay, and writes machine-readable smoke evidence for local demos and release gates; the Release workflow validates, summarizes, and uploads that evidence.
@@ -77,8 +77,8 @@ The brief contains:
 - User stories, requirement constraints, and acceptance criteria extracted from requirements.
 - UI design assets referenced from Markdown image links or recognized design handoff links, including local existence checks, SVG width, height, viewBox, title, description, color swatches, and text snippets, plus PNG/JPEG dimensions when available.
 - UI design tokens extracted from visual token notes for color, typography, spacing, radius, shadows, motion, and iconography.
-- API endpoint contracts extracted from HTTP method/path references and GraphQL operations, with inline query/path parameters and OpenAPI query, path, header, and cookie parameters when available.
-- API data models extracted from fenced `json` examples.
+- API endpoint contracts extracted from HTTP method/path references, GraphQL operations, and linked local GraphQL schema root fields, with inline query/path parameters and OpenAPI query, path, header, and cookie parameters when available.
+- API data models extracted from fenced `json` examples and GraphQL schema definitions.
 - API error cases and authentication requirements extracted from API docs.
 - OpenAPI/Swagger JSON/YAML paths, parameters, component schemas, request/response schemas, error responses, and security requirements extracted from fenced blocks or local Markdown links.
 - Delivery risks scored from ambiguous requirements, missing UI/API detail, missing verification commands, and unresolved project gates.

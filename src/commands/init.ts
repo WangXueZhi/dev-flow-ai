@@ -111,9 +111,10 @@ Reference screenshots, wireframes, exports, or Figma/Zeplin handoff links so Dev
 `,
     [config.apiPath]: `# API Docs
 
-Describe HTTP endpoints, GraphQL operations, schemas, auth, errors, loading behavior, and integration constraints. Include concrete method/path lines, GraphQL query or mutation snippets, JSON examples, linked local OpenAPI/Swagger files, or fenced OpenAPI JSON/YAML when possible.
+Describe HTTP endpoints, GraphQL operations, schemas, auth, errors, loading behavior, and integration constraints. Include concrete method/path lines, GraphQL query or mutation snippets, JSON examples, linked local GraphQL/OpenAPI/Swagger files, or fenced OpenAPI JSON/YAML when possible.
 
 [OpenAPI spec](openapi.yaml)
+[GraphQL schema](schema.graphql)
 
 ## Authentication
 
@@ -127,6 +128,8 @@ Describe HTTP endpoints, GraphQL operations, schemas, auth, errors, loading beha
 - POST /api/example
 
 ## GraphQL Operations
+
+Link a local GraphQL schema or operations file above, or paste fenced GraphQL here when available.
 
 \`\`\`graphql
 query ExampleStatus($id: ID!) {

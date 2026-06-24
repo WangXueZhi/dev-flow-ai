@@ -151,6 +151,10 @@ interface LinkedOpenApiBlock extends MarkdownCodeBlock {
   reference: string;
 }
 
+interface LinkedGraphqlBlock extends MarkdownCodeBlock {
+  reference: string;
+}
+
 export function createProjectBrief(context: ProjectContext, stack: StackProfile): ProjectBrief {
   const acceptanceCriteria = extractChecklistItems(context.requirements);
   const apiDataModelResult = extractApiDataModels(context.api, context.apiPath);
@@ -720,6 +724,20 @@ export function extractApiContracts(apiMarkdown: string, apiPath?: string): ApiC
     for (const contract of extractGraphqlOperationContracts(block.content, block.sourceLine + 1)) {
       addApiContract(contracts, seen, contract);
     }
+
+    for (const contract of extractGraphqlSchemaOperationContracts(block.content, block.sourceLine + 1)) {
+      addApiContract(contracts, seen, contract);
+    }
+  }
+
+  for (const block of extractLinkedGraphqlBlocks(apiMarkdown, apiPath)) {
+    for (const contract of extractGraphqlOperationContracts(block.content, block.sourceLine, undefined, true, { fixedSourceLine: true })) {
+      addApiContract(contracts, seen, contract);
+    }
+
+    for (const contract of extractGraphqlSchemaOperationContracts(block.content, block.sourceLine, { fixedSourceLine: true })) {
+      addApiContract(contracts, seen, contract);
+    }
   }
 
   for (const document of extractOpenApiDocuments(apiMarkdown, apiPath)) {
@@ -785,6 +803,14 @@ export function extractApiDataModels(apiMarkdown: string, apiPath?: string): { m
         error: `Invalid linked OpenAPI document ${block.reference}: ${error instanceof Error ? error.message : "Could not parse document."}`
       });
     }
+  }
+
+  for (const block of extractGraphqlBlocks(apiMarkdown)) {
+    models.push(...describeGraphqlDataModels(block.content, block.sourceLine + 1));
+  }
+
+  for (const block of extractLinkedGraphqlBlocks(apiMarkdown, apiPath)) {
+    models.push(...describeGraphqlDataModels(block.content, block.sourceLine, { fixedSourceLine: true }));
   }
 
   return { models, invalid };
@@ -1700,6 +1726,14 @@ function isPotentialLocalOpenApiReference(value: string): boolean {
   return /\.(?:json|ya?ml)(?:[?#].*)?$/i.test(normalized) && /(?:^|[/._-])(?:api|openapi|swagger)(?:[/._-]|$)/i.test(normalized);
 }
 
+function isPotentialLocalGraphqlReference(value: string): boolean {
+  if (!value || isRemoteReference(value)) {
+    return false;
+  }
+
+  return /\.(?:graphql|gql)(?:[?#].*)?$/i.test(value.replaceAll("\\", "/"));
+}
+
 function stripReferenceQuery(value: string): string {
   return value.split(/[?#]/, 1)[0] ?? value;
 }
@@ -1863,7 +1897,8 @@ function extractGraphqlOperationContracts(
   content: string,
   sourceLine: number,
   summary?: string,
-  allowAnonymous = true
+  allowAnonymous = true,
+  options?: { fixedSourceLine?: boolean }
 ): ApiContract[] {
   const contracts: ApiContract[] = [];
   const operationPattern = /\b(query|mutation|subscription)\b\s*([_A-Za-z][_0-9A-Za-z]*)?/g;
@@ -1877,7 +1912,7 @@ function extractGraphqlOperationContracts(
     }
 
     const path = name ? `${operation} ${name}` : operation;
-    const lineOffset = content.slice(0, match.index).split(/\r?\n/).length - 1;
+    const lineOffset = options?.fixedSourceLine ? 0 : content.slice(0, match.index).split(/\r?\n/).length - 1;
 
     contracts.push({
       method: "GRAPHQL",
@@ -1885,6 +1920,41 @@ function extractGraphqlOperationContracts(
       sourceLine: sourceLine + lineOffset,
       summary: summary ?? `GraphQL ${path}`
     });
+  }
+
+  return contracts;
+}
+
+function extractGraphqlSchemaOperationContracts(
+  content: string,
+  sourceLine: number,
+  options?: { fixedSourceLine?: boolean }
+): ApiContract[] {
+  const contracts: ApiContract[] = [];
+
+  for (const definition of extractGraphqlDefinitions(content)) {
+    if (definition.kind !== "type") {
+      continue;
+    }
+
+    const operation = graphqlRootOperation(definition.name);
+    if (!operation) {
+      continue;
+    }
+
+    const definitionSourceLine = options?.fixedSourceLine ? sourceLine : sourceLine + definition.lineOffset;
+
+    for (const field of extractGraphqlFields(definition.body)) {
+      const fieldSourceLine = options?.fixedSourceLine ? sourceLine : definitionSourceLine + field.lineOffset;
+      const args = field.args ? normalizeGraphqlArguments(field.args) : undefined;
+
+      contracts.push({
+        method: "GRAPHQL",
+        path: `${operation} ${field.name}`,
+        sourceLine: fieldSourceLine,
+        summary: args ? `GraphQL ${operation} ${field.name}${args}` : `GraphQL ${operation} ${field.name}`
+      });
+    }
   }
 
   return contracts;
@@ -2041,6 +2111,42 @@ function extractLinkedOpenApiBlocks(markdown: string, apiPath: string | undefine
       sourceLine: match.index === undefined ? 1 : markdown.slice(0, match.index).split(/\r?\n/).length,
       content: readFileSync(resolvedPath, "utf8"),
       kind: isJsonReference(fileReference) ? "json" : "yaml",
+      reference
+    });
+  }
+
+  return blocks;
+}
+
+function extractLinkedGraphqlBlocks(markdown: string, apiPath: string | undefined): LinkedGraphqlBlock[] {
+  if (!apiPath) {
+    return [];
+  }
+
+  const blocks: LinkedGraphqlBlock[] = [];
+  const seen = new Set<string>();
+  const linkPattern = /\[([^\]]+)\]\(([^)\n]+)\)/g;
+  const baseDir = dirname(apiPath);
+
+  for (const match of markdown.matchAll(linkPattern)) {
+    const reference = normalizeMarkdownImageReference(match[2] ?? "");
+    const fileReference = stripReferenceQuery(reference);
+
+    if (!isPotentialLocalGraphqlReference(reference)) {
+      continue;
+    }
+
+    const resolvedPath = normalize(isAbsolute(fileReference) ? fileReference : join(baseDir, fileReference));
+    const key = resolvedPath.toLowerCase();
+
+    if (seen.has(key) || !existsSync(resolvedPath)) {
+      continue;
+    }
+
+    seen.add(key);
+    blocks.push({
+      sourceLine: match.index === undefined ? 1 : markdown.slice(0, match.index).split(/\r?\n/).length,
+      content: readFileSync(resolvedPath, "utf8"),
       reference
     });
   }
@@ -2476,6 +2582,147 @@ function describeOpenApiSchemaFields(schema: unknown): string[] {
   }
 
   return [];
+}
+
+type GraphqlDefinitionKind = "enum" | "input" | "interface" | "type";
+
+interface GraphqlDefinition {
+  kind: GraphqlDefinitionKind;
+  name: string;
+  body: string;
+  lineOffset: number;
+}
+
+interface GraphqlField {
+  name: string;
+  args?: string;
+  lineOffset: number;
+}
+
+function describeGraphqlDataModels(
+  content: string,
+  sourceLine: number,
+  options?: { fixedSourceLine?: boolean }
+): ApiDataModel[] {
+  const models: ApiDataModel[] = [];
+  const seen = new Set<string>();
+
+  for (const definition of extractGraphqlDefinitions(content)) {
+    if (definition.kind === "type" && graphqlRootOperation(definition.name)) {
+      continue;
+    }
+
+    const fields = definition.kind === "enum"
+      ? extractGraphqlEnumValues(definition.body)
+      : extractGraphqlFields(definition.body).map((field) => field.name);
+
+    addGraphqlDataModel(models, seen, {
+      name: definition.name,
+      sourceLine: options?.fixedSourceLine ? sourceLine : sourceLine + definition.lineOffset,
+      fields,
+      summary: `GraphQL ${definition.kind}`
+    });
+  }
+
+  return models;
+}
+
+function addGraphqlDataModel(
+  models: ApiDataModel[],
+  seen: Set<string>,
+  model: ApiDataModel
+): void {
+  const key = `${model.name}:${model.summary}`;
+
+  if (seen.has(key)) {
+    return;
+  }
+
+  seen.add(key);
+  models.push(model);
+}
+
+function extractGraphqlDefinitions(content: string): GraphqlDefinition[] {
+  const definitions: GraphqlDefinition[] = [];
+  const definitionPattern = /\b(type|input|interface|enum)\s+([_A-Za-z][_0-9A-Za-z]*)[^{]*\{([\s\S]*?)\}/g;
+
+  for (const match of content.matchAll(definitionPattern)) {
+    const kind = match[1] as GraphqlDefinitionKind | undefined;
+    const name = match[2];
+    const body = match[3];
+
+    if (!kind || !name || body === undefined) {
+      continue;
+    }
+
+    definitions.push({
+      kind,
+      name,
+      body,
+      lineOffset: content.slice(0, match.index).split(/\r?\n/).length - 1
+    });
+  }
+
+  return definitions;
+}
+
+function extractGraphqlFields(body: string): GraphqlField[] {
+  const fields: GraphqlField[] = [];
+
+  for (const [index, line] of body.split(/\r?\n/).entries()) {
+    const normalized = stripGraphqlComment(line).trim();
+    const match = /^([_A-Za-z][_0-9A-Za-z]*)(\s*\([^)]*\))?\s*:/.exec(normalized);
+    const name = match?.[1];
+
+    if (!name) {
+      continue;
+    }
+
+    fields.push({
+      name,
+      args: match[2],
+      lineOffset: index
+    });
+  }
+
+  return fields;
+}
+
+function extractGraphqlEnumValues(body: string): string[] {
+  return body
+    .split(/\r?\n/)
+    .map((line) => {
+      const normalized = stripGraphqlComment(line).trim();
+      const match = /^([_A-Za-z][_0-9A-Za-z]*)\b/.exec(normalized);
+
+      return match?.[1];
+    })
+    .filter((value): value is string => Boolean(value))
+    .slice(0, 16);
+}
+
+function stripGraphqlComment(value: string): string {
+  return value.replace(/#.*/, "");
+}
+
+function normalizeGraphqlArguments(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function graphqlRootOperation(name: string): "mutation" | "query" | "subscription" | undefined {
+  if (name === "Query") {
+    return "query";
+  }
+
+  if (name === "Mutation") {
+    return "mutation";
+  }
+
+  if (name === "Subscription") {
+    return "subscription";
+  }
+
+  return undefined;
 }
 
 function formatOpenApiRef(ref: string): string {

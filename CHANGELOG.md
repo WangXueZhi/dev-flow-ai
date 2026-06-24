@@ -68,6 +68,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added fenced OpenAPI JSON/YAML extraction for paths, component schemas, request/response schemas, error responses, and security requirements.
 - Added local OpenAPI/Swagger file link extraction from API docs.
 - Added GraphQL `query`, `mutation`, and `subscription` operation extraction for API docs and frontend data targets.
+- Added local GraphQL/GQL file link extraction, schema root-field contracts, and GraphQL schema data model summaries.
 - Added repository stack detection for package manager, runtime, framework, build, styling, testing, scripts, source directories, and config files.
 - Expanded stack detection for package manager metadata, nested frontend source directories, and common Next.js, Vue, Nuxt, Svelte, Angular, Astro, Tailwind, Vitest, Playwright, Cypress, and Jest config files.
 - Added React Router stack detection plus route configuration target candidates for React/Vite source-context sampling.

@@ -881,6 +881,63 @@ test("extractApiContracts handles GraphQL operations and removes duplicates", ()
   assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GRAPHQL mutation UpdateRelease/);
 });
 
+test("extractApiContracts and data models handle GraphQL schemas", () => {
+  const schemaMarkdown = [
+    "```graphql",
+    "type Query {",
+    "  release(id: ID!): Release",
+    "}",
+    "",
+    "type Release {",
+    "  id: ID!",
+    "  status: ReleaseStatus!",
+    "}",
+    "",
+    "input ReleaseFilter {",
+    "  status: ReleaseStatus",
+    "}",
+    "",
+    "enum ReleaseStatus {",
+    "  DRAFT",
+    "  READY",
+    "}",
+    "```"
+  ].join("\n");
+
+  assert.deepEqual(extractApiContracts(schemaMarkdown), [
+    {
+      method: "GRAPHQL",
+      path: "query release",
+      sourceLine: 3,
+      summary: "GraphQL query release(id: ID!)"
+    }
+  ]);
+
+  assert.deepEqual(extractApiDataModels(schemaMarkdown), {
+    invalid: [],
+    models: [
+      {
+        name: "Release",
+        sourceLine: 6,
+        fields: ["id", "status"],
+        summary: "GraphQL type"
+      },
+      {
+        name: "ReleaseFilter",
+        sourceLine: 11,
+        fields: ["status"],
+        summary: "GraphQL input"
+      },
+      {
+        name: "ReleaseStatus",
+        sourceLine: 15,
+        fields: ["DRAFT", "READY"],
+        summary: "GraphQL enum"
+      }
+    ]
+  });
+});
+
 test("extractApiContracts handles OpenAPI JSON paths", () => {
   const openApiMarkdown = [
     "# API",
@@ -1243,6 +1300,89 @@ test("createProjectBrief reads linked local OpenAPI documents", (t) => {
       summary: "OpenAPI GET /linked-orders security requirement: bearerAuth"
     }
   ]);
+  assert.ok(!brief.openQuestions.some((question) => /recognizable HTTP endpoint contracts/.test(question)));
+});
+
+test("createProjectBrief reads linked local GraphQL schemas", (t) => {
+  const workspace = mkdtempSync(join(tmpdir(), "dev-flow-linked-graphql-"));
+  const docsDir = join(workspace, "docs");
+  const apiPath = join(docsDir, "api.md");
+
+  t.after(() => rmSync(workspace, { recursive: true, force: true }));
+  mkdirSync(docsDir, { recursive: true });
+  writeFileSync(
+    join(docsDir, "schema.graphql"),
+    [
+      "type Query {",
+      "  release(id: ID!): Release",
+      "}",
+      "",
+      "type Mutation {",
+      "  updateRelease(input: ReleaseInput!): Release",
+      "}",
+      "",
+      "type Release {",
+      "  id: ID!",
+      "  status: ReleaseStatus!",
+      "}",
+      "",
+      "input ReleaseInput {",
+      "  status: ReleaseStatus!",
+      "}",
+      "",
+      "enum ReleaseStatus {",
+      "  DRAFT",
+      "  READY",
+      "}"
+    ].join("\n"),
+    "utf8"
+  );
+
+  const brief = createProjectBrief(
+    {
+      ...context,
+      apiPath,
+      api: "# API\n\n[GraphQL schema](schema.graphql?raw=1)\n"
+    },
+    stack
+  );
+
+  assert.deepEqual(brief.apiContracts, [
+    {
+      method: "GRAPHQL",
+      path: "query release",
+      sourceLine: 3,
+      summary: "GraphQL query release(id: ID!)"
+    },
+    {
+      method: "GRAPHQL",
+      path: "mutation updateRelease",
+      sourceLine: 3,
+      summary: "GraphQL mutation updateRelease(input: ReleaseInput!)"
+    }
+  ]);
+  assert.deepEqual(brief.apiDataModels, [
+    {
+      name: "Release",
+      sourceLine: 3,
+      fields: ["id", "status"],
+      summary: "GraphQL type"
+    },
+    {
+      name: "ReleaseInput",
+      sourceLine: 3,
+      fields: ["status"],
+      summary: "GraphQL input"
+    },
+    {
+      name: "ReleaseStatus",
+      sourceLine: 3,
+      fields: ["DRAFT", "READY"],
+      summary: "GraphQL enum"
+    }
+  ]);
+  assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Integrate GRAPHQL mutation updateRelease/);
+  assert.match(brief.frontendTargets?.dataNeeds.map((target) => target.summary).join("\n") ?? "", /Use data model Release with fields id, status/);
   assert.ok(!brief.openQuestions.some((question) => /recognizable HTTP endpoint contracts/.test(question)));
 });
 
