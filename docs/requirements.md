@@ -66,6 +66,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow status --json` prints the raw delivery manifest JSON.
 - [ ] `dev-flow status --fail-on-attention` exits non-zero when delivery readiness is not `ready for review`.
 - [ ] `dev-flow status --fail-on-failed-verification` exits non-zero when manifest verification status is `failed`.
+- [ ] `dev-flow status --fail-on-failed-visual` exits non-zero when manifest visual status is `failed`.
 - [ ] Delivery reports do not reuse older visual verification artifacts when the current `dev-flow deliver` run does not include `--preview-url`.
 - [ ] `dev-flow deliver` runs plan, tasks, dry-run execution, verification, optional visual checks, and report generation.
 - [ ] `dev-flow deliver --unit <id>` scopes the delivery dry-run proposal to one implementation unit.
@@ -73,7 +74,7 @@ Create a local-first open-source CLI that can run inside any frontend repository
 - [ ] `dev-flow deliver --apply --yes --unit <id>` runs source-changing delivery for one implementation unit when an AI provider or fixture is configured.
 - [ ] `dev-flow plan` uses an OpenAI-compatible provider when a provider key or fixture is configured.
 - [ ] The GitHub Action writes a job summary from `.devflow/artifacts/delivery-manifest.json` by default and can disable it with `job-summary: "false"`.
-- [ ] The GitHub Action can fail CI with manifest-backed readiness and failed-verification gates.
+- [ ] The GitHub Action can fail CI with manifest-backed readiness, failed-verification, and failed-visual gates.
 - [ ] `dev-flow plan` uses a deterministic local fallback when no AI key is configured.
 - [ ] `dev-flow doctor` reports runtime, document, config, Playwright Chromium, AI provider readiness, provider endpoint/model diagnostics, and fixture override state without exposing provider keys.
 - [ ] `dev-flow doctor --json` reports whether sampled repository source snippets are enabled for AI prompts.

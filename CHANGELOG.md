@@ -25,7 +25,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added visual layout issue details to delivery manifests and surfaced layout issue counts in local status and GitHub Actions job summaries.
 - Added missing required visual text summaries to local status and GitHub Actions job summaries.
 - Added `dev-flow status` and `dev-flow status --json` for local delivery manifest summaries.
-- Added `dev-flow status --fail-on-attention` and `--fail-on-failed-verification` for CI delivery gates backed by the manifest.
+- Added `dev-flow status --fail-on-attention`, `--fail-on-failed-verification`, and `--fail-on-failed-visual` for CI delivery gates backed by the manifest.
 - Added live provider smoke report summaries to text `dev-flow status` output when `.devflow/artifacts/live-provider-smoke.json` exists.
 - Added `schemas/delivery-manifest.schema.json` and delivery manifest schema documentation for downstream integrations.
 - Added frontend delivery blueprint sections to implementation plans for routes, components, state, data/API integration, styling, tests, and accessibility.

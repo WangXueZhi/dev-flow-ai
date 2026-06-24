@@ -4,7 +4,7 @@ DevFlow includes a composite GitHub Action for running the safe delivery workflo
 
 The action defaults to non-destructive delivery. It runs `dev-flow deliver`, writes DevFlow artifacts, and only performs source-changing execution when both `apply: "true"` and `confirm-apply: "true"` are provided.
 
-By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts including API state requirements, key artifact paths including prompt artifact directory status when present, reviewer notes, source-context sampling evidence, bounded verification failure excerpts, remediation hints, structured next actions, top risks, and open questions.
+By default, the action also writes a DevFlow section to the GitHub Actions job summary using `.devflow/artifacts/delivery-manifest.json`. The summary includes readiness, verification, visual status, source-change status, counts including API state requirements, missing required visual text, visual layout issues, key artifact paths including prompt artifact directory status when present, reviewer notes, source-context sampling evidence, bounded verification failure excerpts, remediation hints, structured next actions, top risks, and open questions.
 
 ## Basic Workflow
 
@@ -90,16 +90,17 @@ Disable it when a workflow needs artifacts only:
 
 ## Delivery Gates
 
-Use manifest-backed status gates when CI should fail on delivery readiness or verification state:
+Use manifest-backed status gates when CI should fail on delivery readiness, verification state, or visual state:
 
 ```yaml
 - uses: WangXueZhi/dev-flow-ai@main
   with:
     fail-on-attention: "true"
     fail-on-failed-verification: "true"
+    fail-on-failed-visual: "true"
 ```
 
-`fail-on-attention` runs `dev-flow status --fail-on-attention` after delivery and fails when readiness is not `ready for review`. `fail-on-failed-verification` runs `dev-flow status --fail-on-failed-verification` and fails when manifest verification status is `failed`.
+`fail-on-attention` runs `dev-flow status --fail-on-attention` after delivery and fails when readiness is not `ready for review`. `fail-on-failed-verification` runs `dev-flow status --fail-on-failed-verification` and fails when manifest verification status is `failed`. `fail-on-failed-visual` runs `dev-flow status --fail-on-failed-visual` and fails when manifest visual status is `failed`.
 
 Job summaries and artifact uploads run with `always()` so failed deliveries and failed gates can still leave reviewable evidence when their inputs are enabled.
 
@@ -178,3 +179,4 @@ Set `require-clean: "true"` when the action should stop source-changing delivery
 - `job-summary`: write delivery readiness, evidence counts, artifact paths, top risks, and open questions to the GitHub job summary. Default: `"true"`.
 - `fail-on-attention`: fail when delivery readiness is not `ready for review`. Default: `"false"`.
 - `fail-on-failed-verification`: fail when manifest verification status is `failed`. Default: `"false"`.
+- `fail-on-failed-visual`: fail when manifest visual status is `failed`. Default: `"false"`.

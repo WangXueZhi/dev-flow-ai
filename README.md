@@ -379,13 +379,14 @@ dev-flow status --json
 dev-flow status --manifest .devflow/artifacts/review/delivery-manifest.json
 dev-flow status --fail-on-attention
 dev-flow status --fail-on-failed-verification
+dev-flow status --fail-on-failed-visual
 ```
 
 Use it when local scripts, CI logs, or reviewers need readiness, verification, visual, visual-text, visual-layout, source-change, applied-operation, source-context sampling, reviewer-note, artifact, verification-failure, remediation, risk, and open-question status without opening the Markdown report.
 
 When `.devflow/artifacts/live-provider-smoke.json` exists, the text summary also includes the AI provider smoke status, required-gate state, generated time, endpoint, model, key environment source, and smoke message. If `DEVFLOW_LIVE_SMOKE_REPORT=<path>` is set, `status` reads that custom smoke report path. `status --json` remains the raw delivery manifest for compatibility with existing automation.
 
-Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code while still printing the status summary or JSON manifest.
+Use `--fail-on-attention` in CI when any delivery readiness blocker should fail the job. Use `--fail-on-failed-verification` when a failed verification report should return a non-zero exit code, and `--fail-on-failed-visual` when failed visual checks should fail CI while still printing the status summary or JSON manifest.
 
 ### `dev-flow visual`
 
@@ -419,7 +420,7 @@ DevFlow includes a composite GitHub Action for CI usage:
 
 Use `WangXueZhi/dev-flow-ai@v0.1.0` after the first release tag is published.
 
-The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`. CI workflows can also enable manifest-backed gates with `fail-on-attention: "true"` and `fail-on-failed-verification: "true"`.
+The action defaults to non-destructive `dev-flow deliver`. Source-changing delivery requires both `apply: "true"` and `confirm-apply: "true"`. CI workflows can also enable manifest-backed gates with `fail-on-attention: "true"`, `fail-on-failed-verification: "true"`, and `fail-on-failed-visual: "true"`.
 
 See [GitHub Action](docs/github-action.md) for artifact uploads, status gates, visual checks, AI provider environment variables, fixture-backed CI, and reviewed patch-set examples.
 
@@ -484,7 +485,7 @@ The first public milestone focuses on planning quality and repository ergonomics
 - Local delivery status summary command backed by the delivery manifest.
 - Published JSON schemas for reviewed patch sets and delivery manifests.
 - Safe `deliver` orchestration command for non-destructive and explicitly approved source-changing flows.
-- Composite GitHub Action for running safe delivery in CI, uploading artifacts, writing a delivery summary from the manifest, and gating readiness or failed verification.
+- Composite GitHub Action for running safe delivery in CI, uploading artifacts, writing a delivery summary from the manifest, and gating readiness, failed verification, or failed visual checks.
 - Clean extension points for future coding agents.
 
 ## Future Direction

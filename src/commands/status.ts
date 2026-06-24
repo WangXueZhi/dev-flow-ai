@@ -46,6 +46,10 @@ function deliveryStatusGateFailures(manifest: DeliveryManifest, flags: FlagMap):
     failures.push("verification status is failed");
   }
 
+  if (flags["fail-on-failed-visual"] === "true" && manifest.status.visual === "failed") {
+    failures.push("visual status is failed");
+  }
+
   return failures;
 }
 

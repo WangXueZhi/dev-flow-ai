@@ -390,6 +390,17 @@ test("runStatus can fail CI gates when verification failed", async (t) => {
   });
 });
 
+test("runStatus can fail CI gates when visual verification failed", async (t) => {
+  const workspace = createWorkspace(t);
+
+  await assert.rejects(() => captureStatusOutput(workspace, { "fail-on-failed-visual": "true" }), (error) => {
+    assert.ok(error instanceof CliError);
+    assert.equal(error.exitCode, 1);
+    assert.match(error.message, /visual status is failed/);
+    return true;
+  });
+});
+
 test("runStatus prints verification failure excerpts", async (t) => {
   const failedManifest: DeliveryManifest = {
     ...manifest,
