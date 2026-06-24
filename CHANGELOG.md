@@ -46,6 +46,7 @@ All notable changes to DevFlow will be documented in this file.
 - Added `npm run release:preflight` for consolidated release checks and residue scanning.
 - Added `npm run release:readiness` for static package metadata, changelog, release notes, and npm provenance workflow checks.
 - Added `npm run release:external-status` for live npm, GitHub Release, and Actions secret publication diagnostics.
+- Updated external release diagnostics to derive the default package name, release tag, and repository from `package.json` and bound each external command with a timeout.
 - Added Release workflow uploads for `.devflow/artifacts/live-provider-smoke.json` so live-provider smoke evidence is retained on skipped, failed, and passed release runs.
 - Added `npm run smoke:live:report` to validate live-provider smoke JSON evidence and require `status: "passed"` for release gates.
 - Added `dev-flow smoke-provider` for installed CLI live provider smoke checks and machine-readable provider evidence.

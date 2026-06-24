@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const defaultPackageName = "dev-flow-ai";
-const defaultReleaseTag = "v0.1.0";
-const defaultRepository = "WangXueZhi/dev-flow-ai";
+const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const fallbackPackageName = "dev-flow-ai";
+const fallbackReleaseTag = "v0.1.0";
+const fallbackRepository = "WangXueZhi/dev-flow-ai";
+const commandTimeoutMs = 30_000;
 const providerSecrets = ["DEVFLOW_AI_API_KEY", "OPENAI_API_KEY"];
 
 export function evaluateExternalReleaseStatus(input) {
   const checks = [
-    evaluateNpmAuth(input.npmWhoami),
+    evaluateNpmAuth(input.packageName, input.npmWhoami),
     evaluateNpmPackage(input.packageName, input.npmView),
     evaluateGitHubRelease(input.releaseTag, input.githubReleases),
     evaluateGitHubSecrets(input.githubSecrets)
@@ -44,7 +48,22 @@ export function formatExternalReleaseStatusReport(report) {
   return lines.join("\n");
 }
 
-function evaluateNpmAuth(result) {
+export function derivePackageDefaults(packageJson) {
+  const packageName =
+    typeof packageJson?.name === "string" && packageJson.name.trim() ? packageJson.name.trim() : fallbackPackageName;
+  const version =
+    typeof packageJson?.version === "string" && packageJson.version.trim() ? packageJson.version.trim() : "";
+  const releaseTag = version ? `v${version}` : fallbackReleaseTag;
+  const repository = normalizeRepository(packageJson?.repository) ?? fallbackRepository;
+
+  return {
+    packageName,
+    releaseTag,
+    repository
+  };
+}
+
+function evaluateNpmAuth(packageName, result) {
   if (result.exitCode === 0 && result.stdout.trim()) {
     return check(
       "npm-auth",
@@ -60,7 +79,7 @@ function evaluateNpmAuth(result) {
     "npm authentication",
     "failed",
     `npm whoami failed: ${formatCommandFailure(result)}`,
-    "Run `npm adduser` or configure an npm token with publish rights for dev-flow-ai."
+    `Run \`npm adduser\` or configure an npm token with publish rights for ${packageName}.`
   );
 }
 
@@ -98,7 +117,7 @@ function evaluateGitHubRelease(releaseTag, result) {
       "GitHub Release published",
       "unknown",
       `could not query releases: ${formatCommandFailure(result)}`,
-      "Authenticate GitHub CLI access, then publish the v0.1.0 GitHub Release."
+      `Authenticate GitHub CLI access, then publish the ${releaseTag} GitHub Release.`
     );
   }
 
@@ -122,7 +141,7 @@ function evaluateGitHubRelease(releaseTag, result) {
       "GitHub Release published",
       "failed",
       `${releaseTag} release was not found`,
-      "Create and publish the v0.1.0 GitHub Release."
+      `Create and publish the ${releaseTag} GitHub Release.`
     );
   }
 
@@ -236,7 +255,8 @@ function parseJson(value) {
 function runCommand(command, args) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: commandTimeoutMs
   });
 
   return {
@@ -247,13 +267,13 @@ function runCommand(command, args) {
   };
 }
 
-function parseArgs(argv) {
+function parseArgs(argv, defaults = readPackageDefaults()) {
   const options = {
     json: false,
     requirePassed: false,
-    packageName: defaultPackageName,
-    releaseTag: defaultReleaseTag,
-    repository: defaultRepository
+    packageName: defaults.packageName,
+    releaseTag: defaults.releaseTag,
+    repository: defaults.repository
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -275,6 +295,33 @@ function parseArgs(argv) {
   }
 
   return options;
+}
+
+function readPackageDefaults() {
+  try {
+    return derivePackageDefaults(JSON.parse(readFileSync(join(rootDir, "package.json"), "utf8")));
+  } catch {
+    return {
+      packageName: fallbackPackageName,
+      releaseTag: fallbackReleaseTag,
+      repository: fallbackRepository
+    };
+  }
+}
+
+function normalizeRepository(repository) {
+  const value = typeof repository === "string" ? repository : repository?.url;
+
+  if (typeof value !== "string" || !value.trim()) {
+    return undefined;
+  }
+
+  return value
+    .trim()
+    .replace(/^git\+/, "")
+    .replace(/^https:\/\/github\.com\//, "")
+    .replace(/^git@github\.com:/, "")
+    .replace(/\.git$/, "");
 }
 
 function collectExternalStatus(options) {

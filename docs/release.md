@@ -14,7 +14,7 @@ npm run release:readiness
 npm run release:preflight
 ```
 
-`npm run release:external-status` checks live external publication state: npm authentication, whether `dev-flow-ai` is published on npm, whether the `v0.1.0` GitHub Release is published rather than draft, and whether the repository has `NPM_TOKEN` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured as Actions secrets. It supports `-- --json` for machine-readable evidence and `-- --require-passed` when a maintainer wants the command to fail until every external release condition is satisfied.
+`npm run release:external-status` checks live external publication state for the package name, release tag, and GitHub repository derived from `package.json`: npm authentication, whether the package is published on npm, whether the matching GitHub Release is published rather than draft, and whether the repository has `NPM_TOKEN` plus `DEVFLOW_AI_API_KEY` or `OPENAI_API_KEY` configured as Actions secrets. It supports `-- --json` for machine-readable evidence, `-- --require-passed` when a maintainer wants the command to fail until every external release condition is satisfied, and `-- --package <name> --tag <tag> --repo <owner/repo>` when checking a non-default release target.
 
 `npm run release:readiness` runs static release checks for package/package-lock version alignment, changelog coverage, versioned release notes, package allowlists, npm provenance workflow configuration, example visual smoke wiring, live-provider report validation wiring, and live-provider gate documentation.
 

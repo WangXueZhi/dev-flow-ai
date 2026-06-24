@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  derivePackageDefaults,
   evaluateExternalReleaseStatus,
   formatExternalReleaseStatusReport
 } from "./release-external-status.mjs";
@@ -36,6 +37,43 @@ test("evaluateExternalReleaseStatus passes when npm, release, and secrets are re
   assert.deepEqual(report.checks.map((check) => check.status), ["passed", "passed", "passed", "passed"]);
   assert.match(summary, /PASS npm authentication/);
   assert.match(summary, /External release status passed/);
+});
+
+test("derivePackageDefaults derives release coordinates from package metadata", () => {
+  assert.deepEqual(
+    derivePackageDefaults({
+      name: "frontend-flow",
+      version: "2.3.4",
+      repository: {
+        type: "git",
+        url: "git+https://github.com/acme/frontend-flow.git"
+      }
+    }),
+    {
+      packageName: "frontend-flow",
+      releaseTag: "v2.3.4",
+      repository: "acme/frontend-flow"
+    }
+  );
+
+  assert.deepEqual(
+    derivePackageDefaults({
+      name: "ssh-flow",
+      version: "0.9.0",
+      repository: "git@github.com:acme/ssh-flow.git"
+    }),
+    {
+      packageName: "ssh-flow",
+      releaseTag: "v0.9.0",
+      repository: "acme/ssh-flow"
+    }
+  );
+
+  assert.deepEqual(derivePackageDefaults({}), {
+    packageName: "dev-flow-ai",
+    releaseTag: "v0.1.0",
+    repository: "WangXueZhi/dev-flow-ai"
+  });
 });
 
 test("evaluateExternalReleaseStatus reports publish blockers without exposing secrets", () => {
