@@ -182,6 +182,17 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "ui-state" && unit.title.includes("Empty state")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "requirement" && unit.title.includes("filter orders")));
   assert.ok(taskPlan.implementationUnits.some((unit) => unit.kind === "constraint" && unit.title.includes("existing table")));
+  const routeUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "frontend-route");
+  const componentUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "frontend-component");
+  const dataUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "frontend-data");
+  const apiEndpointUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "api-endpoint");
+  const apiModelUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "api-model");
+  const apiErrorUnit = taskPlan.implementationUnits.find((unit) => unit.kind === "api-error");
+  assert.ok(dataUnit?.dependsOn?.includes(apiEndpointUnit?.id ?? ""));
+  assert.ok(dataUnit?.dependsOn?.includes(apiModelUnit?.id ?? ""));
+  assert.ok(apiErrorUnit?.dependsOn?.includes(apiEndpointUnit?.id ?? ""));
+  assert.ok(routeUnit?.dependsOn?.includes(componentUnit?.id ?? ""));
+  assert.ok(routeUnit?.dependsOn?.includes(dataUnit?.id ?? ""));
   assert.equal(taskPlan.implementationUnits.filter((unit) => unit.title === "Use existing table components.").length, 1);
   assert.equal(
     taskPlan.implementationUnits.filter((unit) => unit.title === "As an operator, I want to filter orders by status so that I can focus the queue.").length,
@@ -209,6 +220,7 @@ test("createTaskPlan generates executable delivery phases", () => {
   assert.match(markdown, /\[frontend-state\] Empty state shows a helpful recovery message/);
   assert.match(markdown, /GET \/orders/);
   assert.match(markdown, /Parameters: query status \(optional, default open\)/);
+  assert.match(markdown, /Depends on: U/);
   assert.match(markdown, /Review checklist/);
   assert.match(markdown, /Request parameters, auth, loading, empty, error, and success states are handled/);
   assert.match(markdown, /Token is applied through the project's styling or theme system/);

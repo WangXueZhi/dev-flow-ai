@@ -23,7 +23,7 @@
 - Risk scoring for ambiguous requirements.
 - Expanded stack detection from package manager metadata, nested source directories, and common frontend framework/tool config files.
 - Task plan generation.
-- Type-specific implementation unit review checklists in task artifacts and focused dry-run proposals.
+- Implementation unit dependency hints and type-specific review checklists in task artifacts and focused dry-run proposals.
 - Dry-run patch proposal generation.
 - Dry-run proposal UI checklist and delivery risk surfacing.
 - Initial stack-specific target profiles for dry-run and patch-set prompts.

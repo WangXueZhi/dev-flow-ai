@@ -213,6 +213,7 @@ ${proposal.guardrails.map((guardrail) => `- ${guardrail}`).join("\n")}
 
 function formatTargetUnit(unit: ImplementationUnit): string {
   const details = unit.details.map((detail) => `- ${detail}`);
+  const dependsOn = unit.dependsOn?.length ? [`- Depends on: ${unit.dependsOn.join(", ")}`] : [];
   const reviewChecklist = unit.reviewChecklist?.length
     ? ["- Review checklist:", ...unit.reviewChecklist.map((item) => `  - ${item}`)]
     : [];
@@ -220,6 +221,7 @@ function formatTargetUnit(unit: ImplementationUnit): string {
   return [
     `- ${unit.id} [${unit.kind}] ${unit.title}`,
     `- Source: \`${unit.source}\``,
+    ...dependsOn,
     ...details,
     ...reviewChecklist
   ].join("\n");

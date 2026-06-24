@@ -78,7 +78,7 @@ DevFlow writes:
 
 These artifacts are meant for humans and AI coding agents. Review them before asking DevFlow to propose or apply source changes.
 
-The implementation plan includes a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections. Use those sections as a review checklist before source-changing execution. The generated task files also include type-specific review checklists on implementation units so focused `--unit` dry-runs carry their own handoff checks.
+The implementation plan includes a `Frontend Delivery Blueprint` with routes/navigation, components, state/interaction, data/API integration, styling/responsive rules, test plan, and accessibility sections. Use those sections as a review checklist before source-changing execution. The generated task files also include dependency hints and type-specific review checklists on implementation units so focused `--unit` dry-runs carry their own ordering and handoff checks.
 
 If an AI provider or fixture accidentally returns patch-set JSON during planning, DevFlow falls back to the local planner rather than writing JSON into `implementation-plan.md`. If a provider plan omits the blueprint, DevFlow appends a generated blueprint so reviewers still get the same planning checklist.
 

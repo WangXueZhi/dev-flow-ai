@@ -32,6 +32,7 @@ export interface ImplementationUnit {
   title: string;
   source: string;
   details: string[];
+  dependsOn?: string[];
   reviewChecklist?: string[];
 }
 
@@ -419,7 +420,7 @@ function createImplementationUnits(brief: ProjectBrief): ImplementationUnit[] {
     });
   }
 
-  return units.map(addReviewChecklist);
+  return addUnitDependencies(units.map(addReviewChecklist));
 }
 
 function formatFrontendTargetSource(brief: ProjectBrief, target: FrontendTargetItem): string {
@@ -435,6 +436,79 @@ function addReviewChecklist(unit: ImplementationUnit): ImplementationUnit {
   ]);
 
   return reviewChecklist.length ? { ...unit, reviewChecklist } : unit;
+}
+
+function addUnitDependencies(units: ImplementationUnit[]): ImplementationUnit[] {
+  const ids = {
+    apiAuth: unitIdsByKind(units, ["api-auth"]),
+    apiEndpoint: unitIdsByKind(units, ["api-endpoint"]),
+    apiError: unitIdsByKind(units, ["api-error"]),
+    apiModel: unitIdsByKind(units, ["api-model"]),
+    designAsset: unitIdsByKind(units, ["design-asset"]),
+    designToken: unitIdsByKind(units, ["design-token"]),
+    frontendComponent: unitIdsByKind(units, ["frontend-component"]),
+    frontendData: unitIdsByKind(units, ["frontend-data"]),
+    frontendState: unitIdsByKind(units, ["frontend-state"]),
+    uiState: unitIdsByKind(units, ["ui-state"])
+  };
+
+  return units.map((unit) => {
+    const dependsOn = unique([
+      ...(unit.dependsOn ?? []),
+      ...dependencyIdsForUnit(unit, ids)
+    ]).filter((id) => id !== unit.id);
+
+    return dependsOn.length ? { ...unit, dependsOn } : unit;
+  });
+}
+
+function unitIdsByKind(units: ImplementationUnit[], kinds: ImplementationUnit["kind"][]): string[] {
+  const kindSet = new Set(kinds);
+
+  return units.filter((unit) => kindSet.has(unit.kind)).map((unit) => unit.id);
+}
+
+function dependencyIdsForUnit(
+  unit: ImplementationUnit,
+  ids: {
+    apiAuth: string[];
+    apiEndpoint: string[];
+    apiError: string[];
+    apiModel: string[];
+    designAsset: string[];
+    designToken: string[];
+    frontendComponent: string[];
+    frontendData: string[];
+    frontendState: string[];
+    uiState: string[];
+  }
+): string[] {
+  switch (unit.kind) {
+    case "api-endpoint":
+      return [...ids.apiAuth, ...ids.apiModel].slice(0, 6);
+    case "api-error":
+      return [...ids.apiEndpoint, ...ids.apiModel].slice(0, 6);
+    case "frontend-data":
+      return [...ids.apiEndpoint, ...ids.apiModel, ...ids.apiAuth, ...ids.apiError].slice(0, 8);
+    case "frontend-state":
+      return [...ids.frontendData, ...ids.uiState, ...ids.apiError].slice(0, 8);
+    case "frontend-component":
+      return [...ids.frontendData, ...ids.uiState, ...ids.designAsset, ...ids.designToken].slice(0, 8);
+    case "frontend-route":
+      return [...ids.frontendComponent, ...ids.frontendData, ...ids.frontendState, ...ids.designToken].slice(0, 8);
+    case "ui":
+      return [...ids.uiState, ...ids.designAsset, ...ids.designToken].slice(0, 6);
+    case "ui-state":
+      return ids.apiError.slice(0, 4);
+    case "design-asset":
+      return ids.designToken.slice(0, 4);
+    case "requirement":
+    case "constraint":
+    case "design-token":
+    case "api-model":
+    case "api-auth":
+      return [];
+  }
 }
 
 function reviewChecklistForUnit(unit: ImplementationUnit): string[] {
@@ -580,11 +654,12 @@ function formatImplementationUnits(units: ImplementationUnit[]): string {
 
   return units.map((unit) => {
     const details = unit.details.map((detail) => `  - ${detail}`).join("\n");
+    const dependsOn = unit.dependsOn?.length ? `\n  - Depends on: ${unit.dependsOn.join(", ")}` : "";
     const reviewChecklist = unit.reviewChecklist?.length
       ? `\n  - Review checklist:\n${unit.reviewChecklist.map((item) => `    - ${item}`).join("\n")}`
       : "";
 
-    return `- ${unit.id} [${unit.kind}] ${unit.title}\n  - Source: \`${unit.source}\`\n${details}${reviewChecklist}`;
+    return `- ${unit.id} [${unit.kind}] ${unit.title}\n  - Source: \`${unit.source}\`${dependsOn}\n${details}${reviewChecklist}`;
   }).join("\n");
 }
 
